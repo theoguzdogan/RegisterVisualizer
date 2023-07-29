@@ -1,0 +1,20 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qml/main.qml</file>
+        <file>qml/register.qml</file>
+        <file>qml/field.qml</file>
+        <file>qml/module.qml</file>
+        <file>qml/confRWCombo.qml</file>
+        <file>qml/confRWText.qml</file>
+        <file>qml/confR.qml</file>
+        <file>qml/confWCombo.qml</file>
+        <file>qml/confWText.qml</file>
+        <file>qml/registerTab.qml</file>
+        <file>qml/pinButton.qml</file>
+        <file>assets/push-pin-fill.svg</file>
+        <file>assets/push-pin-bold.svg</file>
+        <file>assets/close-filled.svg</file>
+        <file>assets/logo_37x50.svg</file>
+        <file>assets/warning.svg</file>
+    </qresource>
+</RCC>
