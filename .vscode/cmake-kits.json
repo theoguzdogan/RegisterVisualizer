@@ -1,0 +1,23 @@
+[
+    {
+        "name": "Qt MSYS Kit",
+        "compilers": {
+            "CC": "C:/msys64/mingw64/bin/gcc.exe",
+            "CXX": "C:/msys64/mingw64/bin/g++.exe"
+        },
+        "preferredGenerator": {
+            "name": "MinGW Makefiles"
+          },
+          "environmentVariables": {
+            "CMT_MINGW_PATH": "C:/msys64/mingw64/bin/",
+            "CMAKE_MAKE_PROGRAM": "C:/msys64/mingw64/bin/mingw32-make.exe"
+          }
+    },
+    {
+      "name": "Qt Linux Kit",
+      "compilers": {
+          "CC": "/usr/bin/gcc",
+          "CXX": "/usr/bin/g++"
+      }
+    }
+]
