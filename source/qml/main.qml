@@ -398,9 +398,7 @@ Window {
         anchors.left: registerScrollView.right
         anchors.right: parent.right
         anchors.bottom: pinBoard.top
-        anchors.leftMargin: 4
-        anchors.bottomMargin: 4
-        anchors.topMargin: 4
+        anchors.margins: 4
         height: 40
         width: parent.width
 //        color: "#4d4d63"
@@ -426,9 +424,7 @@ Window {
         anchors.left: registerScrollView.right
         anchors.right: parent.right
         anchors.bottom: pinBoard.top
-        anchors.leftMargin: 4
-        anchors.bottomMargin: 4
-        anchors.topMargin: 4
+        anchors.margins: 4
         height: 40
         width: parent.width
         color: "#4d4d63"
@@ -695,9 +691,7 @@ Window {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
-        anchors.leftMargin: 4
-        anchors.bottomMargin: 4
-        anchors.topMargin: 4
+        anchors.margins: 4
         height: 73
         width: parent.width
         color: "#4d4d63"
