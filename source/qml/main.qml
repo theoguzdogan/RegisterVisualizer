@@ -803,6 +803,7 @@ Window {
         }
 
         checkSelectedRegisterTabAlias()
+        checkSelectedModule()
     }
 
     function createConfScreen(fieldId) {
@@ -874,6 +875,12 @@ Window {
         clearFields()
         clearConf()
         createRegisterButtons(moduleId)
+        checkSelectedRegisterTabAlias()
+    }
+
+    function checkSelectedModule() {
+        var modId = backend.returnGlobalModuleId();
+        console.log("CHECK:" + modId)
     }
     //MODULE(FILE) BUTTONS END
 
@@ -978,6 +985,8 @@ Window {
         }
         return i
     }
+
+
 
     //REGISTER BUTTONS END
 
