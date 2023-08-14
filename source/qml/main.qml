@@ -118,38 +118,74 @@ Window {
     Row {
         id: confBar
         width: parent.width
-        height: 50
+        height: 55
         anchors.left: parent.left
         anchors.leftMargin: 20
         anchors.top: parent.top
-        anchors.topMargin: 17
+        anchors.topMargin: 10
         anchors.right: parent.right
         anchors.rightMargin: 20
         spacing: 10
 
-        Label {
+//        Label {
+//            id: mainHeader
+//            anchors.left: parent.left
+//            anchors.verticalCenter: parent.verticalCenter
+//            color: "#ffffff"
+//            text: targetName + " Registers"
+//            font.pixelSize: 30
+//            font.family: "Segoe UI"
+//            background: Rectangle {
+//                border.color: "#ffffff"
+//                border.width: 1
+//                color: 'transparent'
+//                radius: 10
+
+//            }
+//        }
+
+        Rectangle {
+            border.color: "#ffffff"
+            border.width: 1
+            radius: 10
             id: mainHeader
-            
-            color: "#ffffff"
-            text: targetName + " Registers"
-            font.pixelSize: 30
-            font.family: "Segoe UI"
+            anchors.left: parent.left
+            anchors.verticalCenter: parent.verticalCenter
+            width: headerText.width +16
+            height: headerText.height +10
+            color: "#4d4d63"
+
+
+            Text {
+                color: "#ffffff"
+                text: targetName + " Registers"
+                font.pixelSize: 30
+                font.family: "Segoe UI"
+                id: headerText
+                anchors.centerIn: parent
+            }
+
         }
 
         Text {
             text: "Reference Configurations"
-            leftPadding: rootObject.width - mainHeader.width - configComboBox.width - refreshButton.width - saveAllButton.width - 6*confBar.spacing - 180
-            topPadding: 11
-            rightPadding: 10
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
             font.pointSize: 11
             color: "#FFFFFF"
+            anchors.right: configComboBox.left
+            anchors.rightMargin: 10
+            anchors.verticalCenter: parent.verticalCenter
         }
 
         ComboBox {
             id: configComboBox
             editable: true
+            anchors.right: refreshButton.left
+            anchors.rightMargin: 10
+            anchors.verticalCenter: parent.verticalCenter
+            width: 200
+            height: 35
 
             model: ListModel {
                 id: configContent
@@ -189,6 +225,10 @@ Window {
             text: "Refresh"
             width: 90
             height: 30
+            anchors.right: saveAllButton.left
+            anchors.rightMargin: 10
+            anchors.verticalCenter: parent.verticalCenter
+
 
             background: Rectangle {
                 color: "#4891d9"
@@ -215,6 +255,9 @@ Window {
             text: "Save All"
             width: 90
             height: 30
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
+
             background: Rectangle {
                 color: "#4891d9"
                 radius: 10
@@ -242,6 +285,7 @@ Window {
         width: parent.width
         anchors.left: parent.left
         anchors.top: confBar.bottom
+        anchors.topMargin: 15
         anchors.right: parent.right
         anchors.margins: 4
         spacing: 4
@@ -354,9 +398,7 @@ Window {
         anchors.left: registerScrollView.right
         anchors.right: parent.right
         anchors.bottom: pinBoard.top
-        anchors.leftMargin: 4
-        anchors.bottomMargin: 4
-        anchors.topMargin: 4
+        anchors.margins: 4
         height: 40
         width: parent.width
 //        color: "#4d4d63"
@@ -382,9 +424,7 @@ Window {
         anchors.left: registerScrollView.right
         anchors.right: parent.right
         anchors.bottom: pinBoard.top
-        anchors.leftMargin: 4
-        anchors.bottomMargin: 4
-        anchors.topMargin: 4
+        anchors.margins: 4
         height: 40
         width: parent.width
         color: "#4d4d63"
@@ -651,9 +691,7 @@ Window {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
-        anchors.leftMargin: 4
-        anchors.bottomMargin: 4
-        anchors.topMargin: 4
+        anchors.margins: 4
         height: 73
         width: parent.width
         color: "#4d4d63"

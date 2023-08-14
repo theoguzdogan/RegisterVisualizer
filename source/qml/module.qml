@@ -46,7 +46,7 @@ Button {
 
     Image {
         source: "../../../assets/warning.svg"
-        width: rootObject.width / 6 / 8
+        width: 23
         anchors.right: parent.right
         anchors.rightMargin: 5
         height: 25
