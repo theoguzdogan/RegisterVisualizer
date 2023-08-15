@@ -22,6 +22,7 @@ Window {
 
     Component.onCompleted: {
         backend.setDefaultConfigId("default.yaml")
+        Promise.resolve().then(refresh)
     }
 
     AbstractDialog {
@@ -792,6 +793,7 @@ Window {
     function refresh() {
         createPinButtons()
         createModuleButtons()
+//        Promise.resolve().then(checkSelectedModule)
         if (!registerPlaceHolder.visible) {
             createRegisterButtons(backend.returnGlobalModuleId())
             if (!fieldPlaceHolder.visible) {
@@ -803,7 +805,6 @@ Window {
         }
 
         checkSelectedRegisterTabAlias()
-        checkSelectedModule()
     }
 
     function createConfScreen(fieldId) {
@@ -868,6 +869,7 @@ Window {
                           });
             moduleItem.moduleClicked.connect(moduleButtonClicked)
         }
+        Promise.resolve().then(checkSelectedModule)
     }
 
     function moduleButtonClicked(moduleId) {
@@ -876,11 +878,14 @@ Window {
         clearConf()
         createRegisterButtons(moduleId)
         checkSelectedRegisterTabAlias()
+        checkSelectedModule()
     }
 
     function checkSelectedModule() {
-        var modId = backend.returnGlobalModuleId();
-        console.log("CHECK:" + modId)
+        for (var i=0; i<moduleColumn.children.length; i++){
+            moduleColumn.children[i].changeBorderToNormalState();
+        }
+        moduleColumn.children[backend.returnGlobalModuleId()].changeBorderToSelectedState();
     }
     //MODULE(FILE) BUTTONS END
 
@@ -901,6 +906,7 @@ Window {
             registerItem.registerClicked.connect(registerButtonClicked)
         }
         registerPlaceHolder.visible = false
+        Promise.resolve().then(checkSelectedRegister)
     }
 
     function registerButtonClicked(registerId) {
@@ -909,6 +915,7 @@ Window {
         createFieldButtons(registerId)
         createRegisterTabAlias(registerId)
         updateRegisterTextBox()
+        checkSelectedRegister()
     }
 
     function updateRegisterTextBox() {
@@ -986,6 +993,13 @@ Window {
         return i
     }
 
+    function checkSelectedRegister() {
+        for (var i=0; i<registerColumn.children.length; i++){
+            registerColumn.children[i].changeBorderToNormalState();
+        }
+        registerColumn.children[backend.returnGlobalRegId()].changeBorderToSelectedState();
+    }
+
 
 
     //REGISTER BUTTONS END
@@ -1006,11 +1020,20 @@ Window {
             fieldItem.fieldClicked.connect(fieldButtonClicked)
         }
         fieldPlaceHolder.visible = false
+        Promise.resolve().then(checkSelectedField)
     }
 
     function fieldButtonClicked(fieldId) {
         clearConf()
         createConfScreen(fieldId)
+        checkSelectedField()
+    }
+
+    function checkSelectedField() {
+        for (var i=0; i<fieldColumn.children.length; i++){
+            fieldColumn.children[i].changeBorderToNormalState();
+        }
+        fieldColumn.children[backend.returnGlobalFieldId()].changeBorderToSelectedState();
     }
     //FIELD BUTTONS END
 

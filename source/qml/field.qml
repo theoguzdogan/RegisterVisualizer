@@ -45,19 +45,21 @@ Button {
 
     Button {
         anchors.left: parent.left
+        anchors.leftMargin: 2
+        anchors.verticalCenter: parent.verticalCenter
 
         background: Rectangle{
             color: "#4891d9"
             radius: 10
         }
 
-        height: parent.height
-        width: parent.height
+        height: parent.height-4
+        width: parent.height-4
 
         Image {
             id: pinButtonImage
-            width: parent.width-13
-            height: parent.height-13
+            width: parent.width-9
+            height: parent.height-9
             anchors.centerIn: parent
         }
 
@@ -103,5 +105,13 @@ Button {
                 pinButtonImage.source = "../../../assets/push-pin-bold.svg"
             }
         }
+    }
+
+    function changeBorderToSelectedState(){
+        fieldButtonBackground.border.color = "#FFFFFF"
+        fieldButtonBackground.border.width = 2
+    }
+    function changeBorderToNormalState(){
+        fieldButtonBackground.border.width = 0
     }
 }
