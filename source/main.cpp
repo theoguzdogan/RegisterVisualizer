@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
 
     app.setOrganizationName("Turkish Aerospace");
     app.setOrganizationDomain("Space Systems"); 
-    app.setWindowIcon(QIcon(":/assets/logo_37x50.svg"));
+    app.setWindowIcon(QIcon(":/assets/tai_logo_color.svg"));
 
     QQmlApplicationEngine engine;
     Backend backend;
