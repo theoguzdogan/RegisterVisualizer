@@ -13,21 +13,16 @@ Button {
 
     width: rootObject.width / 6
 
+    palette.buttonText: "white"
+
     background: Rectangle {
         id: fieldButtonBackground
-        color: "#4891d9"
         radius: 10
-    }
 
-    onPressed: background.color = "#a3bed0"
-    onReleased: { background.color = "#4891d9"
-        if (hovered) {background.color = "#74a8db"}
-        else {background.color = "#4891d9"}
-    }
-
-    onHoveredChanged: {
-        if (hovered) {background.color = "#74a8db"}
-        else {background.color = "#4891d9"}
+        gradient: Gradient {
+            GradientStop { position: 0.0; color: pressed ? "#9ecbf7" : (hovered ? "#52a7fa" : "#4891d9") }
+            GradientStop { position: 1.0; color: pressed ? "#81bdf7" : (hovered ? "#81bffc" : "#2358a3") }
+        }
     }
 
     onClicked: {
@@ -49,7 +44,7 @@ Button {
         anchors.verticalCenter: parent.verticalCenter
 
         background: Rectangle{
-            color: "#4891d9"
+            color: "transparent"
             radius: 10
         }
 
@@ -63,37 +58,31 @@ Button {
             anchors.centerIn: parent
         }
 
-        onPressed: background.color = "#a3bed0"
-        onReleased: { background.color = "#4891d9"
-            if (hovered) {background.color = "#74a8db"}
-            else {background.color = "#4891d9"}
-        }
-
-        onHoveredChanged: {
-            if (hovered) {
-                background.color = "#74a8db"
-                fieldButtonBackground.color = "#4891d9"
-            }
-            else {
-                background.color = "#4891d9"
-                if (parent.hovered) {
-                    fieldButtonBackground.color = "#74a8db"
-                }
-            }
-        }
-
         onClicked: {
-            console.log("small but 2 pressed")
             if (backend.findPinConfig("field", fieldId) !== -1) {
                 backend.removeFromPinConfig("field", fieldId);
-                pinButtonImage.source = "../../../assets/push-pin-fill.svg"
+                Promise.resolve().then(()=>{
+                    if (backend.findPinConfig("field", fieldId) !== -1) {
+                       pinButtonImage.source = "../../../assets/push-pin-fill.svg"
+                    }
+                    else {
+                       pinButtonImage.source = "../../../assets/push-pin-bold.svg"
+                    }
+                })
             }
             else {
                 backend.addToPinConfig("field", fieldId);
-                pinButtonImage.source = "../../../assets/push-pin-bold.svg"
+                Promise.resolve().then(()=>{
+                    if (backend.findPinConfig("field", fieldId) !== -1) {
+                       pinButtonImage.source = "../../../assets/push-pin-fill.svg"
+                    }
+                    else {
+                       pinButtonImage.source = "../../../assets/push-pin-bold.svg"
+                    }
+                })
             }
 
-            createFieldButtons(backend.returnGlobalRegId())
+//            createFieldButtons(backend.returnGlobalRegId())
             createPinButtons()
         }
 

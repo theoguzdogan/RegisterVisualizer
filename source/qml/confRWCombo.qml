@@ -110,22 +110,20 @@ Rectangle {
         }
 
         Button {
+            id: setButton
             text: "Set"
             width: (parentRectangle.width - 36)/7
             height: 30
-            background: Rectangle {
-                color: "#4891d9"
-                radius: 10
-            }
-            onPressed: background.color = "#a3bed0"
-            onReleased: { background.color = "#4891d9"
-                if (hovered) {background.color = "#74a8db"}
-                else {background.color = "#4891d9"}
-            }
 
-            onHoveredChanged: {
-                if (hovered) {background.color = "#74a8db"}
-                else {background.color = "#4891d9"}
+            palette.buttonText: "white"
+
+            background: Rectangle {
+                radius: 10
+
+                gradient: Gradient {
+                    GradientStop { position: 0.0; color: setButton.pressed ? "#9ecbf7" : (setButton.hovered ? "#52a7fa" : "#4891d9") }
+                    GradientStop { position: 1.0; color: setButton.pressed ? "#81bdf7" : (setButton.hovered ? "#81bffc" : "#2358a3") }
+                }
             }
 
             onClicked: {
@@ -147,22 +145,20 @@ Rectangle {
             }
         }
         Button {
+            id: resetButton
             text: "Reset"
             width: (parentRectangle.width - 36)/7
             height: 30
-            background: Rectangle {
-                color: "#4891d9"
-                radius: 10
-            }
-            onPressed: background.color = "#a3bed0"
-            onReleased: { background.color = "#4891d9"
-                if (hovered) {background.color = "#74a8db"}
-                else {background.color = "#4891d9"}
-            }
 
-            onHoveredChanged: {
-                if (hovered) {background.color = "#74a8db"}
-                else {background.color = "#4891d9"}
+            palette.buttonText: "white"
+
+            background: Rectangle {
+                radius: 10
+
+                gradient: Gradient {
+                    GradientStop { position: 0.0; color: resetButton.pressed ? "#9ecbf7" : (resetButton.hovered ? "#52a7fa" : "#4891d9") }
+                    GradientStop { position: 1.0; color: resetButton.pressed ? "#81bdf7" : (resetButton.hovered ? "#81bffc" : "#2358a3") }
+                }
             }
             onClicked: {
 //                desiredValue = parseInt(resetValue, 16)
@@ -177,48 +173,7 @@ Rectangle {
             }
         }
 
-        Button {
-            text: "Override Config"
-            width: (parentRectangle.width - 36)/5
-            height: 30
-            background: Rectangle {
-                color: "#4891d9"
-                radius: 10
-            }
-            onPressed: background.color = "#a3bed0"
-            onReleased: { background.color = "#4891d9"
-                if (hovered) {background.color = "#74a8db"}
-                else {background.color = "#4891d9"}
-            }
 
-            onHoveredChanged: {
-                if (hovered) {background.color = "#74a8db"}
-                else {background.color = "#4891d9"}
-            }
-            onClicked: {
-//                backend.saveConfig(currentValue, 16)
-//                checkConfCurrent()
-                createPinButtons()
-                createModuleButtons()
-                createRegisterButtons(backend.returnGlobalModuleId())
-                createFieldButtons(backend.returnGlobalRegId())
-
-//TEST DRIVER BUTTON
-//                backend.checkAllConfigValues2(-1)
-//                console.log("CHECKING FOR DENEME MODULE:")
-//                console.log(backend.checkAllConfigValues2(0, "DENEME"))
-//                console.log("CHECKING FOR DENEME1 MODULE:")
-//                console.log(backend.checkAllConfigValues2(0, "DENEME1"))
-//                console.log("CHECKING FOR DENEMEREG REGISTER:")
-//                console.log(backend.checkAllConfigValues2(1, "DENEME.DENEMEREG"))
-//                console.log("CHECKING FOR DENEMEREG1 REGISTER:")
-//                console.log(backend.checkAllConfigValues2(1, "DENEME1.DENEMEREG1"))
-//                console.log("CHECKING FOR RWCOMBO FIELD:")
-//                console.log(backend.checkAllConfigValues2(2, "DENEME.DENEMEREG.RWCOMBO"))
-//                console.log("CHECKING FOR RWCOMBO1 FIELD:")
-//                console.log(backend.checkAllConfigValues2(2, "DENEME1.DENEMEREG1.RWCOMBO1"))
-            }
-        }
     }
 
     Row {

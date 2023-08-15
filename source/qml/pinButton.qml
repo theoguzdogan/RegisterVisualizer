@@ -17,21 +17,16 @@ Button {
 
     width: rootObject.width / 6
 
+    palette.buttonText: "white"
+
     background: Rectangle {
-        id: pinButtonBackground
-        color: "#4891d9"
+        id: pinButtonBackgrond
         radius: 10
-    }
 
-    onPressed: background.color = "#a3bed0"
-    onReleased: { background.color = "#4891d9"
-        if (hovered) {background.color = "#74a8db"}
-        else {background.color = "#4891d9"}
-    }
-
-    onHoveredChanged: {
-        if (hovered) {background.color = "#74a8db"}
-        else {background.color = "#4891d9"}
+        gradient: Gradient {
+            GradientStop { position: 0.0; color: pressed ? "#9ecbf7" : (hovered ? "#52a7fa" : "#4891d9") }
+            GradientStop { position: 1.0; color: pressed ? "#81bdf7" : (hovered ? "#81bffc" : "#2358a3") }
+        }
     }
 
     onClicked: {
@@ -84,7 +79,7 @@ Button {
         anchors.left: parent.left
 
         background: Rectangle{
-            color: "#4891d9"
+            color: "transparent"
             radius: 10
         }
 
@@ -96,25 +91,6 @@ Button {
             width: parent.width-13
             height: parent.height-13
             anchors.centerIn: parent
-        }
-
-        onPressed: background.color = "#a3bed0"
-        onReleased: { background.color = "#4891d9"
-            if (hovered) {background.color = "#74a8db"}
-            else {background.color = "#4891d9"}
-        }
-
-        onHoveredChanged: {
-            if (hovered) {
-                background.color = "#74a8db"
-                pinButtonBackground.color = "#4891d9"
-            }
-            else {
-                background.color = "#4891d9"
-                if (parent.hovered) {
-                    pinButtonBackground.color = "#74a8db"
-                }
-            }
         }
 
         onClicked: {
