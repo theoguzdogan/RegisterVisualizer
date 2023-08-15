@@ -395,14 +395,135 @@ Window {
     }
 
     Rectangle {
+        id: selectedUnitViewer
+        anchors.left: registerScrollView.right
+        anchors.right: parent.right
+        anchors.bottom: registerDataView.top
+        anchors.margins: 4
+        height: 40
+        color: "#4d4d63"
+        radius: 10
+        border.color: "#8f8fa8"
+        Rectangle {
+            id: moduleUnit
+            height: 40
+            width: parent.width/3
+            radius: 10
+//            border.color: "white"
+            color: "transparent"
+            anchors.left: parent.left
+            Text {
+                id: moduleUnitHeader
+                text: "Module:"
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                color: "white"
+                anchors.left: parent.left
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.leftMargin: 6
+            }
+            Rectangle {
+                id: moduleUnitIndicator
+                height: 30
+                anchors.left: moduleUnitHeader.right
+                anchors.leftMargin: 6
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                radius: 10
+                border.color: "white"
+                color: "transparent"
+                Text {
+                    id: moduleUnitIndicatorText
+                    color: "white"
+                    verticalAlignment: Text.AlignVCenter
+                    horizontalAlignment: Text.AlignHCenter
+                    anchors.centerIn: parent
+                }
+            }
+        }
+        Rectangle {
+            id: registerUnit
+            height: 40
+            width: parent.width/3
+            radius: 10
+//            border.color: "white"
+            color: "transparent"
+            anchors.horizontalCenter: parent.horizontalCenter
+            Text {
+                id: registerUnitHeader
+                text: "Register:"
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                color: "white"
+                anchors.left: parent.left
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.leftMargin: 6
+            }
+            Rectangle {
+                id: registerUnitIndicator
+                height: 30
+                anchors.left: registerUnitHeader.right
+                anchors.leftMargin: 6
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                radius: 10
+                border.color: "white"
+                color: "transparent"
+                Text {
+                    id: registerUnitIndicatorText
+                    color: "white"
+                    verticalAlignment: Text.AlignVCenter
+                    horizontalAlignment: Text.AlignHCenter
+                    anchors.centerIn: parent
+                }
+            }
+        }
+        Rectangle {
+            id: fieldUnit
+            height: 40
+            width: parent.width/3
+            radius: 10
+//            border.color: "white"
+            color: "transparent"
+            anchors.right: parent.right
+            Text {
+                id: fieldUnitHeader
+                text: "Field:"
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                color: "white"
+                anchors.left: parent.left
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.leftMargin: 6
+            }
+            Rectangle {
+                id: fieldUnitIndicator
+                height: 30
+                anchors.left: fieldUnitHeader.right
+                anchors.leftMargin: 6
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                radius: 10
+                border.color: "white"
+                color: "transparent"
+                Text {
+                    id: fieldUnitIndicatorText
+                    color: "white"
+                    verticalAlignment: Text.AlignVCenter
+                    horizontalAlignment: Text.AlignHCenter
+                    anchors.centerIn: parent
+                }
+            }
+        }
+    }
+
+    Rectangle {
         id: registerDataViewPlaceHolder
         anchors.left: registerScrollView.right
         anchors.right: parent.right
         anchors.bottom: pinBoard.top
         anchors.margins: 4
         height: 40
-        width: parent.width
-//        color: "#4d4d63"
         color: "grey"
         radius: 10
         z: 1
@@ -427,7 +548,6 @@ Window {
         anchors.bottom: pinBoard.top
         anchors.margins: 4
         height: 40
-        width: parent.width
         color: "#4d4d63"
         radius: 10
         border.color: "#8f8fa8"
@@ -564,7 +684,7 @@ Window {
     ScrollView {
         id: fieldScrollView
         anchors.left: registerScrollView.right
-        anchors.bottom: registerDataView.top
+        anchors.bottom: selectedUnitViewer.top
         anchors.top: topBar.bottom
         anchors.leftMargin: 4
         anchors.bottomMargin: 4
@@ -610,7 +730,7 @@ Window {
     Rectangle {
         id: fieldPlaceHolder
         anchors.left: registerScrollView.right
-        anchors.bottom: registerDataView.top
+        anchors.bottom: selectedUnitViewer.top
         anchors.top: topBar.bottom
         anchors.leftMargin: 4
         anchors.bottomMargin: 4
@@ -646,7 +766,7 @@ Window {
     ScrollView {
         id: confScrollView
         anchors.left: fieldScrollView.right
-        anchors.bottom: registerDataView.top
+        anchors.bottom: selectedUnitViewer.top
         anchors.top: topBar.bottom
         anchors.leftMargin: 4
         anchors.bottomMargin: 4
@@ -664,7 +784,7 @@ Window {
     Rectangle {
         id: confPlaceHolder
         anchors.left: fieldScrollView.right
-        anchors.bottom: registerDataView.top
+        anchors.bottom: selectedUnitViewer.top
         anchors.top: topBar.bottom
         anchors.leftMargin: 4
         anchors.bottomMargin: 4
@@ -874,6 +994,7 @@ Window {
 
     function moduleButtonClicked(moduleId) {
         backend.setGlobalRegId(-1)
+        backend.setGlobalFieldId(-1)
         clearFields()
         clearConf()
         createRegisterButtons(moduleId)
@@ -885,7 +1006,17 @@ Window {
         for (var i=0; i<moduleColumn.children.length; i++){
             moduleColumn.children[i].changeBorderToNormalState();
         }
-        moduleColumn.children[backend.returnGlobalModuleId()].changeBorderToSelectedState();
+        var moduleId = backend.returnGlobalModuleId()
+        Promise.resolve().then(() => {
+            if (moduleId === -1){
+                moduleUnitIndicatorText.text = ""
+            }
+            else {
+                moduleColumn.children[moduleId].changeBorderToSelectedState();
+                moduleUnitIndicatorText.text = backend.getFileList()[moduleId].split(".")[0]
+            }
+        })
+        Promise.resolve().then(checkSelectedField)
     }
     //MODULE(FILE) BUTTONS END
 
@@ -997,7 +1128,16 @@ Window {
         for (var i=0; i<registerColumn.children.length; i++){
             registerColumn.children[i].changeBorderToNormalState();
         }
-        registerColumn.children[backend.returnGlobalRegId()].changeBorderToSelectedState();
+        var regId = backend.returnGlobalRegId()
+        Promise.resolve().then(() => {
+            if (parseInt(regId) === -1){
+                registerUnitIndicatorText.text = ""
+            }
+            else {
+                registerColumn.children[regId].changeBorderToSelectedState();
+                registerUnitIndicatorText.text = backend.getRegisterList()[regId].split(".")[0]
+            }
+        })
     }
 
 
@@ -1033,7 +1173,18 @@ Window {
         for (var i=0; i<fieldColumn.children.length; i++){
             fieldColumn.children[i].changeBorderToNormalState();
         }
-        fieldColumn.children[backend.returnGlobalFieldId()].changeBorderToSelectedState();
+        var fieldId = backend.returnGlobalFieldId()
+        console.log(fieldId)
+        Promise.resolve().then(() => {
+            if (parseInt(fieldId) === -1){
+               fieldUnitIndicatorText.text = ""
+            }
+            else {
+               fieldColumn.children[fieldId].changeBorderToSelectedState();
+               fieldUnitIndicatorText.text = backend.getFieldList(backend.returnGlobalRegId())[fieldId].split(".")[0]
+            }
+        })
+
     }
     //FIELD BUTTONS END
 
