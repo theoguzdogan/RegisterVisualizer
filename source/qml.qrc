@@ -14,7 +14,8 @@
         <file>assets/push-pin-fill.svg</file>
         <file>assets/push-pin-bold.svg</file>
         <file>assets/close-filled.svg</file>
-        <file>assets/logo_37x50.svg</file>
         <file>assets/warning.svg</file>
+        <file>assets/tai_logo_white.svg</file>
+        <file>assets/tai_logo_color.svg</file>
     </qresource>
 </RCC>

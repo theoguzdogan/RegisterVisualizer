@@ -12,20 +12,17 @@ Button {
 
     width: 150
     height: 20
-    background: Rectangle {
-        color: "#4891d9"
-        radius: 3
-    }
-//    onPressed: background.color = "#a3bed0"
-//    onReleased: { background.color = "#4891d9"
-//        if (hovered) {background.color = "#74a8db"}
-//        else {background.color = "#4891d9"}
-//    }
 
-//    onHoveredChanged: {
-//        if (hovered) {background.color = "#74a8db"}
-//        else {background.color = "#4891d9"}
-//    }
+    palette.buttonText: "white"
+
+    background: Rectangle {
+        radius: 3
+
+        gradient: Gradient {
+            GradientStop { position: 0.0; color: pressed ? "#9ecbf7" : (hovered ? "#52a7fa" : "#4891d9") }
+            GradientStop { position: 1.0; color: pressed ? "#81bdf7" : (hovered ? "#81bffc" : "#2358a3") }
+        }
+    }
 
     onClicked: {
         backend.setGlobalFieldId(-1)
@@ -82,3 +79,5 @@ Button {
         }
     }
 }
+
+

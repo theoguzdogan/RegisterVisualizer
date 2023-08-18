@@ -16,12 +16,25 @@ Window {
     minimumWidth: 1100
     minimumHeight: 650
     visible: true
-    color: "#27273a"
-    title: qsTr("SpaceLoader")
+//    color: "#27273a"
+
+    title: qsTr("RegisterViewer")
     id: rootObject
+
+    Rectangle
+    {
+        anchors.fill: parent
+        gradient: Gradient
+        {
+            GradientStop { position: 0.000; color: "#52002D" }
+            GradientStop { position: 0.600; color: "#00013D" }
+            GradientStop { position: 1.000; color: "#00013D" }
+        }
+    }
 
     Component.onCompleted: {
         backend.setDefaultConfigId("default.yaml")
+        Promise.resolve().then(refresh)
     }
 
     AbstractDialog {
@@ -118,7 +131,7 @@ Window {
     Row {
         id: confBar
         width: parent.width
-        height: 55
+        height: 65
         anchors.left: parent.left
         anchors.leftMargin: 20
         anchors.top: parent.top
@@ -127,33 +140,41 @@ Window {
         anchors.rightMargin: 20
         spacing: 10
 
-//        Label {
-//            id: mainHeader
-//            anchors.left: parent.left
-//            anchors.verticalCenter: parent.verticalCenter
-//            color: "#ffffff"
-//            text: targetName + " Registers"
-//            font.pixelSize: 30
-//            font.family: "Segoe UI"
-//            background: Rectangle {
-//                border.color: "#ffffff"
-//                border.width: 1
-//                color: 'transparent'
-//                radius: 10
+        Rectangle {
+            id: logo
+            anchors.left: parent.left
+            anchors.top: parent.top
+            anchors.topMargin: 10
+            anchors.verticalCenter: parent.verticalCenter
+            width: 40
+            height: 55
+            color: "transparent"
+            opacity: 0.6
 
-//            }
-//        }
+            Image {
+                id: logo_tai
+                source: "../../../assets/tai_logo_white.svg"
+            }
+        }
 
         Rectangle {
-            border.color: "#ffffff"
-            border.width: 1
-            radius: 10
+
             id: mainHeader
-            anchors.left: parent.left
+            anchors.left: logo.right
             anchors.verticalCenter: parent.verticalCenter
             width: headerText.width +16
             height: headerText.height +10
-            color: "#4d4d63"
+            color: "transparent"
+
+
+//            Rectangle {
+//                anchors.fill: parent
+//                color: "#4d4d63"
+//                border.color: "#ffffff"
+//                border.width: 1
+//                radius: 10
+//                opacity: 0.5
+//            }
 
 
             Text {
@@ -163,20 +184,39 @@ Window {
                 font.family: "Segoe UI"
                 id: headerText
                 anchors.centerIn: parent
+                opacity: 0.8
             }
 
         }
 
-        Text {
-            text: "Reference Configurations"
-            verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignHCenter
-            font.pointSize: 11
-            color: "#FFFFFF"
-            anchors.right: configComboBox.left
-            anchors.rightMargin: 10
+        Rectangle {
+            anchors.right: configComboBox.horizontalCenter
             anchors.verticalCenter: parent.verticalCenter
+            width : referenceConfHeader.width + configComboBox.width/2 + 20
+            height : configComboBox.height
+            color: "transparent"
+            Rectangle {
+                anchors.fill: parent
+                color: "#4d4d63"
+                border.color: "#8f8fa8"
+                opacity: 0.5
+                radius: 10
+            }
+
+            Text {
+                id: referenceConfHeader
+                text: "Reference Configurations"
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignHCenter
+                font.pointSize: 11
+                color: "#FFFFFF"
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.left: parent.left
+                anchors.leftMargin: 10
+            }
         }
+
+
 
         ComboBox {
             id: configComboBox
@@ -186,6 +226,12 @@ Window {
             anchors.verticalCenter: parent.verticalCenter
             width: 200
             height: 35
+
+            background: Rectangle {
+                color: "#FFFFFF"
+                radius: 10
+                opacity: 0.5
+            }
 
             model: ListModel {
                 id: configContent
@@ -216,6 +262,7 @@ Window {
                         }
                     }
                 }
+                createPinButtons()
             }
 
         }
@@ -229,20 +276,14 @@ Window {
             anchors.rightMargin: 10
             anchors.verticalCenter: parent.verticalCenter
 
+            palette.buttonText: "white"
 
             background: Rectangle {
-                color: "#4891d9"
                 radius: 10
-            }
-            onPressed: background.color = "#a3bed0"
-            onReleased: { background.color = "#4891d9"
-                if (hovered) {background.color = "#74a8db"}
-                else {background.color = "#4891d9"}
-            }
-
-            onHoveredChanged: {
-                if (hovered) {background.color = "#74a8db"}
-                else {background.color = "#4891d9"}
+                gradient: Gradient {
+                    GradientStop { position: 0.0; color: refreshButton.pressed ? "#BDDBBD" : (refreshButton.hovered ? "#A7C2A7" : "#A89F91") }
+                    GradientStop { position: 1.0; color: refreshButton.pressed ? "#00B3B3" : (refreshButton.hovered ? "#009999" : "#008080") }
+                }
             }
 
             onClicked: {
@@ -258,19 +299,15 @@ Window {
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
 
-            background: Rectangle {
-                color: "#4891d9"
-                radius: 10
-            }
-            onPressed: background.color = "#a3bed0"
-            onReleased: { background.color = "#4891d9"
-                if (hovered) {background.color = "#74a8db"}
-                else {background.color = "#4891d9"}
-            }
+            palette.buttonText: "white"
 
-            onHoveredChanged: {
-                if (hovered) {background.color = "#74a8db"}
-                else {background.color = "#4891d9"}
+            background: Rectangle {
+                radius: 10
+                gradient: Gradient {
+                    GradientStop { position: 0.0; color: saveAllButton.pressed ? "#BDDBBD" : (saveAllButton.hovered ? "#A7C2A7" : "#A89F91") }
+                    GradientStop { position: 1.0; color: saveAllButton.pressed ? "#00B3B3" : (saveAllButton.hovered ? "#009999" : "#008080") }
+                }
+
             }
 
             onClicked: {
@@ -307,33 +344,10 @@ Window {
             color: "#FFFFFF"
         }
 
-//        Rectangle {
-//            id: tryrect
-//            width: (parent.width / 6) + (parent.width / 2)
-//            color: "#FFFFFF"
-//            anchors.right: parent.right
-
-//            Text {
-//                text: "Fields"
-//                width: parent.width / 6
-//                horizontalAlignment: Text.AlignHCenter
-//                font.pointSize: 11
-//                color: "#FFFFFF"
-//            }
-
-//            Text {
-//                text: "Field Configuration"
-//                width: parent.width / 2
-//                horizontalAlignment: Text.AlignHCenter
-//                font.pointSize: 11
-//                color: "#FFFFFF"
-//            }
-
-//        }
         Rectangle {
                     width: (parent.width / 6) + (parent.width / 2)
                     height: 20
-                    color: rootObject.color
+                    color: "transparent"
 
                     Flickable {
                         id: tabFlick
@@ -353,8 +367,6 @@ Window {
                     }
 
                 }
-
-
     }
 
     ScrollView {
@@ -394,18 +406,179 @@ Window {
     }
 
     Rectangle {
+        id: selectedUnitViewer
+        anchors.left: registerScrollView.right
+        anchors.right: parent.right
+        anchors.bottom: registerDataView.top
+        anchors.margins: 4
+        height: 40
+        color: "transparent"
+
+        Rectangle {
+            anchors.fill: parent
+            color: "#4d4d63"
+            border.color: "#8f8fa8"
+            border.width: 1
+
+            radius: 10
+            opacity: 0.5
+        }
+
+        Rectangle {
+            id: moduleUnit
+            height: 40
+            width: (parent.width-12)/3
+            radius: 10
+//            border.color: "white"
+            color: "transparent"
+            anchors.left: parent.left
+            anchors.leftMargin: 6
+            Text {
+                id: moduleUnitHeader
+                text: "Module:"
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                color: "white"
+                anchors.left: parent.left
+                anchors.verticalCenter: parent.verticalCenter
+            }
+            Rectangle {
+                id: moduleUnitIndicator
+                height: 30
+                anchors.left: moduleUnitHeader.right
+                anchors.leftMargin: 6
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                radius: 10
+                border.color: "#8f8fa8"
+                color: "transparent"
+
+                Rectangle {
+                    id: moduleUnitIndicatorBackground
+                    anchors.fill: parent
+                    radius: 10
+                    color: "#4d4d63"
+                    opacity: 0.5
+                }
+
+                Text {
+                    id: moduleUnitIndicatorText
+                    color: "white"
+                    verticalAlignment: Text.AlignVCenter
+                    horizontalAlignment: Text.AlignHCenter
+                    anchors.centerIn: parent
+                    visible: moduleUnitIndicatorBackground.visible
+                }
+            }
+        }
+        Rectangle {
+            id: registerUnit
+            height: 40
+            width: (parent.width-12)/3
+            radius: 10
+//            border.color: "white"
+            color: "transparent"
+            anchors.horizontalCenter: parent.horizontalCenter
+            Text {
+                id: registerUnitHeader
+                text: "Register:"
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                color: "white"
+                anchors.left: parent.left
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.leftMargin: 6
+            }
+            Rectangle {
+                id: registerUnitIndicator
+                height: 30
+                anchors.left: registerUnitHeader.right
+                anchors.leftMargin: 6
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                radius: 10
+                border.color: "#8f8fa8"
+                color: "transparent"
+
+                Rectangle {
+                    id: registerUnitIndicatorBackground
+                    anchors.fill: parent
+                    radius: 10
+                    color: "#4d4d63"
+                    opacity: 0.5
+                }
+
+                Text {
+                    id: registerUnitIndicatorText
+                    color: "white"
+                    verticalAlignment: Text.AlignVCenter
+                    horizontalAlignment: Text.AlignHCenter
+                    anchors.centerIn: parent
+                    visible: registerUnitIndicatorBackground.visible
+                }
+            }
+        }
+        Rectangle {
+            id: fieldUnit
+            height: 40
+            width: (parent.width-12)/3
+            radius: 10
+//            border.color: "white"
+            color: "transparent"
+            anchors.right: parent.right
+            anchors.rightMargin: 6
+            Text {
+                id: fieldUnitHeader
+                text: "Field:"
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                color: "white"
+                anchors.left: parent.left
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.leftMargin: 6
+            }
+            Rectangle {
+                id: fieldUnitIndicator
+                height: 30
+                anchors.left: fieldUnitHeader.right
+                anchors.leftMargin: 6
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                radius: 10
+                border.color: "#8f8fa8"
+                color: "transparent"
+
+                Rectangle {
+                    id: fieldUnitIndicatorBackground
+                    anchors.fill: parent
+                    radius: 10
+                    color: "#4d4d63"
+                    opacity: 0.5
+                }
+
+                Text {
+                    id: fieldUnitIndicatorText
+                    color: "white"
+                    verticalAlignment: Text.AlignVCenter
+                    horizontalAlignment: Text.AlignHCenter
+                    anchors.centerIn: parent
+                    visible: fieldUnitIndicatorBackground.visible
+                }
+            }
+        }
+    }
+
+    Rectangle {
         id: registerDataViewPlaceHolder
         anchors.left: registerScrollView.right
         anchors.right: parent.right
         anchors.bottom: pinBoard.top
         anchors.margins: 4
         height: 40
-        width: parent.width
-//        color: "#4d4d63"
-        color: "grey"
+        color: "#4d4d63"
         radius: 10
         z: 1
-        opacity: 0.3
+        opacity: 0.5
 
         onVisibleChanged: {
             if (visible) {
@@ -426,10 +599,16 @@ Window {
         anchors.bottom: pinBoard.top
         anchors.margins: 4
         height: 40
-        width: parent.width
-        color: "#4d4d63"
-        radius: 10
-        border.color: "#8f8fa8"
+        color: "transparent"
+
+        Rectangle {
+            anchors.fill: parent
+            color: "#4d4d63"
+            border.color: "#8f8fa8"
+            border.width: 1
+            radius: 10
+            opacity: registerDataViewPlaceHolder.visible ? 0 : 0.5
+        }
 
         Text {
             id: registerDataViewHeader
@@ -455,10 +634,16 @@ Window {
             anchors.margins: 5
             property var regAddr
             property var targetData
+            background: Rectangle {
+                color: "white"
+                border.color: "#8f8fa8"
+                opacity: 0.9
+                radius: 10
+            }
 
             ToolTip.delay: 500
 //            ToolTip.timeout: 5000
-            ToolTip.visible: hovered
+            ToolTip.visible: (!registerDataViewPlaceHolder.visible) && hovered
             ToolTip.text: hexToBinary(text)
 
             onTextChanged: {
@@ -492,23 +677,18 @@ Window {
             width: 80
             height: parent.height-10
 
-            background: Rectangle {
-                color: "#4891d9"
-                radius: 10
-            }
-            onPressed: background.color = "#a3bed0"
-            onReleased: { background.color = "#4891d9"
-                if (hovered) {background.color = "#74a8db"}
-                else {background.color = "#4891d9"}
-            }
+            palette.buttonText: "white"
 
-            onHoveredChanged: {
-                if (hovered) {background.color = "#74a8db"}
-                else {background.color = "#4891d9"}
+            background: Rectangle {
+                radius: 10
+
+                gradient: Gradient {
+                    GradientStop { position: 0.0; color: ((!registerDataViewPlaceHolder.visible) && sendButton.pressed) ? "#BDDBBD" : (((!registerDataViewPlaceHolder.visible)&&sendButton.hovered) ? "#A7C2A7" : "#A89F91") }
+                    GradientStop { position: 1.0; color: ((!registerDataViewPlaceHolder.visible) && sendButton.pressed) ? "#00B3B3" : (((!registerDataViewPlaceHolder.visible)&&sendButton.hovered) ? "#009999" : "#008080") }
+                }
             }
 
             onClicked: {
-
                 if (!registerDataViewPlaceHolder.visible) {
                     console.log("RegisterValue sent.")
                     backend.sshSet(registerTextBox.regAddr, registerTextBox.text)
@@ -534,19 +714,15 @@ Window {
             width: 80
             height: parent.height-10
 
-            background: Rectangle {
-                color: "#4891d9"
-                radius: 10
-            }
-            onPressed: background.color = "#a3bed0"
-            onReleased: { background.color = "#4891d9"
-                if (hovered) {background.color = "#74a8db"}
-                else {background.color = "#4891d9"}
-            }
+            palette.buttonText: "white"
 
-            onHoveredChanged: {
-                if (hovered) {background.color = "#74a8db"}
-                else {background.color = "#4891d9"}
+            background: Rectangle {
+                radius: 10
+
+                gradient: Gradient {
+                    GradientStop { position: 0.0; color: ((!registerDataViewPlaceHolder.visible) && registerConfigSaveButton.pressed) ? "#BDDBBD" : (((!registerDataViewPlaceHolder.visible)&&registerConfigSaveButton.hovered) ? "#A7C2A7" : "#A89F91") }
+                    GradientStop { position: 1.0; color: ((!registerDataViewPlaceHolder.visible) && registerConfigSaveButton.pressed) ? "#00B3B3" : (((!registerDataViewPlaceHolder.visible)&&registerConfigSaveButton.hovered) ? "#009999" : "#008080") }
+                }
             }
 
             onClicked: {
@@ -563,7 +739,7 @@ Window {
     ScrollView {
         id: fieldScrollView
         anchors.left: registerScrollView.right
-        anchors.bottom: registerDataView.top
+        anchors.bottom: selectedUnitViewer.top
         anchors.top: topBar.bottom
         anchors.leftMargin: 4
         anchors.bottomMargin: 4
@@ -593,6 +769,7 @@ Window {
         color: "#4d4d63"
         radius: 10
         border.color: "#8f8fa8"
+        opacity: 0.5
 
         Text{
             text: "Please select a module to list its registers."
@@ -609,7 +786,7 @@ Window {
     Rectangle {
         id: fieldPlaceHolder
         anchors.left: registerScrollView.right
-        anchors.bottom: registerDataView.top
+        anchors.bottom: selectedUnitViewer.top
         anchors.top: topBar.bottom
         anchors.leftMargin: 4
         anchors.bottomMargin: 4
@@ -619,6 +796,7 @@ Window {
         color: "#4d4d63"
         radius: 10
         border.color: "#8f8fa8"
+        opacity: 0.5
 
         onVisibleChanged: {
             if (visible){
@@ -645,7 +823,7 @@ Window {
     ScrollView {
         id: confScrollView
         anchors.left: fieldScrollView.right
-        anchors.bottom: registerDataView.top
+        anchors.bottom: selectedUnitViewer.top
         anchors.top: topBar.bottom
         anchors.leftMargin: 4
         anchors.bottomMargin: 4
@@ -663,7 +841,7 @@ Window {
     Rectangle {
         id: confPlaceHolder
         anchors.left: fieldScrollView.right
-        anchors.bottom: registerDataView.top
+        anchors.bottom: selectedUnitViewer.top
         anchors.top: topBar.bottom
         anchors.leftMargin: 4
         anchors.bottomMargin: 4
@@ -673,6 +851,7 @@ Window {
         color: "#4d4d63"
         radius: 10
         border.color: "#8f8fa8"
+        opacity: 0.5
 
         Text{
             text: "Please select a field to open configuration menu."
@@ -694,9 +873,16 @@ Window {
         anchors.margins: 4
         height: 73
         width: parent.width
-        color: "#4d4d63"
-        radius: 10
-        border.color: "#8f8fa8"
+        color: "transparent"
+
+        Rectangle {
+            anchors.fill: parent
+            color: "#4d4d63"
+            border.color: "#8f8fa8"
+            border.width: 1
+            radius: 10
+            opacity: 0.5
+        }
 
         Rectangle {
             id: pinBoardHeader
@@ -705,10 +891,16 @@ Window {
             anchors.bottom: parent.bottom
             width: 120
             height: parent.height
+            color: "transparent"
 
-            color: "#4d4d63"
-            radius: 10
-            border.color: "#8f8fa8"
+            Rectangle {
+                anchors.fill: parent
+                color: "#4d4d63"
+                border.color: "#8f8fa8"
+                border.width: 1
+                radius: 10
+                opacity: 0.6
+            }
 
             //TRIAL AREA
             Component.onCompleted: {
@@ -792,6 +984,7 @@ Window {
     function refresh() {
         createPinButtons()
         createModuleButtons()
+//        Promise.resolve().then(checkSelectedModule)
         if (!registerPlaceHolder.visible) {
             createRegisterButtons(backend.returnGlobalModuleId())
             if (!fieldPlaceHolder.visible) {
@@ -867,13 +1060,37 @@ Window {
                           });
             moduleItem.moduleClicked.connect(moduleButtonClicked)
         }
+        Promise.resolve().then(checkSelectedModule)
     }
 
     function moduleButtonClicked(moduleId) {
         backend.setGlobalRegId(-1)
+        backend.setGlobalFieldId(-1)
         clearFields()
         clearConf()
         createRegisterButtons(moduleId)
+        checkSelectedRegisterTabAlias()
+        checkSelectedModule()
+    }
+
+    function checkSelectedModule() {
+        for (var i=0; i<moduleColumn.children.length; i++){
+            moduleColumn.children[i].changeBorderToNormalState();
+        }
+        var moduleId = backend.returnGlobalModuleId()
+        Promise.resolve().then(() => {
+            if (moduleId === -1){
+                moduleUnitIndicatorBackground.visible = false
+            }
+            else {
+                moduleColumn.children[moduleId].changeBorderToSelectedState();
+                moduleUnitIndicatorText.text = backend.getFileList()[moduleId].split(".")[0]
+                moduleUnitIndicatorBackground.visible = true
+
+            }
+        })
+        Promise.resolve().then(checkSelectedRegister)
+        Promise.resolve().then(checkSelectedField)
     }
     //MODULE(FILE) BUTTONS END
 
@@ -894,6 +1111,7 @@ Window {
             registerItem.registerClicked.connect(registerButtonClicked)
         }
         registerPlaceHolder.visible = false
+        Promise.resolve().then(checkSelectedRegister)
     }
 
     function registerButtonClicked(registerId) {
@@ -902,6 +1120,7 @@ Window {
         createFieldButtons(registerId)
         createRegisterTabAlias(registerId)
         updateRegisterTextBox()
+        checkSelectedRegister()
     }
 
     function updateRegisterTextBox() {
@@ -969,15 +1188,34 @@ Window {
         for(var i=0; i<registerTabRow.children.length; i++){
             if(parseInt(registerTabRow.children[i].moduleId) === backend.returnGlobalModuleId() && registerTabRow.children[i].registerId === backend.returnGlobalRegId()) {
 //                console.log(i)
-                registerTabRow.children[i].background.color = "#a3bed0"
+                registerTabRow.children[i].opacity = 1
                 selectedRegisterTab = i
             }
             else {
-                registerTabRow.children[i].background.color = "#4891d9"
+                registerTabRow.children[i].opacity = 0.5
             }
         }
         return i
     }
+
+    function checkSelectedRegister() {
+        for (var i=0; i<registerColumn.children.length; i++){
+            registerColumn.children[i].changeBorderToNormalState();
+        }
+        var regId = backend.returnGlobalRegId()
+        Promise.resolve().then(() => {
+            if (parseInt(regId) === -1){
+                registerUnitIndicatorBackground.visible = false
+            }
+            else {
+                registerColumn.children[regId].changeBorderToSelectedState();
+                registerUnitIndicatorText.text = backend.getRegisterList()[regId].split(".")[0]
+                registerUnitIndicatorBackground.visible = true
+            }
+        })
+    }
+
+
 
     //REGISTER BUTTONS END
 
@@ -997,11 +1235,32 @@ Window {
             fieldItem.fieldClicked.connect(fieldButtonClicked)
         }
         fieldPlaceHolder.visible = false
+        Promise.resolve().then(checkSelectedField)
     }
 
     function fieldButtonClicked(fieldId) {
         clearConf()
         createConfScreen(fieldId)
+        checkSelectedField()
+    }
+
+    function checkSelectedField() {
+        for (var i=0; i<fieldColumn.children.length; i++){
+            fieldColumn.children[i].changeBorderToNormalState();
+        }
+        var fieldId = backend.returnGlobalFieldId()
+        console.log(fieldId)
+        Promise.resolve().then(() => {
+            if (parseInt(fieldId) === -1){
+                fieldUnitIndicatorBackground.visible = false
+            }
+            else {
+               fieldColumn.children[fieldId].changeBorderToSelectedState();
+               fieldUnitIndicatorText.text = backend.getFieldList(backend.returnGlobalRegId())[fieldId].split(".")[0]
+               fieldUnitIndicatorBackground.visible = true
+            }
+        })
+
     }
     //FIELD BUTTONS END
 

@@ -93,22 +93,19 @@ Rectangle {
         }
 
         Button {
+            id: setButton
             text: "Set"
             width: (parentRectangle.width - 36)/7
             height: 30
-            background: Rectangle {
-                color: "#4891d9"
-                radius: 10
-            }
-            onPressed: background.color = "#a3bed0"
-            onReleased: { background.color = "#4891d9"
-                if (hovered) {background.color = "#74a8db"}
-                else {background.color = "#4891d9"}
-            }
 
-            onHoveredChanged: {
-                if (hovered) {background.color = "#74a8db"}
-                else {background.color = "#4891d9"}
+            palette.buttonText: "white"
+
+            background: Rectangle {
+                radius: 10
+                gradient: Gradient {
+                    GradientStop { position: 0.0; color: setButton.pressed ? "#BDDBBD" : (setButton.hovered ? "#A7C2A7" : "#A89F91") }
+                    GradientStop { position: 1.0; color: setButton.pressed ? "#00B3B3" : (setButton.hovered ? "#009999" : "#008080") }
+                }
             }
 
             onClicked: {
@@ -129,23 +126,22 @@ Rectangle {
         }
 
         Button {
+            id: resetButton
             text: "Reset"
             width: (parentRectangle.width - 36)/7
             height: 30
+
+            palette.buttonText: "white"
+
             background: Rectangle {
-                color: "#4891d9"
                 radius: 10
-            }
-            onPressed: background.color = "#a3bed0"
-            onReleased: { background.color = "#4891d9"
-                if (hovered) {background.color = "#74a8db"}
-                else {background.color = "#4891d9"}
+
+                gradient: Gradient {
+                    GradientStop { position: 0.0; color: resetButton.pressed ? "#BDDBBD" : (resetButton.hovered ? "#A7C2A7" : "#A89F91") }
+                    GradientStop { position: 1.0; color: resetButton.pressed ? "#00B3B3" : (resetButton.hovered ? "#009999" : "#008080") }
+                }
             }
 
-            onHoveredChanged: {
-                if (hovered) {background.color = "#74a8db"}
-                else {background.color = "#4891d9"}
-            }
             onClicked: {
                 desiredValue = resetValue
                 backend.fieldSet(addr, desiredValue)
@@ -156,34 +152,6 @@ Rectangle {
                 createRegisterButtons(backend.returnGlobalModuleId())
                 createFieldButtons(backend.returnGlobalRegId())
                 valueTextField.text = currentValue
-            }
-        }
-
-        Button {
-            text: "Override Config"
-            width: (parentRectangle.width - 36)/5
-            height: 30
-            background: Rectangle {
-                color: "#4891d9"
-                radius: 10
-            }
-            onPressed: background.color = "#a3bed0"
-            onReleased: { background.color = "#4891d9"
-                if (hovered) {background.color = "#74a8db"}
-                else {background.color = "#4891d9"}
-            }
-
-            onHoveredChanged: {
-                if (hovered) {background.color = "#74a8db"}
-                else {background.color = "#4891d9"}
-            }
-            onClicked: {           
-                backend.saveConfig(currentValue, 16)
-                checkConfCurrent()
-
-                createModuleButtons()
-                createRegisterButtons(backend.returnGlobalModuleId())
-                createFieldButtons(backend.returnGlobalRegId())
             }
         }
     }
