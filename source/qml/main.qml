@@ -18,7 +18,7 @@ Window {
     visible: true
 //    color: "#27273a"
 
-    title: qsTr("RegisterViewer")
+    title: qsTr("RegisterVisualiser")
     id: rootObject
 
     Rectangle
