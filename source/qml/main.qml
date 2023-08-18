@@ -27,6 +27,7 @@ Window {
         gradient: Gradient
         {
             GradientStop { position: 0.000; color: "#52002D" }
+            GradientStop { position: 0.600; color: "#00013D" }
             GradientStop { position: 1.000; color: "#00013D" }
         }
     }
@@ -197,6 +198,7 @@ Window {
             Rectangle {
                 anchors.fill: parent
                 color: "#4d4d63"
+                border.color: "#8f8fa8"
                 opacity: 0.5
                 radius: 10
             }
@@ -230,7 +232,6 @@ Window {
                 radius: 10
                 opacity: 0.5
             }
-
 
             model: ListModel {
                 id: configContent
@@ -280,8 +281,8 @@ Window {
             background: Rectangle {
                 radius: 10
                 gradient: Gradient {
-                    GradientStop { position: 0.0; color: refreshButton.pressed ? "#9ecbf7" : (refreshButton.hovered ? "#52a7fa" : "#4891d9") }
-                    GradientStop { position: 1.0; color: refreshButton.pressed ? "#81bdf7" : (refreshButton.hovered ? "#81bffc" : "#2358a3") }
+                    GradientStop { position: 0.0; color: refreshButton.pressed ? "#BDDBBD" : (refreshButton.hovered ? "#A7C2A7" : "#A89F91") }
+                    GradientStop { position: 1.0; color: refreshButton.pressed ? "#00B3B3" : (refreshButton.hovered ? "#009999" : "#008080") }
                 }
             }
 
@@ -303,9 +304,10 @@ Window {
             background: Rectangle {
                 radius: 10
                 gradient: Gradient {
-                    GradientStop { position: 0.0; color: saveAllButton.pressed ? "#9ecbf7" : (saveAllButton.hovered ? "#52a7fa" : "#4891d9") }
-                    GradientStop { position: 1.0; color: saveAllButton.pressed ? "#81bdf7" : (saveAllButton.hovered ? "#81bffc" : "#2358a3") }
+                    GradientStop { position: 0.0; color: saveAllButton.pressed ? "#BDDBBD" : (saveAllButton.hovered ? "#A7C2A7" : "#A89F91") }
+                    GradientStop { position: 1.0; color: saveAllButton.pressed ? "#00B3B3" : (saveAllButton.hovered ? "#009999" : "#008080") }
                 }
+
             }
 
             onClicked: {
@@ -450,12 +452,22 @@ Window {
                 radius: 10
                 border.color: "#8f8fa8"
                 color: "transparent"
+
+                Rectangle {
+                    id: moduleUnitIndicatorBackground
+                    anchors.fill: parent
+                    radius: 10
+                    color: "#4d4d63"
+                    opacity: 0.5
+                }
+
                 Text {
                     id: moduleUnitIndicatorText
                     color: "white"
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
                     anchors.centerIn: parent
+                    visible: moduleUnitIndicatorBackground.visible
                 }
             }
         }
@@ -486,12 +498,23 @@ Window {
                 anchors.verticalCenter: parent.verticalCenter
                 radius: 10
                 border.color: "#8f8fa8"
+                color: "transparent"
+
+                Rectangle {
+                    id: registerUnitIndicatorBackground
+                    anchors.fill: parent
+                    radius: 10
+                    color: "#4d4d63"
+                    opacity: 0.5
+                }
+
                 Text {
                     id: registerUnitIndicatorText
                     color: "white"
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
                     anchors.centerIn: parent
+                    visible: registerUnitIndicatorBackground.visible
                 }
             }
         }
@@ -523,6 +546,15 @@ Window {
                 anchors.verticalCenter: parent.verticalCenter
                 radius: 10
                 border.color: "#8f8fa8"
+                color: "transparent"
+
+                Rectangle {
+                    id: fieldUnitIndicatorBackground
+                    anchors.fill: parent
+                    radius: 10
+                    color: "#4d4d63"
+                    opacity: 0.5
+                }
 
                 Text {
                     id: fieldUnitIndicatorText
@@ -530,6 +562,7 @@ Window {
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
                     anchors.centerIn: parent
+                    visible: fieldUnitIndicatorBackground.visible
                 }
             }
         }
@@ -601,6 +634,12 @@ Window {
             anchors.margins: 5
             property var regAddr
             property var targetData
+            background: Rectangle {
+                color: "white"
+                border.color: "#8f8fa8"
+                opacity: 0.9
+                radius: 10
+            }
 
             ToolTip.delay: 500
 //            ToolTip.timeout: 5000
@@ -644,8 +683,8 @@ Window {
                 radius: 10
 
                 gradient: Gradient {
-                    GradientStop { position: 0.0; color: registerDataViewPlaceHolder.visible ? "#4891d9" : (sendButton.pressed ? "#9ecbf7" : (sendButton.hovered ? "#52a7fa" : "#4891d9")) }
-                    GradientStop { position: 1.0; color: registerDataViewPlaceHolder.visible ? "#2358a3" : (sendButton.pressed ? "#81bdf7" : (sendButton.hovered ? "#81bffc" : "#2358a3")) }
+                    GradientStop { position: 0.0; color: ((!registerDataViewPlaceHolder.visible) && sendButton.pressed) ? "#BDDBBD" : (((!registerDataViewPlaceHolder.visible)&&sendButton.hovered) ? "#A7C2A7" : "#A89F91") }
+                    GradientStop { position: 1.0; color: ((!registerDataViewPlaceHolder.visible) && sendButton.pressed) ? "#00B3B3" : (((!registerDataViewPlaceHolder.visible)&&sendButton.hovered) ? "#009999" : "#008080") }
                 }
             }
 
@@ -681,8 +720,8 @@ Window {
                 radius: 10
 
                 gradient: Gradient {
-                    GradientStop { position: 0.0; color: registerDataViewPlaceHolder.visible ? "#4891d9" : (registerConfigSaveButton.pressed ? "#9ecbf7" : (registerConfigSaveButton.hovered ? "#52a7fa" : "#4891d9")) }
-                    GradientStop { position: 1.0; color: registerDataViewPlaceHolder.visible ? "#2358a3" : (registerConfigSaveButton.pressed ? "#81bdf7" : (registerConfigSaveButton.hovered ? "#81bffc" : "#2358a3")) }
+                    GradientStop { position: 0.0; color: ((!registerDataViewPlaceHolder.visible) && registerConfigSaveButton.pressed) ? "#BDDBBD" : (((!registerDataViewPlaceHolder.visible)&&registerConfigSaveButton.hovered) ? "#A7C2A7" : "#A89F91") }
+                    GradientStop { position: 1.0; color: ((!registerDataViewPlaceHolder.visible) && registerConfigSaveButton.pressed) ? "#00B3B3" : (((!registerDataViewPlaceHolder.visible)&&registerConfigSaveButton.hovered) ? "#009999" : "#008080") }
                 }
             }
 
@@ -1041,13 +1080,13 @@ Window {
         var moduleId = backend.returnGlobalModuleId()
         Promise.resolve().then(() => {
             if (moduleId === -1){
-                moduleUnitIndicatorText.text = ""
-                moduleUnitIndicator.color = "transparent"
+                moduleUnitIndicatorBackground.visible = false
             }
             else {
                 moduleColumn.children[moduleId].changeBorderToSelectedState();
                 moduleUnitIndicatorText.text = backend.getFileList()[moduleId].split(".")[0]
-                moduleUnitIndicator.color = "#4891d9"
+                moduleUnitIndicatorBackground.visible = true
+
             }
         })
         Promise.resolve().then(checkSelectedRegister)
@@ -1166,13 +1205,12 @@ Window {
         var regId = backend.returnGlobalRegId()
         Promise.resolve().then(() => {
             if (parseInt(regId) === -1){
-                registerUnitIndicatorText.text = ""
-                registerUnitIndicator.color = "transparent"
+                registerUnitIndicatorBackground.visible = false
             }
             else {
                 registerColumn.children[regId].changeBorderToSelectedState();
                 registerUnitIndicatorText.text = backend.getRegisterList()[regId].split(".")[0]
-                registerUnitIndicator.color = "#4891d9"
+                registerUnitIndicatorBackground.visible = true
             }
         })
     }
@@ -1214,13 +1252,12 @@ Window {
         console.log(fieldId)
         Promise.resolve().then(() => {
             if (parseInt(fieldId) === -1){
-               fieldUnitIndicatorText.text = ""
-               fieldUnitIndicator.color = "transparent"
+                fieldUnitIndicatorBackground.visible = false
             }
             else {
                fieldColumn.children[fieldId].changeBorderToSelectedState();
                fieldUnitIndicatorText.text = backend.getFieldList(backend.returnGlobalRegId())[fieldId].split(".")[0]
-               fieldUnitIndicator.color = "#4891d9"
+               fieldUnitIndicatorBackground.visible = true
             }
         })
 
