@@ -9,12 +9,12 @@ import QtQuick.Dialogs 1.3
 Rectangle {
     property var configList: backend.getConfFileList()
     property var resetValue
-    property var addr: backend.getFieldAddr()
-    property var currentValue: backend.sshGet(addr)
+    property var regAddr: backend.getRegAddr()
+    property var currentValue: backend.sshGet(regAddr)
     property var desiredValue: currentValue
 
     function checkCurrent(){
-        currentValue = backend.sshGet(addr)
+        currentValue = backend.fieldGet(regAddr)
         currentText.text = "Current Value:" + currentValue
     }
 
@@ -60,7 +60,7 @@ Rectangle {
         anchors.left: parent.left
         anchors.right: parent.right
         placeholderText: "Enter HEX Value"
-        text: backend.sshGet(addr)
+        text: backend.fieldGet(regAddr)
     }
 
     Row {
@@ -115,7 +115,8 @@ Rectangle {
                     invalidValueDialog.open()
                 }
                 else {
-                    backend.fieldSet(addr, desiredValue);
+                    backend.fieldSet(regAddr, desiredValue)
+                    Promise.resolve().then(updateRegisterTextBox)
                 }
                 checkConfCurrent()
 
@@ -143,15 +144,15 @@ Rectangle {
             }
 
             onClicked: {
-                desiredValue = resetValue
-                backend.fieldSet(addr, desiredValue)
+//                desiredValue = resetValue
+//                backend.fieldSet(regAddr, desiredValue)
 
-                checkConfCurrent()
+//                checkConfCurrent()
 
                 createModuleButtons()
                 createRegisterButtons(backend.returnGlobalModuleId())
                 createFieldButtons(backend.returnGlobalRegId())
-                valueTextField.text = currentValue
+//                valueTextField.text = currentValue
             }
         }
     }
