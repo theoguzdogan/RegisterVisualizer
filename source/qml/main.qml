@@ -634,6 +634,7 @@ Window {
             anchors.margins: 5
             property var regAddr
             property var targetData
+            color: (text === targetData) ? "black" : "red"
             background: Rectangle {
                 color: "white"
                 border.color: "#8f8fa8"
@@ -649,12 +650,6 @@ Window {
             onTextChanged: {
                 if (!registerDataViewPlaceHolder.visible) {
                     backend.bufferSet(regAddr, text)
-                    if (text === targetData){
-                        color = "black"
-                    }
-                    else {
-                        color = "red"
-                    }
                 }
             }
 
@@ -692,15 +687,15 @@ Window {
                 if (!registerDataViewPlaceHolder.visible) {
                     console.log("RegisterValue sent.")
                     backend.sshSet(registerTextBox.regAddr, registerTextBox.text)
-                    Promise.resolve().then(refresh)
-                    updateRegisterTextBox()
-                    if (registerTextBox.text === registerTextBox.targetData){
-                        registerTextBox.color = "black"
-                    }
-                    else {
-                        registerTextBox.color = "red"
+                    Promise.resolve().then(()=>{
+                        refresh()
+                        updateRegisterTextBox()
+                    })
+                    Promise.resolve().then(()=>{
+                        if (!(registerTextBox.text === registerTextBox.targetData)){
                         console.log("REGISTER WRITEMEM ERROR: CHECK sshSet() function of backend or connection.")
-                    }
+                        }
+                    })
                 }
             }
         }
@@ -1126,7 +1121,11 @@ Window {
     function updateRegisterTextBox() {
         registerTextBox.regAddr = backend.getRegAddr()
         var bufferData = backend.checkBuffer(registerTextBox.regAddr)
+        Promise.resolve().then(()=>{
+        console.log("buffer:",bufferData)})
         registerTextBox.targetData = backend.sshGet(registerTextBox.regAddr)
+        Promise.resolve().then(()=>{
+        console.log("target:", registerTextBox.targetData)})
 
         if (bufferData === "-1") {
             registerTextBox.text = registerTextBox.targetData
