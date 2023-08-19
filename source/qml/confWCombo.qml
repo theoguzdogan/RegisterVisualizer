@@ -11,7 +11,7 @@ Rectangle {
     property var valueList
     property var configList: backend.getConfFileList()
     property var resetValue
-    property var addr: backend.getFieldAddr()
+    property var regAddr: backend.getRegAddr()
     property var desiredValue
     property var lastSent
 
@@ -110,13 +110,13 @@ Rectangle {
                     invalidValueDialog.open()
                 }
                 else {
-                    backend.fieldSet(addr, backend.returnHex(desiredValue))
+                    backend.fieldSet(regAddr, backend.returnHex(desiredValue))
+                    Promise.resolve().then(updateRegisterTextBox)
                     lastSent = desiredValue
                     lastSentText.text = "Last Sent¹: " + backend.returnHex(lastSent)
                 }
 
                 checkConf()
-
                 createModuleButtons()
                 createRegisterButtons(backend.returnGlobalModuleId())
                 createFieldButtons(backend.returnGlobalRegId())
@@ -141,17 +141,17 @@ Rectangle {
             }
 
             onClicked: {
-                desiredValue = parseInt(resetValue, 16)
-                backend.fieldSet(addr, backend.returnHex(desiredValue))
-                lastSent = desiredValue
+//                desiredValue = parseInt(resetValue, 16)
+//                backend.fieldSet(regAddr, backend.returnHex(desiredValue))
+//                lastSent = desiredValue
 
-                checkConf()
+//                checkConf()
 
-                lastSentText.text = "Last Sent¹: " + backend.returnHex(lastSent)
+//                lastSentText.text = "Last Sent¹: " + backend.returnHex(lastSent)
                 createModuleButtons()
                 createRegisterButtons(backend.returnGlobalModuleId())
                 createFieldButtons(backend.returnGlobalRegId())
-                valueComboBox.currentIndex = desiredValue
+//                valueComboBox.currentIndex = desiredValue
             }
         }
     }
