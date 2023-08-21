@@ -690,6 +690,7 @@ Window {
                     Promise.resolve().then(()=>{
                         refresh()
                         updateRegisterTextBox()
+                        createPinButtons()
                     })
                     Promise.resolve().then(()=>{
                         if (!(registerTextBox.text === registerTextBox.targetData)){
@@ -724,7 +725,12 @@ Window {
                 if (!registerDataViewPlaceHolder.visible){
                     console.log("Save Config Pressed")
                     backend.saveRegConfig(registerTextBox.text)
-                    refresh()
+                    Promise.resolve().then(()=>{
+                        refresh()
+                        updateRegisterTextBox()
+                        createPinButtons()
+                    })
+                //saved config value check may be added
                 }
             }
         }
