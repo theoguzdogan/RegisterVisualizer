@@ -9,7 +9,7 @@ import QtQuick.Dialogs 1.3
 Rectangle {
     property var configList: backend.getConfFileList()
     property var resetValue
-    property var addr: backend.getFieldAddr()
+    property var regAddr: backend.getRegAddr()
     property var desiredValue
     property var lastSent
 
@@ -99,8 +99,9 @@ Rectangle {
                 }
                 else {
                     lastSent = desiredValue
-                    backend.fieldSet(addr, desiredValue);
+                    backend.fieldSet(regAddr, desiredValue);
                     lastSentText.text = "Last Sent¹: " + lastSent
+                    Promise.resolve().then(updateRegisterTextBox)
                 }
 
                 checkConf()
@@ -129,17 +130,17 @@ Rectangle {
             }
 
             onClicked: {
-                desiredValue = resetValue
-                valueTextField.text = desiredValue
-                lastSent = desiredValue
-                backend.fieldSet(addr, desiredValue);
+//                desiredValue = resetValue
+//                valueTextField.text = desiredValue
+//                lastSent = desiredValue
+//                backend.fieldSet(addr, desiredValue);
 
-                checkConf()
+//                checkConf()
 
                 createModuleButtons()
                 createRegisterButtons(backend.returnGlobalModuleId())
                 createFieldButtons(backend.returnGlobalRegId())
-                lastSentText.text = "Last Sent¹: " + lastSent
+//                lastSentText.text = "Last Sent¹: " + lastSent
             }
         }
     }

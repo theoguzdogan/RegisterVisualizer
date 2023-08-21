@@ -9,9 +9,13 @@ Rectangle {
     border.color: "black"
     width: (rootObject.width / 2) - 20
 
-    property var addr: backend.getFieldAddr()
-    property var currentValue: backend.sshGet(addr)
+    property var regAddr: backend.getRegAddr()
+    property var currentValue
     property var resetValue
+
+    Component.onCompleted: {
+        currentValue = backend.fieldGet(regAddr)
+    }
 
     Row {
         id: valueButtonRow
