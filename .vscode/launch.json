@@ -31,7 +31,8 @@
                     "ignoreFailures": true
                 }
             ],
-            "showDisplayString": true
+            "showDisplayString": true,
+            "visualizerFile": "${workspaceFolder}/.vscode/qt.natvis.xml"
         }
     ]
 }
