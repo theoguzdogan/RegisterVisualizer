@@ -2,4 +2,3 @@ build/
 .cache/
 bin/RegisterVisualizer*
 *.user
-.vscode/launch.json

@@ -9,10 +9,9 @@ import QtQuick.Dialogs 1.3
 Rectangle {
 
     property var valueList
-    property var configList: backend.getConfFileList()
     property var resetValue
 
-    property var regAddr: backend.getRegAddr()
+    property var regAddr
     property var currentValue: backend.fieldGet(regAddr)
     property var desiredValue: currentValue
 
@@ -23,7 +22,6 @@ Rectangle {
 
     function checkConfCurrent() {
         checkCurrent()
-//        console.log(backend.getValueFromConfigFile())
 
         var configValue = backend.getValueFromConfigFile()
 
@@ -49,7 +47,8 @@ Rectangle {
     id: parentRectangle
 
     Component.onCompleted: {
-        checkConfCurrent()
+        regAddr = backend.getRegAddr()
+        Promise.resolve().then(checkConfCurrent())
     }
 
     MessageDialog {

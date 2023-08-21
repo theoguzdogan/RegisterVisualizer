@@ -94,7 +94,6 @@ Button {
         }
 
         onClicked: {
-            console.log("pin small but 2 pressed")
             backend.removeFromPinConfig(pinId);
             refresh()
         }
