@@ -676,7 +676,7 @@ Window {
                         createPinButtons()
                     })
                     Promise.resolve().then(()=>{
-                        if (!(registerTextBox.text === registerTextBox.targetData)){
+                        if ((registerTextBox.text === registerTextBox.targetData)){
                         console.log("REGISTER WRITEMEM ERROR: check sshSet() function of backend or connection.")
                         }
                     })
