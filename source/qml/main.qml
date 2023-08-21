@@ -706,7 +706,6 @@ Window {
 
             onClicked: {
                 if (!registerDataViewPlaceHolder.visible){
-                    console.log("Save Config Pressed")
                     backend.saveRegConfig(registerTextBox.text)
                     Promise.resolve().then(()=>{
                         refresh()
@@ -1111,10 +1110,8 @@ Window {
         registerTextBox.regAddr = backend.getRegAddr()
         var bufferData = backend.checkBuffer(registerTextBox.regAddr)
         Promise.resolve().then(()=>{
-        console.log("buffer:",bufferData)})
         registerTextBox.targetData = backend.sshGet(registerTextBox.regAddr)
         Promise.resolve().then(()=>{
-        console.log("target:", registerTextBox.targetData)})
 
         if (bufferData === "-1") {
             registerTextBox.text = registerTextBox.targetData
@@ -1175,7 +1172,6 @@ Window {
         var selectedRegisterTab;
         for(var i=0; i<registerTabRow.children.length; i++){
             if(parseInt(registerTabRow.children[i].moduleId) === backend.returnGlobalModuleId() && registerTabRow.children[i].registerId === backend.returnGlobalRegId()) {
-//                console.log(i)
                 registerTabRow.children[i].opacity = 1
                 selectedRegisterTab = i
             }
