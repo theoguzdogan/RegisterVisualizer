@@ -676,8 +676,8 @@ Window {
                         createPinButtons()
                     })
                     Promise.resolve().then(()=>{
-                        if ((registerTextBox.text === registerTextBox.targetData)){
-                        console.log("REGISTER WRITEMEM ERROR: check sshSet() function of backend or connection.")
+                        if (!(registerTextBox.text === registerTextBox.targetData)){
+                        console.log("REGISTER WRITEMEM ERROR: CHECK sshSet() function of backend or connection.")
                         }
                     })
                 }
@@ -706,6 +706,7 @@ Window {
 
             onClicked: {
                 if (!registerDataViewPlaceHolder.visible){
+                    console.log("Save Config Pressed")
                     backend.saveRegConfig(registerTextBox.text)
                     Promise.resolve().then(()=>{
                         refresh()
@@ -1110,16 +1111,17 @@ Window {
         registerTextBox.regAddr = backend.getRegAddr()
         var bufferData = backend.checkBuffer(registerTextBox.regAddr)
         Promise.resolve().then(()=>{
+        console.log("buffer:",bufferData)})
         registerTextBox.targetData = backend.sshGet(registerTextBox.regAddr)
-        })
         Promise.resolve().then(()=>{
-            if (bufferData === "-1") {
-                registerTextBox.text = registerTextBox.targetData
-            }
-            else {
-                registerTextBox.text = bufferData
-            }
-        })
+        console.log("target:", registerTextBox.targetData)})
+
+        if (bufferData === "-1") {
+            registerTextBox.text = registerTextBox.targetData
+        }
+        else {
+            registerTextBox.text = bufferData
+        }
     }
 
     function createRegisterTabAlias(registerId) {
@@ -1173,6 +1175,7 @@ Window {
         var selectedRegisterTab;
         for(var i=0; i<registerTabRow.children.length; i++){
             if(parseInt(registerTabRow.children[i].moduleId) === backend.returnGlobalModuleId() && registerTabRow.children[i].registerId === backend.returnGlobalRegId()) {
+//                console.log(i)
                 registerTabRow.children[i].opacity = 1
                 selectedRegisterTab = i
             }
@@ -1234,6 +1237,7 @@ Window {
             fieldColumn.children[i].changeBorderToNormalState();
         }
         var fieldId = backend.returnGlobalFieldId()
+        console.log(fieldId)
         Promise.resolve().then(() => {
             if (parseInt(fieldId) === -1){
                 fieldUnitIndicatorBackground.visible = false

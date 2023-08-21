@@ -212,6 +212,7 @@ QString Backend::getRegAddr() {
     temp << std::hex << sum;
 
     QString sumStr = QString::fromStdString("0x" + temp.str());
+    qDebug() << sumStr;
 
     return sumStr;
 }
@@ -237,6 +238,7 @@ QString Backend::getFieldAddr() {
     temp << std::hex << sum;
 
     QString sumStr = QString::fromStdString("0x" + temp.str());
+    qDebug() << getRegAddr() << fieldRangeStart;
 
     return sumStr;
 }
@@ -1349,7 +1351,8 @@ void Backend::fieldSet(QString address, QString value) {
         if (foundTarget) {  // IF ADDRESS FOUND ON TARGET, COPY FOUND LINE TO THE COMMON VARIABLE
             line = targetLines.at(i);
         } else {  // IF NOT FOUND ON BOTH RESOURCES, LOG AN ERROR AND EXIT FUNCTION.
-            qDebug() << "REGISTER ADDRESS NOT FOUND."<< address;
+            qDebug() << "REGISTER ADDRESS NOT FOUND.";
+            qDebug() << address;
             return;
         }
     }
@@ -1926,6 +1929,7 @@ void Backend::addToPinConfig(QString componentType, QString componentId) {
         }
         }
 
+        qDebug() << QString::fromStdString(componentPath) << "WILL BE ADDED TO PIN AREA";
         std::ofstream outFile;
         outFile.open(Path::getSetupDir() + "/pinSlots.yaml",
                      std::ios::app);
@@ -1934,8 +1938,9 @@ void Backend::addToPinConfig(QString componentType, QString componentId) {
             outFile << componentPath << std::endl;
 
             outFile.close();
+            qDebug() << "Line added successfully.";
         } else {
-            qDebug() << "Failed to open the pinBoard config file.";
+            qDebug() << "Failed to open the file.";
         }
     }
 
@@ -1976,6 +1981,7 @@ void Backend::removeFromPinConfig(QString componentType, QString componentId) {
                     }
 
                     outputFile.close();
+                    qDebug() << "Line " << lineNumber << " deleted successfully.";
                 } else {
                     qDebug() << "pinConfig.yaml: Failed to open the file for writing.";
                 }
@@ -2019,6 +2025,7 @@ void Backend::removeFromPinConfig(int lineNumber) {
                     }
 
                     outputFile.close();
+                    qDebug() << "Line " << lineNumber << " deleted successfully.";
                 } else {
                     qDebug() << "pinConfig.yaml: Failed to open the file for writing.";
                 }
