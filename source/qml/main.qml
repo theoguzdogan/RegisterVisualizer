@@ -677,7 +677,7 @@ Window {
                     })
                     Promise.resolve().then(()=>{
                         if (!(registerTextBox.text === registerTextBox.targetData)){
-                        console.log("REGISTER WRITEMEM ERROR: CHECK sshSet() function of backend or connection.")
+                        console.log("REGISTER WRITEMEM ERROR: check sshSet() function of backend or connection.")
                         }
                     })
                 }
@@ -1111,14 +1111,15 @@ Window {
         var bufferData = backend.checkBuffer(registerTextBox.regAddr)
         Promise.resolve().then(()=>{
         registerTextBox.targetData = backend.sshGet(registerTextBox.regAddr)
+        })
         Promise.resolve().then(()=>{
-
-        if (bufferData === "-1") {
-            registerTextBox.text = registerTextBox.targetData
-        }
-        else {
-            registerTextBox.text = bufferData
-        }
+            if (bufferData === "-1") {
+                registerTextBox.text = registerTextBox.targetData
+            }
+            else {
+                registerTextBox.text = bufferData
+            }
+        })
     }
 
     function createRegisterTabAlias(registerId) {
@@ -1233,7 +1234,6 @@ Window {
             fieldColumn.children[i].changeBorderToNormalState();
         }
         var fieldId = backend.returnGlobalFieldId()
-        console.log(fieldId)
         Promise.resolve().then(() => {
             if (parseInt(fieldId) === -1){
                 fieldUnitIndicatorBackground.visible = false
