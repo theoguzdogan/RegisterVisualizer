@@ -633,6 +633,9 @@ Window {
             onTextChanged: {
                 if (!registerDataViewPlaceHolder.visible) {
                     backend.bufferSet(regAddr, text)
+                    if (!confPlaceHolder.visible) {
+                        createConfScreen(backend.returnGlobalFieldId())
+                    }
                 }
             }
 
