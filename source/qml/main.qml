@@ -632,7 +632,10 @@ Window {
 
             onTextChanged: {
                 if (!registerDataViewPlaceHolder.visible) {
-                    backend.bufferSet(regAddr, text)
+                    if (text === ""){
+                        text = backend.sshGet(regAddr)
+                    }
+                    Promise.resolve().then(()=>{backend.bufferSet(regAddr, text)})
                     if (!confPlaceHolder.visible) {
                         createConfScreen(backend.returnGlobalFieldId())
                     }
