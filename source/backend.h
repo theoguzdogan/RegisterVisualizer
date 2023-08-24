@@ -66,6 +66,7 @@ class Backend : public QObject {
     Q_INVOKABLE QString fieldGetFromTarget(QString address);
     Q_INVOKABLE void fieldSet(QString address, QString value);
     Q_INVOKABLE void bufferSet(QString address, QString value);
+    Q_INVOKABLE void emptyBuffer();
     Q_INVOKABLE QString checkBuffer(QString address);
     Q_INVOKABLE QString sshGet(QString address);
     Q_INVOKABLE int returnGlobalModuleId();

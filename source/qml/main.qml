@@ -35,6 +35,7 @@ Window {
     Component.onCompleted: {
         backend.setDefaultConfigId("default.yaml")
         Promise.resolve().then(refresh)
+        backend.emptyBuffer()
     }
 
     AbstractDialog {
@@ -632,7 +633,10 @@ Window {
 
             onTextChanged: {
                 if (!registerDataViewPlaceHolder.visible) {
-                    backend.bufferSet(regAddr, text)
+                    if (text === ""){
+                        text = backend.sshGet(regAddr)
+                    }
+                    Promise.resolve().then(()=>{backend.bufferSet(regAddr, text)})
                     if (!confPlaceHolder.visible) {
                         createConfScreen(backend.returnGlobalFieldId())
                     }

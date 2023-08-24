@@ -1576,52 +1576,68 @@ std::string Backend::reverseString(std::string str) {
 }
 
 void Backend::bufferSet(QString address, QString value) {
-    std::ifstream infile;
-    infile.open(Path::getSetupDir() + "/buffer.yaml");
-    std::vector<std::string> lines;
-    std::string buffer;
+    if(Backend::getRegWriteable(globalRegId.toInt())) {
+        std::ifstream infile;
+        infile.open(Path::getSetupDir() + "/buffer.yaml");
+        std::vector<std::string> lines;
+        std::string buffer;
 
-    while (std::getline(infile, buffer)) {
-        lines.push_back(buffer);
-    }
+        while (std::getline(infile, buffer)) {
+            lines.push_back(buffer);
+        }
 
-    infile.close();
-    int i;
-    std::string temp;
-    bool found = false;
+        infile.close();
+        int i;
+        std::string temp;
+        bool found = false;
 
-    for (i = 0; i < lines.size(); i++) {
-        std::string line = lines.at(i);
-        temp.clear();
-        for (int j = 0; j < line.size(); j++) {
-            if (line.at(j) == ':') {
+        for (i = 0; i < lines.size(); i++) {
+            std::string line = lines.at(i);
+            temp.clear();
+            for (int j = 0; j < line.size(); j++) {
+                if (line.at(j) == ':') {
+                    break;
+                }
+                temp.push_back(line[j]);
+            }
+
+            if (temp == address.toStdString()) {
+                found = true;
                 break;
             }
-            temp.push_back(line[j]);
         }
 
-        if (temp == address.toStdString()) {
-            found = true;
-            break;
+        if (found) {
+            lines.at(i) = temp + ": " + value.toStdString();
+        }
+
+        else {
+            lines.push_back(address.toStdString() + ": " + value.toStdString());
+        }
+
+        std::ofstream outfile;
+        outfile.open(Path::getSetupDir() + "/buffer.yaml");
+
+        foreach (std::string line, lines) {
+            outfile << line << endl;
+        }
+
+        outfile.close();
+
+        if (value.isEmpty()){
+            Backend::bufferSet(address, Backend::sshGet(address));
         }
     }
+}
 
-    if (found) {
-        lines.at(i) = temp + ": " + value.toStdString();
+void Backend::emptyBuffer() {
+    std::ofstream file(Path::getSetupDir() + "/buffer.yaml", std::ios::trunc); // Open the file in truncate mode
+
+    if (file.is_open()) {
+        file.close();
+    } else {
+        qDebug() << "Error opening the buffer.yaml file.";
     }
-
-    else {
-        lines.push_back(address.toStdString() + ": " + value.toStdString());
-    }
-
-    std::ofstream outfile;
-    outfile.open(Path::getSetupDir() + "/buffer.yaml");
-
-    foreach (std::string line, lines) {
-        outfile << line << endl;
-    }
-
-    outfile.close();
 }
 
 QString Backend::checkBuffer(QString address) {
@@ -1642,7 +1658,12 @@ QString Backend::checkBuffer(QString address) {
         if (temp == address.toStdString()) {
             buffer.erase(0, (i + 2));
             infile.close();
+            if(buffer == ""){
+                Backend::bufferSet(address, Backend::sshGet(address));
+                return Backend::sshGet(address);
+            } else {
             return QString::fromStdString(buffer);
+            }
         }
     }
 
