@@ -1111,23 +1111,31 @@ Window {
 
     function updateRegisterTextBox(registerId = backend.returnGlobalRegId()) {
         registerTextBox.regAddr = backend.getRegAddr()
-        var bufferData = backend.checkBuffer(registerTextBox.regAddr)
-        Promise.resolve().then(()=>{
-        registerTextBox.targetData = backend.sshGet(registerTextBox.regAddr)
-        })
-        Promise.resolve().then(()=>{
-            if (bufferData === "-1") {
-                registerTextBox.text = registerTextBox.targetData
-            }
-            else {
-                registerTextBox.text = bufferData
-            }
-        })
-        Promise.resolve().then(()=>{
-            registerTextBox.readOnly = !backend.getRegWriteable(registerId)
-            sendButton.enabled = backend.getRegWriteable(registerId)
-            registerConfigSaveButton.enabled = backend.getRegWriteable(registerId)
-        })
+        var isReadonly = !backend.getRegWriteable(registerId)
+
+        if (isReadonly){
+            registerTextBox.targetData = backend.sshGet(registerTextBox.regAddr)
+            registerTextBox.text = registerTextBox.targetData
+            registerTextBox.readOnly = true
+            sendButton.enabled = false
+            registerConfigSaveButton.enabled = false
+        } else {
+            var bufferData = backend.checkBuffer(registerTextBox.regAddr)
+            Promise.resolve().then(()=>{
+            registerTextBox.targetData = backend.sshGet(registerTextBox.regAddr)
+            })
+            Promise.resolve().then(()=>{
+                if (bufferData === "-1") {
+                    registerTextBox.text = registerTextBox.targetData
+                }
+                else {
+                    registerTextBox.text = bufferData
+                }
+            })
+            registerTextBox.readOnly = false
+            sendButton.enabled = true
+            registerConfigSaveButton.enabled = true
+        }
     }
 
     function createRegisterTabAlias(registerId) {
