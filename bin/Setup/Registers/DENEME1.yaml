@@ -55,3 +55,38 @@ DENEMEREG1:
      ConfType: "1"
      ResetValue: "0x0"
      Value:
+
+
+DENEMEREG2:
+
+ RegName: "DENEMEREG2"
+ ADDR: "0xA5"
+
+ Fields:
+
+  - READONLY1:
+     Name: "READONLY1"
+     Range: "[0,1]"
+     Read: "1"
+     Write: "0"
+     ConfType: "-1"
+     ResetValue: "0x0"
+     Value:
+   
+  - READONLY2:
+     Name: "READONLY2"
+     Range: "[1,3]"
+     Read: "1"
+     Write: "0"
+     ConfType: "-1"
+     ResetValue: "0x0"
+     Value:
+
+  - READONLY3:
+     Name: "READONLY3"
+     Range: "[3,4]"
+     Read: "1"
+     Write: "0"
+     ConfType: "-1"
+     ResetValue: "0x0"
+     Value:

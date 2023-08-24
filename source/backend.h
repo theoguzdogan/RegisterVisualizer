@@ -55,6 +55,7 @@ class Backend : public QObject {
     Q_INVOKABLE QString getResetValue(QString fieldId);
     Q_INVOKABLE QList<QString> getValueDescriptions(QString fieldId);
     Q_INVOKABLE QString getRegAddr();
+    Q_INVOKABLE bool getRegWriteable(int regId);
     Q_INVOKABLE QString getFieldAddr();
     Q_INVOKABLE void saveConfig(QString writeValue, int base);
     Q_INVOKABLE void saveRegConfig(QString writeValueHex);

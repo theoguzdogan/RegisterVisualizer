@@ -633,6 +633,9 @@ Window {
             onTextChanged: {
                 if (!registerDataViewPlaceHolder.visible) {
                     backend.bufferSet(regAddr, text)
+                    if (!confPlaceHolder.visible) {
+                        createConfScreen(backend.returnGlobalFieldId())
+                    }
                 }
             }
 
@@ -1106,7 +1109,7 @@ Window {
         checkSelectedRegister()
     }
 
-    function updateRegisterTextBox() {
+    function updateRegisterTextBox(registerId = backend.returnGlobalRegId()) {
         registerTextBox.regAddr = backend.getRegAddr()
         var bufferData = backend.checkBuffer(registerTextBox.regAddr)
         Promise.resolve().then(()=>{
@@ -1119,6 +1122,11 @@ Window {
             else {
                 registerTextBox.text = bufferData
             }
+        })
+        Promise.resolve().then(()=>{
+            registerTextBox.readOnly = !backend.getRegWriteable(registerId)
+            sendButton.enabled = backend.getRegWriteable(registerId)
+            registerConfigSaveButton.enabled = backend.getRegWriteable(registerId)
         })
     }
 
