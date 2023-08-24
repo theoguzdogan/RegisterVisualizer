@@ -63,6 +63,7 @@ class Backend : public QObject {
     Q_INVOKABLE QString returnHex(QString num);
     Q_INVOKABLE void sshSet(QString address, QString value);
     Q_INVOKABLE QString fieldGet(QString address);
+    Q_INVOKABLE QString fieldGetFromTarget(QString address);
     Q_INVOKABLE void fieldSet(QString address, QString value);
     Q_INVOKABLE void bufferSet(QString address, QString value);
     Q_INVOKABLE QString checkBuffer(QString address);
