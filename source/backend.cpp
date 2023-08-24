@@ -1218,7 +1218,7 @@ QString Backend::fieldGet(QString address) {
     } else {  // IF NOT, SEARCH THE TARGET FILE !!!WILL BE REPLACED WITH GRMON SCRIPTS OR VIA OR NOT
               // VIA SSH!!!
         std::ifstream targetFile;
-        targetFile.open(Path::getSetupDir() + "/target.yaml");
+        targetFile.open(Path::getSetupDir() + "/TargetMocks/target.yaml");
         std::vector<std::string> targetLines;
         std::string buffer;
 
