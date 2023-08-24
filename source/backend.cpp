@@ -218,7 +218,6 @@ QString Backend::getRegAddr() {
 
 bool Backend::getRegWriteable(int regId){
     int fieldAmount = Backend::getFieldList(Backend::returnGlobalRegId()).length();
-    qDebug()<<"fieldamount"<<fieldAmount;
     bool isWriteable = false;
     for (int i = 0; i < fieldAmount; i++) {
         std::vector<YAML::Node> nodeList = Yaml::getNodeListByKey(filePath, "Fields");
