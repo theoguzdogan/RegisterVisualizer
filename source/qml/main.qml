@@ -35,6 +35,7 @@ Window {
     Component.onCompleted: {
         backend.setDefaultConfigId("default.yaml")
         Promise.resolve().then(refresh)
+        backend.emptyBuffer()
     }
 
     AbstractDialog {

@@ -1624,9 +1624,19 @@ void Backend::bufferSet(QString address, QString value) {
 
         outfile.close();
 
-//        if (value.isEmpty()){
-//            Backend::bufferSet(address, Backend::sshGet(address));
-//        }
+        if (value.isEmpty()){
+            Backend::bufferSet(address, Backend::sshGet(address));
+        }
+    }
+}
+
+void Backend::emptyBuffer() {
+    std::ofstream file(Path::getSetupDir() + "/buffer.yaml", std::ios::trunc); // Open the file in truncate mode
+
+    if (file.is_open()) {
+        file.close();
+    } else {
+        qDebug() << "Error opening the buffer.yaml file.";
     }
 }
 
@@ -1648,7 +1658,12 @@ QString Backend::checkBuffer(QString address) {
         if (temp == address.toStdString()) {
             buffer.erase(0, (i + 2));
             infile.close();
+            if(buffer == ""){
+                Backend::bufferSet(address, Backend::sshGet(address));
+                return Backend::sshGet(address);
+            } else {
             return QString::fromStdString(buffer);
+            }
         }
     }
 
