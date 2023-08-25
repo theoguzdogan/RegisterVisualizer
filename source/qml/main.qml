@@ -659,7 +659,7 @@ Window {
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             anchors.margins: 5
-            width: 60
+            width: 50
             height: 20
             color: "transparent"
 
@@ -674,8 +674,16 @@ Window {
                 anchors.top: parent.top
                 anchors.left: parent.left
                 anchors.right: parent.right
-                text: "Hex"
-                palette.buttonText: "white"
+
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.left: parent.left
+                    anchors.leftMargin: parent.height
+                    anchors.right: parent.right
+                    color: "#ffffff"
+                    text: "Hex"
+                    verticalAlignment: Text.AlignVCenter
+                }
 
                 height: parent.height/2
                 background: Rectangle{
@@ -712,8 +720,16 @@ Window {
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
-                text: "Bin"
-                palette.buttonText: "white"
+
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.left: parent.left
+                    anchors.leftMargin: parent.height
+                    anchors.right: parent.right
+                    color: "#ffffff"
+                    text: "Bin"
+                    verticalAlignment: Text.AlignVCenter
+                }
 
                 height: parent.height/2
                 background: Rectangle{
