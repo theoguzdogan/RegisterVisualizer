@@ -619,18 +619,12 @@ Window {
             property var regAddr
             property var targetData
             color: baseSelection.isHex ? ((text === targetData) ? "black" : "red") : ((binaryToHex(text) === targetData) ? "black" : "red")
-//            color: (text === targetData) ? "black" : "red"
             background: Rectangle {
                 color: "white"
                 border.color: "#8f8fa8"
                 opacity: 0.9
                 radius: 10
             }
-
-//            ToolTip.delay: 500
-////            ToolTip.timeout: 5000
-//            ToolTip.visible: (!registerDataViewPlaceHolder.visible) && hovered
-//            ToolTip.text: hexToBinary(text)
 
             onTextChanged: {
                 if (!registerDataViewPlaceHolder.visible) {
