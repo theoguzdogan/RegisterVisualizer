@@ -614,11 +614,12 @@ Window {
             anchors.left: registerDataViewHeader.right
             anchors.top: parent.top
             anchors.bottom: parent.bottom
-            anchors.right: sendButton.left
+            anchors.right: baseSelection.left
             anchors.margins: 5
             property var regAddr
             property var targetData
-            color: (text === targetData) ? "black" : "red"
+            color: baseSelection.isHex ? ((text === targetData) ? "black" : "red") : ((binaryToHex(text) === targetData) ? "black" : "red")
+//            color: (text === targetData) ? "black" : "red"
             background: Rectangle {
                 color: "white"
                 border.color: "#8f8fa8"
@@ -626,32 +627,142 @@ Window {
                 radius: 10
             }
 
-            ToolTip.delay: 500
-//            ToolTip.timeout: 5000
-            ToolTip.visible: (!registerDataViewPlaceHolder.visible) && hovered
-            ToolTip.text: hexToBinary(text)
+//            ToolTip.delay: 500
+////            ToolTip.timeout: 5000
+//            ToolTip.visible: (!registerDataViewPlaceHolder.visible) && hovered
+//            ToolTip.text: hexToBinary(text)
 
             onTextChanged: {
                 if (!registerDataViewPlaceHolder.visible) {
-                    if (text === ""){
-                        text = backend.sshGet(regAddr)
+                    if (baseSelection.isHex){
+                        if (text === ""){
+                            text = backend.sshGet(regAddr)
+                        }
+                        Promise.resolve().then(()=>{backend.bufferSet(regAddr, text)})
+
+                    }else{
+                        if (text === ""){
+                            text = hexToBinary(backend.sshGet(regAddr))
+                        }
+                        Promise.resolve().then(()=>{backend.bufferSet(regAddr, binaryToHex(text))})
                     }
-                    Promise.resolve().then(()=>{backend.bufferSet(regAddr, text)})
                     if (!confPlaceHolder.visible) {
                         createConfScreen(backend.returnGlobalFieldId())
                     }
                 }
             }
-
-            function hexToBinary(hex) {
-                    var binary = parseInt(hex, 16).toString(2);
-                    if (binary !== "NaN" && binary.length <= 32) {
-                        binary = ("0".repeat((32-(binary.length)))) + binary;
-                    }
-                    binary = "Bin: " + binary
-                    return binary;
-                }
         }
+
+        Rectangle {
+            id: baseSelection
+            anchors.right: sendButton.left
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            anchors.margins: 5
+            width: 50
+            height: 20
+            color: "transparent"
+
+            property bool isHex: true
+
+
+
+            Button {
+                id: hexRadioButton
+                property bool selected : parent.isHex
+
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.left: parent.left
+                    anchors.leftMargin: parent.height
+                    anchors.right: parent.right
+                    color: "#ffffff"
+                    text: "Hex"
+                    verticalAlignment: Text.AlignVCenter
+                }
+
+                height: parent.height/2
+                background: Rectangle{
+                    color: "transparent"
+                }
+
+                Rectangle {
+                    anchors.left: parent.left
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: parent.height - 2
+                    height: parent.height - 2
+                    radius: parent.height - 2
+
+                    Rectangle {
+                        anchors.centerIn: parent
+                        width: parent.width - 6
+                        height: parent.height - 6
+                        radius: parent.height - 6
+                        color: "black"
+                        visible: parent.parent.selected
+                    }
+                }
+
+                onClicked: {
+                    parent.isHex = !parent.isHex
+                    Promise.resolve().then(changeBase)
+                }
+            }
+            Button {
+                id: binRadioButton
+                property bool selected : !parent.isHex
+
+
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.left: parent.left
+                    anchors.leftMargin: parent.height
+                    anchors.right: parent.right
+                    color: "#ffffff"
+                    text: "Bin"
+                    verticalAlignment: Text.AlignVCenter
+                }
+
+                height: parent.height/2
+                background: Rectangle{
+                    color: "transparent"
+                }
+
+                Rectangle {
+                    anchors.left: parent.left
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: parent.height - 2
+                    height: parent.height - 2
+                    radius: parent.height - 2
+
+                    Rectangle {
+                        anchors.centerIn: parent
+                        width: parent.width - 6
+                        height: parent.height - 6
+                        radius: parent.height - 6
+                        color: "black"
+                        visible: parent.parent.selected
+                    }
+                }
+
+                onClicked: {
+                    parent.isHex = !parent.isHex
+                    Promise.resolve().then(changeBase)
+                }
+            }
+
+
+        }
+
+
 
         Button {
             id: sendButton
@@ -675,17 +786,15 @@ Window {
 
             onClicked: {
                 if (!registerDataViewPlaceHolder.visible) {
-                    console.log("RegisterValue sent.")
-                    backend.sshSet(registerTextBox.regAddr, registerTextBox.text)
+                    if (baseSelection.isHex){
+                        backend.sshSet(registerTextBox.regAddr, registerTextBox.text)
+                    } else {
+                        backend.sshSet(registerTextBox.regAddr, binaryToHex(registerTextBox.text))
+                    }
                     Promise.resolve().then(()=>{
                         refresh()
                         updateRegisterTextBox()
                         createPinButtons()
-                    })
-                    Promise.resolve().then(()=>{
-                        if ((registerTextBox.text === registerTextBox.targetData)){
-                        console.log("REGISTER WRITEMEM ERROR: check sshSet() function of backend or connection.")
-                        }
                     })
                 }
             }
@@ -713,13 +822,16 @@ Window {
 
             onClicked: {
                 if (!registerDataViewPlaceHolder.visible){
-                    backend.saveRegConfig(registerTextBox.text)
+                    if (baseSelection.isHex) {
+                        backend.saveRegConfig(registerTextBox.text)
+                    } else {
+                        backend.saveRegConfig(binaryToHex(registerTextBox.text))
+                    }
                     Promise.resolve().then(()=>{
                         refresh()
                         updateRegisterTextBox()
                         createPinButtons()
                     })
-                //saved config value check may be added
                 }
             }
         }
@@ -1119,10 +1231,11 @@ Window {
 
         if (isReadonly){
             registerTextBox.targetData = backend.sshGet(registerTextBox.regAddr)
-            registerTextBox.text = registerTextBox.targetData
+            registerTextBox.text = baseSelection.isHex ? (registerTextBox.targetData) : hexToBinary(registerTextBox.targetData)
             registerTextBox.readOnly = true
             sendButton.enabled = false
             registerConfigSaveButton.enabled = false
+
         } else {
             var bufferData = backend.checkBuffer(registerTextBox.regAddr)
             Promise.resolve().then(()=>{
@@ -1130,10 +1243,10 @@ Window {
             })
             Promise.resolve().then(()=>{
                 if (bufferData === "-1") {
-                    registerTextBox.text = registerTextBox.targetData
+                    registerTextBox.text = baseSelection.isHex ? (registerTextBox.targetData) : hexToBinary(registerTextBox.targetData)
                 }
                 else {
-                    registerTextBox.text = bufferData
+                    registerTextBox.text = baseSelection.isHex ? (bufferData) : hexToBinary(bufferData)
                 }
             })
             registerTextBox.readOnly = false
@@ -1402,6 +1515,31 @@ Window {
         for (i = 0 ; i < pinButtonRow1.children.length; i++) {
             pinButtonRow1.children[i].destroy()
         }
+    }
+
+    function hexToBinary(hex) {
+        var binary = parseInt(hex, 16).toString(2);
+        if (binary !== "NaN" && binary.length <= 32) {
+            binary = ("0".repeat((32-(binary.length)))) + binary;
+        }
+        return binary;
+    }
+
+    function binaryToHex(binary) {
+        // Remove "Bin: " prefix if present
+        binary = binary.replace("Bin: ", "");
+
+        // Ensure the binary string has a multiple of 4 characters
+        while (binary.length % 4 !== 0) {
+            binary = "0" + binary;
+        }
+
+        var hex = parseInt(binary, 2).toString(16).toUpperCase();
+        return "0x"+hex;
+    }
+
+    function changeBase(){
+        registerTextBox.text = baseSelection.isHex ? binaryToHex(registerTextBox.text) : hexToBinary(registerTextBox.text)
     }
 
     Connections { target: backend }
