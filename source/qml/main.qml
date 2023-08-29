@@ -17,20 +17,33 @@ Window {
     minimumHeight: 650
     visible: true
 //    color: "#27273a"
+//    opacity: 0.5
+
+    color: "transparent"
 
     title: qsTr("RegisterVisualiser")
     id: rootObject
 
-    Rectangle
-    {
+    ColorOverlay {
         anchors.fill: parent
-        gradient: Gradient
-        {
-            GradientStop { position: 0.000; color: "#52002D" }
-            GradientStop { position: 0.600; color: "#00013D" }
-            GradientStop { position: 1.000; color: "#00013D" }
-        }
+//        color: "#16002C" // deep-purple
+//        color: "#061A15" // alpine-green
+//        color: "#1A1A1A" // dark-grey(alomst black)
+        color: "#27273a"
+        opacity: 0.96
     }
+
+//    Rectangle
+//    {
+//        anchors.fill: parent
+//        gradient: Gradient
+//        {
+//            GradientStop { position: 0.000; color: "#52002D" }
+//            GradientStop { position: 0.600; color: "#00013D" }
+//            GradientStop { position: 1.000; color: "#00013D" }
+//        }
+////        opacity: 0.9
+//    }
 
     Component.onCompleted: {
         backend.setDefaultConfigId("default.yaml")
@@ -269,7 +282,7 @@ Window {
             background: Rectangle {
                 radius: 10
                 gradient: Gradient {
-                    GradientStop { position: 0.0; color: refreshButton.pressed ? "#BDDBBD" : (refreshButton.hovered ? "#A7C2A7" : "#A89F91") }
+                    GradientStop { position: 0.0; color: refreshButton.pressed ? "#BDDBBD" : (refreshButton.hovered ? "#D3E0E0" : "#BBE6E6") }
                     GradientStop { position: 1.0; color: refreshButton.pressed ? "#00B3B3" : (refreshButton.hovered ? "#009999" : "#008080") }
                 }
             }
@@ -292,7 +305,7 @@ Window {
             background: Rectangle {
                 radius: 10
                 gradient: Gradient {
-                    GradientStop { position: 0.0; color: saveAllButton.pressed ? "#BDDBBD" : (saveAllButton.hovered ? "#A7C2A7" : "#A89F91") }
+                    GradientStop { position: 0.0; color: saveAllButton.pressed ? "#BDDBBD" : (saveAllButton.hovered ? "#D3E0E0" : "#BBE6E6") }
                     GradientStop { position: 1.0; color: saveAllButton.pressed ? "#00B3B3" : (saveAllButton.hovered ? "#009999" : "#008080") }
                 }
 
@@ -663,6 +676,27 @@ Window {
 
             property bool isHex: true
 
+            Rectangle {
+                anchors.left: hexRadioButton.left
+                anchors.top: hexRadioButton.top
+                anchors.topMargin: 1
+                anchors.bottom: binRadioButton.bottom
+                anchors.bottomMargin: 1
+                width: binRadioButton.height - 2
+                radius: binRadioButton.height - 2
+//                color: "#4891d9"
+
+                gradient: Gradient
+                {
+                    GradientStop { position: 0.000;  color: baseSelection.isHex ? "#81bffc" : "#2358a3"}
+                    GradientStop { position: 1.000; color: baseSelection.isHex ? "#2358a3" : "#81bffc"}
+//                    GradientStop { position: 0.000; color: parent.isHex ? "#4891d9" : "#2358a3" }
+//                    GradientStop { position: 1.000; color: parent.isHex ? "#2358a3" : "#4891d9" }
+
+                }
+
+            }
+
 
 
             Button {
@@ -676,10 +710,11 @@ Window {
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.left: parent.left
-                    anchors.leftMargin: parent.height
+                    anchors.leftMargin: parent.height+1
                     anchors.right: parent.right
-                    color: "#ffffff"
+                    color: "#FFFFFF"
                     text: "Hex"
+                    font.bold: baseSelection.isHex
                     verticalAlignment: Text.AlignVCenter
                 }
 
@@ -690,19 +725,13 @@ Window {
 
                 Rectangle {
                     anchors.left: parent.left
+                    anchors.leftMargin: 2
                     anchors.verticalCenter: parent.verticalCenter
-                    width: parent.height - 2
-                    height: parent.height - 2
-                    radius: parent.height - 2
-
-                    Rectangle {
-                        anchors.centerIn: parent
-                        width: parent.width - 6
-                        height: parent.height - 6
-                        radius: parent.height - 6
-                        color: "black"
-                        visible: parent.parent.selected
-                    }
+                    width: parent.height - 6
+                    height: parent.height - 6
+                    radius: parent.height - 6
+                    color: "#FFFFFF"
+                    visible: parent.selected
                 }
 
                 onClicked: {
@@ -710,10 +739,10 @@ Window {
                     Promise.resolve().then(changeBase)
                 }
             }
+
             Button {
                 id: binRadioButton
                 property bool selected : !parent.isHex
-
 
                 anchors.left: parent.left
                 anchors.right: parent.right
@@ -722,10 +751,11 @@ Window {
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.left: parent.left
-                    anchors.leftMargin: parent.height
+                    anchors.leftMargin: parent.height+1
                     anchors.right: parent.right
-                    color: "#ffffff"
+                    color: "#FFFFFF"
                     text: "Bin"
+                    font.bold: !baseSelection.isHex
                     verticalAlignment: Text.AlignVCenter
                 }
 
@@ -736,26 +766,22 @@ Window {
 
                 Rectangle {
                     anchors.left: parent.left
+                    anchors.leftMargin: 2
                     anchors.verticalCenter: parent.verticalCenter
-                    width: parent.height - 2
-                    height: parent.height - 2
-                    radius: parent.height - 2
-
-                    Rectangle {
-                        anchors.centerIn: parent
-                        width: parent.width - 6
-                        height: parent.height - 6
-                        radius: parent.height - 6
-                        color: "black"
-                        visible: parent.parent.selected
-                    }
+                    width: parent.height - 6
+                    height: parent.height - 6
+                    radius: parent.height - 6
+                    color: "#FFFFFF"
+                    visible: parent.selected
                 }
+
 
                 onClicked: {
                     parent.isHex = !parent.isHex
                     Promise.resolve().then(changeBase)
                 }
             }
+
 
 
         }
@@ -777,7 +803,7 @@ Window {
                 radius: 10
 
                 gradient: Gradient {
-                    GradientStop { position: 0.0; color: ((!registerDataViewPlaceHolder.visible) && sendButton.pressed) ? "#BDDBBD" : (((!registerDataViewPlaceHolder.visible)&&sendButton.hovered) ? "#A7C2A7" : "#A89F91") }
+                    GradientStop { position: 0.0; color: ((!registerDataViewPlaceHolder.visible) && sendButton.pressed) ? "#BDDBBD" : (((!registerDataViewPlaceHolder.visible)&&sendButton.hovered) ? "#D3E0E0" : "#BBE6E6") }
                     GradientStop { position: 1.0; color: ((!registerDataViewPlaceHolder.visible) && sendButton.pressed) ? "#00B3B3" : (((!registerDataViewPlaceHolder.visible)&&sendButton.hovered) ? "#009999" : "#008080") }
                 }
             }
@@ -813,7 +839,7 @@ Window {
                 radius: 10
 
                 gradient: Gradient {
-                    GradientStop { position: 0.0; color: ((!registerDataViewPlaceHolder.visible) && registerConfigSaveButton.pressed) ? "#BDDBBD" : (((!registerDataViewPlaceHolder.visible)&&registerConfigSaveButton.hovered) ? "#A7C2A7" : "#A89F91") }
+                    GradientStop { position: 0.0; color: ((!registerDataViewPlaceHolder.visible) && registerConfigSaveButton.pressed) ? "#BDDBBD" : (((!registerDataViewPlaceHolder.visible)&&registerConfigSaveButton.hovered) ? "#D3E0E0" : "#BBE6E6") }
                     GradientStop { position: 1.0; color: ((!registerDataViewPlaceHolder.visible) && registerConfigSaveButton.pressed) ? "#00B3B3" : (((!registerDataViewPlaceHolder.visible)&&registerConfigSaveButton.hovered) ? "#009999" : "#008080") }
                 }
             }
