@@ -626,6 +626,10 @@ Window {
                 radius: 10
             }
 
+            ToolTip.delay: 500
+            ToolTip.visible: (!registerDataViewPlaceHolder.visible) && hovered
+            ToolTip.text: "Register Address: " + regAddr
+
             onTextChanged: {
                 if (!registerDataViewPlaceHolder.visible) {
                     if (baseSelection.isHex){
