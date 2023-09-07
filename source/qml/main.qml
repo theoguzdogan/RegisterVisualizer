@@ -192,6 +192,71 @@ Window {
         }
 
         Rectangle {
+            anchors.right: grmonComboBox.horizontalCenter
+            anchors.verticalCenter: parent.verticalCenter
+            width : grmonConfHeader.width + grmonComboBox.width/2 + 20
+            height : grmonComboBox.height
+            color: "transparent"
+            Rectangle {
+                anchors.fill: parent
+                color: "#4d4d63"
+                border.color: "#8f8fa8"
+                opacity: 0.5
+                radius: 10
+            }
+
+            Text {
+                id: grmonConfHeader
+                text: "GRMON Script"
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignHCenter
+                font.pointSize: 11
+                color: "#FFFFFF"
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.left: parent.left
+                anchors.leftMargin: 10
+            }
+        }
+
+        ComboBox {
+            id: grmonComboBox
+            editable: true
+//            anchors.right: refreshButton.left
+            anchors.right: referenceConfHeaderContainer.left
+            anchors.rightMargin: 10
+            anchors.verticalCenter: parent.verticalCenter
+            width: 200
+            height: 35
+
+            background: Rectangle {
+                color: "#FFFFFF"
+                radius: 10
+                opacity: 0.5
+            }
+
+            model: ListModel {
+                id: grmonComboBoxContent
+
+                Component.onCompleted: {
+                    grmonComboBox.currentIndex = 0;
+                }
+
+            }
+
+            Component.onCompleted: {
+                var grmonScriptList = backend.getGrmonScriptList()
+                for (var it in grmonScriptList){
+                    grmonComboBoxContent.append({text:grmonScriptList[it]})
+                }
+            }
+
+            onCurrentValueChanged: {
+                console.log("GRMON SCRIPT CHANGED")
+            }
+        }
+
+        Rectangle {
+            id: referenceConfHeaderContainer
             anchors.right: configComboBox.horizontalCenter
             anchors.verticalCenter: parent.verticalCenter
             width : referenceConfHeader.width + configComboBox.width/2 + 20
@@ -218,12 +283,11 @@ Window {
             }
         }
 
-
-
         ComboBox {
             id: configComboBox
             editable: true
-            anchors.right: refreshButton.left
+//            anchors.right: refreshButton.left
+            anchors.right: saveAllButton.left
             anchors.rightMargin: 10
             anchors.verticalCenter: parent.verticalCenter
             width: 200
@@ -268,29 +332,29 @@ Window {
             }
         }
 
-        Button {
-            id: refreshButton
-            text: "Refresh"
-            width: 90
-            height: 30
-            anchors.right: saveAllButton.left
-            anchors.rightMargin: 10
-            anchors.verticalCenter: parent.verticalCenter
+//        Button {
+//            id: refreshButton
+//            text: "Refresh"
+//            width: 90
+//            height: 30
+//            anchors.right: saveAllButton.left
+//            anchors.rightMargin: 10
+//            anchors.verticalCenter: parent.verticalCenter
 
-            palette.buttonText: "white"
+//            palette.buttonText: "white"
 
-            background: Rectangle {
-                radius: 10
-                gradient: Gradient {
-                    GradientStop { position: 0.0; color: refreshButton.pressed ? "#BDDBBD" : (refreshButton.hovered ? "#D3E0E0" : "#BBE6E6") }
-                    GradientStop { position: 1.0; color: refreshButton.pressed ? "#00B3B3" : (refreshButton.hovered ? "#009999" : "#008080") }
-                }
-            }
+//            background: Rectangle {
+//                radius: 10
+//                gradient: Gradient {
+//                    GradientStop { position: 0.0; color: refreshButton.pressed ? "#BDDBBD" : (refreshButton.hovered ? "#D3E0E0" : "#BBE6E6") }
+//                    GradientStop { position: 1.0; color: refreshButton.pressed ? "#00B3B3" : (refreshButton.hovered ? "#009999" : "#008080") }
+//                }
+//            }
 
-            onClicked: {
-                refresh()
-            }
-        }
+//            onClicked: {
+//                refresh()
+//            }
+//        }
 
         Button {
             id: saveAllButton

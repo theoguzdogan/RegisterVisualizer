@@ -57,6 +57,13 @@ QList<QString> Backend::getConfFileList() {
     return yamlFiles;
 }
 
+QList<QString> Backend::getGrmonScriptList() {
+    QDir directory(QString::fromStdString(Path::getSetupDir()) + "/TargetMocks/grmon_imitator/linux");
+    QStringList grmonScripts = directory.entryList(QStringList() << "*.sh", QDir::Files);
+
+    return grmonScripts;
+}
+
 void Backend::setFilePath(int moduleId) {
     globalModuleId = moduleId;
     filePath = Path::getSetupDir() + "/Registers/" +

@@ -19,6 +19,7 @@ class Backend : public QObject {
      */
     Q_INVOKABLE QList<QString> getFileList();
     Q_INVOKABLE QList<QString> getConfFileList();
+    Q_INVOKABLE QList<QString> getGrmonScriptList();
 
     /**
      * @brief Set the file path to the certain .yaml file in "./src/reg" according to the moduleId
