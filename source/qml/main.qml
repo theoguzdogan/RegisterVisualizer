@@ -9,7 +9,7 @@ import QtQuick.Dialogs 1.3
 
 Window {
     property int columnGap: 120
-    property string targetName: "STARKIT" //this is the variable for the header
+    property string targetName: "SCOC3" //this is the variable for the header
 
     width: 1200
     height: 720
