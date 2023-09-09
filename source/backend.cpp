@@ -2150,3 +2150,65 @@ void Backend::removeFromPinConfig(int lineNumber) {
         }
     }
 }
+
+
+//SCRIPT CONNECTION
+
+void Backend::launchScript(QString scriptName){
+    if(Backend::startScript(QString::fromStdString(Path::getSetupDir()+"TargetMocks/grmon_imitator/linux/")+scriptName)){
+        qDebug()<<"Script launched.";
+    } else {
+        qDebug()<<"Script launch error!";
+    }
+}
+
+void Backend::processOutput() {
+    QByteArray data = Backend::scriptProcess.readAllStandardOutput();
+    qDebug()<<data;
+    // Process the data as needed
+}
+
+
+bool Backend::startScript(const QString& scriptPath) {
+    // Start the Bash script and configure the process
+    Backend::scriptProcess.setProgram("bash");
+    QStringList args;
+    args << scriptPath;
+    Backend::scriptProcess.setArguments(args);
+
+            // Configure the process for reading and writing
+    Backend::scriptProcess.setProcessChannelMode(QProcess::SeparateChannels);
+    Backend::scriptProcess.setReadChannel(QProcess::StandardOutput);
+//    Backend::scriptProcess.setWriteChannel(QProcess::StandardInput);
+
+    Backend::scriptProcess.start();  // Start the process
+
+            // Check if the process started successfully
+    if (!Backend::scriptProcess.waitForStarted()) {
+        qDebug() << "Failed to start the script.";
+        return false;
+    }
+
+    return true;
+}
+
+// Function to send a command to the running script
+void Backend::sendScriptCommand(const QString &command) {
+    if (Backend::scriptProcess.state() == QProcess::Running) {
+        Backend::scriptProcess.write(command.toUtf8());
+        Backend::scriptProcess.write("\n");  // You might need to add a newline character
+        Backend::scriptProcess.waitForBytesWritten();  // Wait for the data to be written to the process
+    }
+}
+
+// Function to stop the script
+void Backend::stopScript() {
+    if (Backend::scriptProcess.state() == QProcess::Running) {
+        Backend::scriptProcess.terminate();
+        Backend::scriptProcess.waitForFinished();
+        qDebug() << "Script stopped.";
+    } else {
+        qDebug() << "Script is not running.";
+    }
+}
+

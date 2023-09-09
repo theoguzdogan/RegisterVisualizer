@@ -2,8 +2,12 @@
 #define BACKEND_H
 
 #include <QtCore/QtCore>
+#include <QProcess>
+#include <QByteArray>
+
 
 #include "treeNode.h"
+
 
 
 class Backend : public QObject {
@@ -11,6 +15,7 @@ class Backend : public QObject {
 
    public:
     Backend() = default;
+    QProcess scriptProcess;
 
    public slots:
     /**
@@ -86,6 +91,14 @@ class Backend : public QObject {
     Q_INVOKABLE void addToPinConfig(QString componentType, QString componentId);
     Q_INVOKABLE void removeFromPinConfig(QString componentType, QString componentId);
     Q_INVOKABLE void removeFromPinConfig(int lineNumber);
+
+
+    Q_INVOKABLE void launchScript(QString scriptName);
+    Q_INVOKABLE bool startScript(const QString& scriptPath);
+    Q_INVOKABLE void sendScriptCommand(const QString& command);
+    Q_INVOKABLE void stopScript();
+    Q_INVOKABLE void processOutput();
+
 
    private:
     QList<QString> vectorToQList(std::vector<std::string> vector);
