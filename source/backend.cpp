@@ -6,6 +6,7 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QtCore/QDir>
 #include <QtCore/QThread>
+#include <QSysInfo>
 #include <bitset>
 #include <filesystem>
 #include <fstream>
@@ -2171,19 +2172,24 @@ void Backend::processOutput() {
 
 bool Backend::startScript(const QString& scriptPath) {
     // Start the Bash script and configure the process
-    Backend::scriptProcess.setProgram("bash");
+    if(QSysInfo::kernelType()=="linux"){
+        Backend::scriptProcess.setProgram("bash");
+    } else if(QSysInfo::kernelType()=="winnt") {
+        Backend::scriptProcess.setProgram("cmd.exe");
+    } else {
+        qDebug() << "Failed to start the script.(Unknown kernel type)";
+        return false;
+    }
     QStringList args;
     args << scriptPath;
     Backend::scriptProcess.setArguments(args);
 
-            // Configure the process for reading and writing
+    // Configure the process for reading and writing
     Backend::scriptProcess.setProcessChannelMode(QProcess::SeparateChannels);
     Backend::scriptProcess.setReadChannel(QProcess::StandardOutput);
-//    Backend::scriptProcess.setWriteChannel(QProcess::StandardInput);
-
     Backend::scriptProcess.start();  // Start the process
 
-            // Check if the process started successfully
+    // Check if the process started successfully
     if (!Backend::scriptProcess.waitForStarted()) {
         qDebug() << "Failed to start the script.";
         return false;

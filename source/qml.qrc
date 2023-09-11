@@ -17,5 +17,6 @@
         <file>assets/warning.svg</file>
         <file>assets/tai_logo_white.svg</file>
         <file>assets/tai_logo_color.svg</file>
+        <file>qml/DraggablePanel.qml</file>
     </qresource>
 </RCC>

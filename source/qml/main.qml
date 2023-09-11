@@ -6,10 +6,13 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import Qt.labs.folderlistmodel 2.1
 import QtQuick.Dialogs 1.3
+import "./"
 
 Window {
     property int columnGap: 120
     property string targetName: "SCOC3" //this is the variable for the header
+
+//    flags: Qt.Window | Qt.FramelessWindowHint
 
     width: 1200
     height: 720
@@ -24,14 +27,30 @@ Window {
     title: qsTr("RegisterVisualiser")
     id: rootObject
 
-    ColorOverlay {
+//    Rectangle{
+//        width: rootObject.width
+//        height: 20
+//        anchors.top: rootObject.top
+//        z:1
+//    }
+
+    Rectangle {
         anchors.fill: parent
-//        color: "#16002C" // deep-purple
-//        color: "#061A15" // alpine-green
-//        color: "#1A1A1A" // dark-grey(alomst black)
+        radius: 10
         color: "#27273a"
         opacity: 0.96
+//        DraggablePanel { target: rootObject }
     }
+//    ColorOverlay {
+//        anchors.fill: parent
+////        color: "#16002C" // deep-purple
+////        color: "#061A15" // alpine-green
+////        color: "#1A1A1A" // dark-grey(alomst black)
+//        color: "#27273a"
+//        opacity: 0.96
+
+//    }
+
 
 //    Rectangle
 //    {
@@ -49,7 +68,125 @@ Window {
         backend.setDefaultConfigId("default.yaml")
         Promise.resolve().then(refresh)
         backend.emptyBuffer()
+//        scriptDialog.open()
+        scriptFileDialog.open()
+        console.log(Qt.platform.os)
     }
+
+    FileDialog{
+        id: scriptFileDialog
+        nameFilters: Qt.platform.os === "linux" ? "Bash files (*.sh)" : (Qt.platform.os === "windows" ? "Batch files (*.bat)":"Any file (*)")
+        onSelectionAccepted: {
+            console.log(fileUrl)
+        }
+    }
+
+
+    AbstractDialog {
+        id: scriptDialog
+        width: 300
+        height: 500
+
+        Rectangle {
+            id: scriptSelectRectangle
+            color: "#27273a"
+
+            Text {
+                id: scriptSelectionCaption
+                anchors.top: scriptSelectRectangle.top
+                anchors.left: scriptSelectRectangle.left
+                anchors.margins: 15
+                color: "#ffffff"
+                text: "Select GRMON script:"
+                font.pointSize: 10
+            }
+
+            Row {
+                id: scriptSelectionRow
+                anchors.top: scriptSelectionCaption.bottom
+                anchors.left: scriptSelectRectangle.left
+                anchors.right: scriptSelectRectangle.right
+                anchors.margins: 15
+                height: 35
+                spacing: 10
+
+                ComboBox {
+                    id: scriptComboBox
+                    editable: true
+                    width: 200
+                    height: 35
+
+                    background: Rectangle {
+                        color: "#FFFFFF"
+                        opacity: 0.5
+                    }
+
+
+                    model: ListModel {
+                        id: scriptComboBoxContent
+
+                        Component.onCompleted: {
+                            scriptComboBox.currentIndex = 0;
+                        }
+                    }
+
+                    Component.onCompleted: {
+                        var grmonScriptList = backend.getGrmonScriptList()
+                        for (var it in grmonScriptList){
+                            scriptComboBoxContent.append({text:grmonScriptList[it]})
+                        }
+                    }
+
+                    onCurrentValueChanged: {
+                        console.log("GRMON SCRIPT CHANGED")
+                    }
+
+                    popup.x: 0
+                    popup.y: parent.height
+                    popup.clip: true
+
+//                    onDownChanged: {
+//                        if(down){
+//                            scriptDialog.height = 110 + popup.height
+//                            scriptDialog.y += popup.height + 10
+//                        } else {
+//                            scriptDialog.height = 100
+//                        }
+
+
+//                    }
+
+                }
+
+                Text{
+                    text: scriptComboBox.currentText === "Select an option" ? "" : scriptComboBox.currentText
+                    color: "#000000"
+                    font.pixelSize: 12
+                    visible: scriptComboBox.currentText === "Select an option"
+
+                }
+
+                Button {
+                    id: scriptDialogButton
+                    text:"OK"
+                    width: 55
+                    height: 35
+                    background: Rectangle {
+                        color: "#4891d9"
+                        radius: 10
+                    }
+                         onClicked: {
+                        if (scriptComboBox.currentText !== "Select an option") {
+                            console.log("Selected: " + scriptComboBox.currentText);
+                        }
+                    }
+
+                }
+            }
+
+        }
+    }
+
 
     AbstractDialog {
             id: configFileDialog
@@ -191,69 +328,69 @@ Window {
             }
         }
 
-        Rectangle {
-            anchors.right: grmonComboBox.horizontalCenter
-            anchors.verticalCenter: parent.verticalCenter
-            width : grmonConfHeader.width + grmonComboBox.width/2 + 20
-            height : grmonComboBox.height
-            color: "transparent"
-            Rectangle {
-                anchors.fill: parent
-                color: "#4d4d63"
-                border.color: "#8f8fa8"
-                opacity: 0.5
-                radius: 10
-            }
+//        Rectangle {
+//            anchors.right: grmonComboBox.horizontalCenter
+//            anchors.verticalCenter: parent.verticalCenter
+//            width : grmonConfHeader.width + grmonComboBox.width/2 + 20
+//            height : grmonComboBox.height
+//            color: "transparent"
+//            Rectangle {
+//                anchors.fill: parent
+//                color: "#4d4d63"
+//                border.color: "#8f8fa8"
+//                opacity: 0.5
+//                radius: 10
+//            }
 
-            Text {
-                id: grmonConfHeader
-                text: "GRMON Script"
-                verticalAlignment: Text.AlignVCenter
-                horizontalAlignment: Text.AlignHCenter
-                font.pointSize: 11
-                color: "#FFFFFF"
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.left: parent.left
-                anchors.leftMargin: 10
-            }
-        }
+//            Text {
+//                id: grmonConfHeader
+//                text: "GRMON Script"
+//                verticalAlignment: Text.AlignVCenter
+//                horizontalAlignment: Text.AlignHCenter
+//                font.pointSize: 11
+//                color: "#FFFFFF"
+//                anchors.verticalCenter: parent.verticalCenter
+//                anchors.left: parent.left
+//                anchors.leftMargin: 10
+//            }
+//        }
 
-        ComboBox {
-            id: grmonComboBox
-            editable: true
-//            anchors.right: refreshButton.left
-            anchors.right: referenceConfHeaderContainer.left
-            anchors.rightMargin: 10
-            anchors.verticalCenter: parent.verticalCenter
-            width: 200
-            height: 35
+//        ComboBox {
+//            id: grmonComboBox
+//            editable: true
+////            anchors.right: refreshButton.left
+//            anchors.right: referenceConfHeaderContainer.left
+//            anchors.rightMargin: 10
+//            anchors.verticalCenter: parent.verticalCenter
+//            width: 200
+//            height: 35
 
-            background: Rectangle {
-                color: "#FFFFFF"
-                radius: 10
-                opacity: 0.5
-            }
+//            background: Rectangle {
+//                color: "#FFFFFF"
+//                radius: 10
+//                opacity: 0.5
+//            }
 
-            model: ListModel {
-                id: grmonComboBoxContent
+//            model: ListModel {
+//                id: grmonComboBoxContent
 
-                Component.onCompleted: {
-                    grmonComboBox.currentIndex = 0;
-                }
+//                Component.onCompleted: {
+//                    grmonComboBox.currentIndex = 0;
+//                }
 
-            }
+//            }
 
-            Component.onCompleted: {
-                var grmonScriptList = backend.getGrmonScriptList()
-                for (var it in grmonScriptList){
-                    grmonComboBoxContent.append({text:grmonScriptList[it]})
-                }
-            }
+//            Component.onCompleted: {
+//                var grmonScriptList = backend.getGrmonScriptList()
+//                for (var it in grmonScriptList){
+//                    grmonComboBoxContent.append({text:grmonScriptList[it]})
+//                }
+//            }
 
-            onCurrentValueChanged: {
-                console.log("GRMON SCRIPT CHANGED")
-            }
-        }
+//            onCurrentValueChanged: {
+//                console.log("GRMON SCRIPT CHANGED")
+//            }
+//        }
 
         Rectangle {
             id: referenceConfHeaderContainer
