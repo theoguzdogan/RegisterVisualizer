@@ -7,6 +7,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QThread>
 #include <QSysInfo>
+#include <QFileInfo>
 #include <bitset>
 #include <filesystem>
 #include <fstream>
@@ -2157,7 +2158,7 @@ void Backend::removeFromPinConfig(int lineNumber) {
 //SCRIPT CONNECTION
 
 void Backend::launchScript(QString scriptName){
-    if(Backend::startScript(QString::fromStdString(Path::getSetupDir()+"TargetMocks/grmon_imitator/python_executables/")+scriptName+"/dist/"+scriptName+"/"+scriptName)){
+    if(Backend::startScript(QString::fromStdString(Path::getSetupDir()+"TargetMocks/grmon_imitator/python_executables/")+scriptName+"/"+scriptName)){
         qDebug()<<"Script launched.";
     } else {
         qDebug()<<"Script launch error!";
@@ -2166,7 +2167,7 @@ void Backend::launchScript(QString scriptName){
 
 void Backend::processOutput() {
     QString data = Backend::scriptProcess.readAllStandardOutput();
-    qDebug()<<data.simplified();
+    qDebug()<<qPrintable(data);
 //    std::cout<<Backend::scriptProcess.readAllStandardOutput().toStdString();
     // Process the data as needed
 }
@@ -2174,16 +2175,26 @@ void Backend::processOutput() {
 bool Backend::startScript(const QString& scriptPath) {
     // Start the Bash script and configure the process
     if(QSysInfo::kernelType()=="linux"){
-        Backend::scriptProcess.setProgram("bash");
+//        Backend::scriptProcess.setProgram("bash");
+//        QStringList args;
+//        args << scriptPath;
+//        Backend::scriptProcess.setArguments(args);
+
+        Backend::scriptProcess.setWorkingDirectory(QFileInfo(scriptPath).path());
+        qDebug()<<QFileInfo(scriptPath).path();
+        Backend::scriptProcess.setProgram("./"+QFileInfo(scriptPath).fileName());
+        qDebug()<<QFileInfo(scriptPath).fileName();
     } else if(QSysInfo::kernelType()=="winnt") {
         Backend::scriptProcess.setProgram("cmd.exe");
+
+        QStringList args;
+        args << scriptPath;
+        Backend::scriptProcess.setArguments(args);
     } else {
         qDebug() << "Failed to start the script.(Unknown kernel type)";
         return false;
     }
-    QStringList args;
-    args << scriptPath;
-    Backend::scriptProcess.setArguments(args);
+
 
     // Configure the process for reading and writing
     Backend::scriptProcess.setProcessChannelMode(QProcess::SeparateChannels);

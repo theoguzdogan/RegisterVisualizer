@@ -19,7 +19,7 @@ while True:
             searchString = inputParts[1]
             
             # Search for lines starting with the search string in the file
-            memory = "../registers/scoc3.txt"
+            memory = "../../registers/scoc3.txt"
             with open(memory, 'r') as file:
                 lines = file.readlines()
                 result = [line for line in lines if line.startswith(searchString)]
@@ -38,7 +38,7 @@ while True:
             newString = inputParts[2]
             
             # Update the file by finding and modifying the line
-            memory = "../registers/scoc3.txt"
+            memory = "../../registers/scoc3.txt"
             with open(memory, 'r') as file:
                 lines = file.readlines()
             
