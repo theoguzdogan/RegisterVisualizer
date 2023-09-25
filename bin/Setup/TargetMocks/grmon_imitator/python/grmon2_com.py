@@ -1,7 +1,7 @@
 import os
 
 # Read the message from message.txt
-with open('/home/oguzd/Desktop/GRMON_Imitator/grmon_outs/grmon2_com.txt', 'r') as file:
+with open('../../grmon_outs/grmon2_com.txt', 'r') as file:
     message = file.read()
 print(message)
 

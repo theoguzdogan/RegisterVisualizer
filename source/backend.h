@@ -93,7 +93,7 @@ class Backend : public QObject {
     Q_INVOKABLE void removeFromPinConfig(int lineNumber);
 
 
-    Q_INVOKABLE void launchScript(QString scriptName);
+    Q_INVOKABLE bool launchScript(QString scriptName);
     Q_INVOKABLE bool startScript(const QString& scriptPath);
     Q_INVOKABLE void sendScriptCommand(const QString& command);
     Q_INVOKABLE void stopScript();

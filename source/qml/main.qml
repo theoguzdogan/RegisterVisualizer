@@ -16,7 +16,7 @@ Window {
 
     width: 1200
     height: 720
-    minimumWidth: 1100
+    minimumWidth: 1024 + scriptSelectionText.width
     minimumHeight: 650
     visible: true
 //    color: "#27273a"
@@ -36,7 +36,7 @@ Window {
 
     Rectangle {
         anchors.fill: parent
-        radius: 10
+//        radius: 10
         color: "#27273a"
         opacity: 0.96
 //        DraggablePanel { target: rootObject }
@@ -68,24 +68,26 @@ Window {
         backend.setDefaultConfigId("default.yaml")
         Promise.resolve().then(refresh)
         backend.emptyBuffer()
-//        scriptDialog.open()
-        scriptFileDialog.open()
-        console.log(Qt.platform.os)
     }
 
-    FileDialog{
-        id: scriptFileDialog
-        nameFilters: Qt.platform.os === "linux" ? "Bash files (*.sh)" : (Qt.platform.os === "windows" ? "Batch files (*.bat)":"Any file (*)")
-        onSelectionAccepted: {
-            console.log(fileUrl)
-        }
-    }
+//    FileDialog{
+//        id: scriptFileDialog
+////        nameFilters: Qt.platform.os === "linux" ? "Bash files (*.sh)" : (Qt.platform.os === "windows" ? "Batch files (*.bat)":"Any file (*)")
+////        onSelectionAccepted: {
+////            console.log(fileUrl)
+////        }
+//    }
 
 
     AbstractDialog {
         id: scriptDialog
         width: 300
-        height: 500
+        height: scriptComboBox.down ? 100+scriptComboBox.popup.height : 100
+        //+75
+
+        onHeightChanged: {
+//            scriptDialog.setY(75)
+        }
 
         Rectangle {
             id: scriptSelectRectangle
@@ -124,10 +126,6 @@ Window {
 
                     model: ListModel {
                         id: scriptComboBoxContent
-
-                        Component.onCompleted: {
-                            scriptComboBox.currentIndex = 0;
-                        }
                     }
 
                     Component.onCompleted: {
@@ -136,26 +134,6 @@ Window {
                             scriptComboBoxContent.append({text:grmonScriptList[it]})
                         }
                     }
-
-                    onCurrentValueChanged: {
-                        console.log("GRMON SCRIPT CHANGED")
-                    }
-
-                    popup.x: 0
-                    popup.y: parent.height
-                    popup.clip: true
-
-//                    onDownChanged: {
-//                        if(down){
-//                            scriptDialog.height = 110 + popup.height
-//                            scriptDialog.y += popup.height + 10
-//                        } else {
-//                            scriptDialog.height = 100
-//                        }
-
-
-//                    }
-
                 }
 
                 Text{
@@ -175,9 +153,14 @@ Window {
                         color: "#4891d9"
                         radius: 10
                     }
-                         onClicked: {
+                    onClicked: {
                         if (scriptComboBox.currentText !== "Select an option") {
-                            console.log("Selected: " + scriptComboBox.currentText);
+                            if(backend.launchScript(scriptComboBox.currentText)){
+                                scriptSelection.scriptName = scriptComboBox.currentText
+                                scriptDialog.close()
+                            }else{
+                                console.log("Failed to start the script.")
+                            }
                         }
                     }
 
@@ -325,6 +308,75 @@ Window {
                 id: headerText
                 anchors.centerIn: parent
                 opacity: 0.8
+            }
+        }
+
+
+        Rectangle {
+            id: scriptSelection
+            radius: 10
+            color: "transparent"
+//            width: scriptSelectionHeader + scriptSelectionText + scriptSelectButton + 80
+            width: 167+scriptSelectionText.width
+            height: 35
+            anchors.right: referenceConfHeaderContainer.left
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.margins: 10
+
+            property string scriptName: "-"
+
+            Rectangle {
+                anchors.fill: parent
+                color: "#4d4d63"
+                border.color: "#8f8fa8"
+                opacity: 0.5
+                radius: 10
+            }
+
+            Text {
+                id: scriptSelectionHeader
+                anchors.left: parent.left
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.margins: 10
+                text: "GRMON Script:"
+                color: "#FFFFFF"
+//                opacity: 0.8
+            }
+
+            Text {
+                id: scriptSelectionText
+                anchors.left: scriptSelectionHeader.right
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.margins: 10
+                text: parent.scriptName
+                color: "#FFFFFF"
+//                opacity: 0.8
+            }
+
+            Button {
+                id: scriptSelectButton
+                anchors.left: scriptSelectionText.right
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.margins: 10
+                height: parent.height
+                width: parent.height
+                background: Rectangle {
+                    radius: 10
+                    color: "transparent"
+                    border.color: "#8f8fa8"
+                }
+
+                Image {
+                    id: scriptButtonImage
+                    anchors.fill: parent
+                    anchors.margins: 7
+                    source: "../../assets/file-select.svg"
+//                    opacity: 0.8
+                }
+
+                onClicked: {
+                    scriptDialog.open()
+                }
             }
         }
 

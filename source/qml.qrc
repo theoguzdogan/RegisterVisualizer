@@ -18,5 +18,6 @@
         <file>assets/tai_logo_white.svg</file>
         <file>assets/tai_logo_color.svg</file>
         <file>qml/DraggablePanel.qml</file>
+        <file>assets/file-select.svg</file>
     </qresource>
 </RCC>

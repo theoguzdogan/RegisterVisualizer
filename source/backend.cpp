@@ -61,8 +61,9 @@ QList<QString> Backend::getConfFileList() {
 }
 
 QList<QString> Backend::getGrmonScriptList() {
-    QDir directory(QString::fromStdString(Path::getSetupDir()) + "/TargetMocks/grmon_imitator/linux");
-    QStringList grmonScripts = directory.entryList(QStringList() << "*.sh", QDir::Files);
+    QDir directory(QString::fromStdString(Path::getSetupDir()) + "/TargetMocks/grmon_imitator/python_executables");
+    QStringList grmonScripts = directory.entryList(QDir::Dirs | QDir::NoDotAndDotDot );
+//    QStringList grmonScripts = directory.entryList(QStringList() << "*.sh", QDir::Files);
 
     return grmonScripts;
 }
@@ -2157,11 +2158,13 @@ void Backend::removeFromPinConfig(int lineNumber) {
 
 //SCRIPT CONNECTION
 
-void Backend::launchScript(QString scriptName){
+bool Backend::launchScript(QString scriptName){
     if(Backend::startScript(QString::fromStdString(Path::getSetupDir()+"TargetMocks/grmon_imitator/python_executables/")+scriptName+"/"+scriptName)){
         qDebug()<<"Script launched.";
+        return true;
     } else {
         qDebug()<<"Script launch error!";
+        return false;
     }
 }
 
