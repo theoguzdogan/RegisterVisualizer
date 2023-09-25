@@ -6,10 +6,10 @@ echo "$message"
 
 
 while true; do
-	echo -n "grmon2>"  # Print "Input: " without a newline character
+	stdbuf -o0 echo -n "grmon2>"  # Print "Input: " without a newline character
     # Read input from the user
     read userInput
-    
+
     if [[ $userInput == "mem"* ]]; then
         # Split the input into space-separated parts
         read -a inputParts <<< "$userInput"
@@ -18,11 +18,12 @@ while true; do
         if [ "${#inputParts[@]}" -ge 3 ]; then
             keyword="${inputParts[0]}"
             searchString="${inputParts[1]}"
+            clearString=$(tr -d '\n' <<< "$searchString")
             
             # Search for lines starting with the search string in the file
             memory="../registers/scoc3.txt"
-            result=$(grep "^$searchString" "$memory")
-            
+            result=$(grep "^$clearString" "$memory")
+
             if [ -n "$result" ]; then
                 echo "$result"
             fi

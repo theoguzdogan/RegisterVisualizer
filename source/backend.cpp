@@ -10,6 +10,7 @@
 #include <bitset>
 #include <filesystem>
 #include <fstream>
+//#include <iostream>
 
 #include "yaml.h"
 #include "path.h"
@@ -2156,7 +2157,7 @@ void Backend::removeFromPinConfig(int lineNumber) {
 //SCRIPT CONNECTION
 
 void Backend::launchScript(QString scriptName){
-    if(Backend::startScript(QString::fromStdString(Path::getSetupDir()+"TargetMocks/grmon_imitator/linux/")+scriptName)){
+    if(Backend::startScript(QString::fromStdString(Path::getSetupDir()+"TargetMocks/grmon_imitator/python_executables/")+scriptName+"/dist/"+scriptName+"/"+scriptName)){
         qDebug()<<"Script launched.";
     } else {
         qDebug()<<"Script launch error!";
@@ -2164,11 +2165,11 @@ void Backend::launchScript(QString scriptName){
 }
 
 void Backend::processOutput() {
-    QByteArray data = Backend::scriptProcess.readAllStandardOutput();
-    qDebug()<<data;
+    QString data = Backend::scriptProcess.readAllStandardOutput();
+    qDebug()<<data.simplified();
+//    std::cout<<Backend::scriptProcess.readAllStandardOutput().toStdString();
     // Process the data as needed
 }
-
 
 bool Backend::startScript(const QString& scriptPath) {
     // Start the Bash script and configure the process

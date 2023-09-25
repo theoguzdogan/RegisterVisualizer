@@ -96,7 +96,7 @@ Rectangle {
         id:scriptDialogLaunchButton
         text: "launch"
         onClicked: {
-            backend.launchScript("grmon2_com.sh")
+            backend.launchScript("grmon2_com")
         }
 
 
