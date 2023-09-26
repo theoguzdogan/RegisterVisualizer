@@ -1081,54 +1081,58 @@ int Backend::countSpaces(std::string data) {
 }
 
 void Backend::sshSet(QString address, QString value) {
-    std::ifstream infile;
-    infile.open(Path::getSetupDir() + "/TargetMocks/target.yaml");
-    std::vector<std::string> lines;
-    std::string buffer;
-
-    while (std::getline(infile, buffer)) {
-        lines.push_back(buffer);
-    }
-
-    infile.close();
-    int i;
-    std::string temp;
-    bool found = false;
-
-    for (i = 0; i < lines.size(); i++) {
-        std::string line = lines.at(i);
-        temp.clear();
-        for (int j = 0; j < line.size(); j++) {
-            if (line.at(j) == ':') {
-                break;
-            }
-            temp.push_back(line[j]);
-        }
-
-        if (temp == address.toStdString()) {
-            found = true;
-            break;
-        }
-    }
-
-    if (found) {
-        lines.at(i) = temp + ": " + value.toStdString();
-    }
-
-    else {
-        lines.push_back(address.toStdString() + ": " + value.toStdString());
-    }
-
-    std::ofstream outfile;
-    outfile.open(Path::getSetupDir() +
-                 "/TargetMocks/target.yaml");
-
-    foreach (std::string line, lines) {
-        outfile << line << endl;
-    }
-
-    outfile.close();
+    Backend::sendScriptCommand("wmem "+address+" "+value);
 }
+
+//void Backend::sshSet(QString address, QString value) {
+//    std::ifstream infile;
+//    infile.open(Path::getSetupDir() + "/TargetMocks/target.yaml");
+//    std::vector<std::string> lines;
+//    std::string buffer;
+
+//    while (std::getline(infile, buffer)) {
+//        lines.push_back(buffer);
+//    }
+
+//    infile.close();
+//    int i;
+//    std::string temp;
+//    bool found = false;
+
+//    for (i = 0; i < lines.size(); i++) {
+//        std::string line = lines.at(i);
+//        temp.clear();
+//        for (int j = 0; j < line.size(); j++) {
+//            if (line.at(j) == ':') {
+//                break;
+//            }
+//            temp.push_back(line[j]);
+//        }
+
+//        if (temp == address.toStdString()) {
+//            found = true;
+//            break;
+//        }
+//    }
+
+//    if (found) {
+//        lines.at(i) = temp + ": " + value.toStdString();
+//    }
+
+//    else {
+//        lines.push_back(address.toStdString() + ": " + value.toStdString());
+//    }
+
+//    std::ofstream outfile;
+//    outfile.open(Path::getSetupDir() +
+//                 "/TargetMocks/target.yaml");
+
+//    foreach (std::string line, lines) {
+//        outfile << line << endl;
+//    }
+
+//    outfile.close();
+//}
 
 // void Backend::fieldSet(QString address, QString value) {
 //     std::ifstream infile;
@@ -2170,7 +2174,10 @@ bool Backend::launchScript(QString scriptName){
 
 void Backend::processOutput() {
     QString data = Backend::scriptProcess.readAllStandardOutput();
-    qDebug()<<qPrintable(data);
+    if(data!="\n"){
+        qDebug()<<qPrintable(data);
+    }
+//HANDLE NEWLINE-ONLY OUTPUTS!!!
 //    std::cout<<Backend::scriptProcess.readAllStandardOutput().toStdString();
     // Process the data as needed
 }

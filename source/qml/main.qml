@@ -12,10 +12,11 @@ Window {
     property int columnGap: 120
     property string targetName: "SCOC3" //this is the variable for the header
 
-//    flags: Qt.Window | Qt.FramelessWindowHint
+    flags: Qt.Window | Qt.FramelessWindowHint
+    modality: Qt.ApplicationModal
 
     width: 1200
-    height: 720
+    height: 750
     minimumWidth: 1024 + scriptSelectionText.width
     minimumHeight: 650
     visible: true
@@ -27,20 +28,245 @@ Window {
     title: qsTr("RegisterVisualiser")
     id: rootObject
 
-//    Rectangle{
-//        width: rootObject.width
-//        height: 20
-//        anchors.top: rootObject.top
-//        z:1
-//    }
 
     Rectangle {
         anchors.fill: parent
-//        radius: 10
+        radius: 10
         color: "#27273a"
         opacity: 0.96
 //        DraggablePanel { target: rootObject }
     }
+
+    Rectangle {
+        id: titleBar
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: 35
+        color: "transparent"
+//        color: "#FFFFFF"
+        radius: 10
+//        border.color: "#4A4A4A"
+
+//        DragHandler{
+//            target: rootObject
+//        }
+        MouseArea {
+            anchors.fill: parent
+            onDoubleClicked: {
+                if(maximizeButton.isMaximized){
+                    rootObject.showNormal()
+                    Promise.resolve().then(()=>{maximizeButton.isMaximized = false})
+                } else{
+                    rootObject.showMaximized()
+                    Promise.resolve().then(()=>{maximizeButton.isMaximized = true})
+                }
+            }
+
+            property variant clickPos: "1,1"
+
+            onPressed: {
+                clickPos  = Qt.point(mouse.x,mouse.y)
+                if(maximizeButton.isMaximized){
+                    rootObject.showNormal()
+                    Promise.resolve().then(()=>{maximizeButton.isMaximized = false})
+                }
+            }
+            onReleased: {
+                if(rootObject.y<=0){
+                    if(!maximizeButton.isMaximized){
+                        rootObject.showMaximized()
+                        Promise.resolve().then(()=>{maximizeButton.isMaximized = true})
+                    }
+                }
+            }
+
+            onPositionChanged: {
+                var delta = Qt.point(mouse.x-clickPos.x, mouse.y-clickPos.y)
+                rootObject.x += delta.x;
+                rootObject.y += delta.y;
+            }
+        }
+
+        Rectangle {
+            anchors.fill: parent
+            color: "#292929"
+            radius: 10
+        }
+        Rectangle {
+            anchors.top: parent.verticalCenter
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            color: "#292929"
+        }
+
+        Text {
+            id: appTitle
+            anchors.centerIn: parent
+            text: "RegisterVisualiser"
+            color: "#FFFFFF"
+        }
+
+        Button {
+            id: minimizeButton
+            height: 25
+            width: 25
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.right: maximizeButton.left
+            anchors.margins: 8
+            background: Rectangle {
+                color: minimizeButton.pressed ? "#7A7A7A" : (minimizeButton.hovered ? "#525252":"transparent")
+                radius: 15
+            }
+            Text{
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: 5
+                text: "—"
+                font.bold: true
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignHCenter
+                font.pointSize: 6
+                color: "#FFFFFF"
+            }
+            onClicked: rootObject.showMinimized()
+        }
+
+        Button {
+            id: maximizeButton
+            property bool isMaximized: false
+            height: 25
+            width: 25
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.right: closeButton.left
+            anchors.margins: 8
+            background: Rectangle {
+                color: maximizeButton.pressed ? "#7A7A7A" : (maximizeButton.hovered ? "#525252":"transparent")
+                radius: 15
+            }
+            Text{
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
+                anchors.topMargin: 4
+                text: maximizeButton.isMaximized ? "⧉" : "□"
+                font.pointSize: maximizeButton.isMaximized ? 11 : 9
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                color: "#FFFFFF"
+            }
+            onClicked: {
+                if(isMaximized){
+                    rootObject.showNormal()
+                    Promise.resolve().then(()=>{isMaximized = false})
+                } else{
+                    rootObject.showMaximized()
+                    Promise.resolve().then(()=>{isMaximized = true})
+                }
+            }
+        }
+
+        Button {
+            id: closeButton
+            height: 25
+            width: 25
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.right: parent.right
+            anchors.margins: 6
+            background: Rectangle {
+                color: closeButton.pressed ? "#FF5145" : (closeButton.hovered ? "#DE473C":"transparent")
+                radius: 15
+            }
+            Text{
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
+                text: "×"
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                font.pointSize: 15
+                color: "#FFFFFF"
+            }
+            onClicked: {
+                backend.stopScript()
+                Promise.resolve().then(Qt.quit)
+            }
+        }
+    }
+
+    MouseArea {
+        id: resizeLeft
+        width: 12
+        anchors.left: parent.left
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 15
+        anchors.leftMargin: 0
+        anchors.topMargin: 10
+        cursorShape: Qt.SizeHorCursor
+        z: 3
+
+        DragHandler {
+            target: null
+            onActiveChanged: if (active) { rootObject.startSystemResize(Qt.LeftEdge) }
+        }
+    }
+
+    MouseArea {
+        id: resizeRight
+        width: 12
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        anchors.rightMargin: 0
+        anchors.bottomMargin: 25
+        anchors.leftMargin: 6
+        anchors.topMargin: 10
+        cursorShape: Qt.SizeHorCursor
+        z: 3
+
+        DragHandler {
+            target: null
+            onActiveChanged: if (active) { rootObject.startSystemResize(Qt.RightEdge) }
+        }
+    }
+
+    MouseArea {
+        id: resizeBottom
+        height: 12
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        cursorShape: Qt.SizeVerCursor
+        anchors.rightMargin: 25
+        anchors.leftMargin: 15
+        anchors.bottomMargin: 0
+        z: 3
+
+        DragHandler{
+            target: null
+            onActiveChanged: if (active) { rootObject.startSystemResize(Qt.BottomEdge) }
+        }
+    }
+
+    MouseArea {
+        id: resizeApp
+        x: 1176
+        y: 697
+        width: 25
+        height: 25
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 0
+        anchors.rightMargin: 0
+        cursorShape: Qt.SizeFDiagCursor
+        z: 3
+
+        DragHandler{
+            target: null
+            onActiveChanged: if (active) { rootObject.startSystemResize(Qt.RightEdge | Qt.BottomEdge) }
+        }
+    }
+
 //    ColorOverlay {
 //        anchors.fill: parent
 ////        color: "#16002C" // deep-purple
@@ -268,7 +494,7 @@ Window {
         height: 65
         anchors.left: parent.left
         anchors.leftMargin: 20
-        anchors.top: parent.top
+        anchors.top: titleBar.bottom
         anchors.topMargin: 10
         anchors.right: parent.right
         anchors.rightMargin: 20
@@ -839,6 +1065,7 @@ Window {
         MouseArea {
             anchors.fill: parent
             enabled: true
+            cursorShape: Qt.ForbiddenCursor
         }
     }
 

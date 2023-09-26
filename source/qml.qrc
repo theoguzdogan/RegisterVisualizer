@@ -19,5 +19,6 @@
         <file>assets/tai_logo_color.svg</file>
         <file>qml/DraggablePanel.qml</file>
         <file>assets/file-select.svg</file>
+        <file>assets/forbidden.svg</file>
     </qresource>
 </RCC>
