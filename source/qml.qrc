@@ -20,5 +20,6 @@
         <file>qml/DraggablePanel.qml</file>
         <file>assets/file-select.svg</file>
         <file>assets/forbidden.svg</file>
+        <file>assets/file-select_hovered.svg</file>
     </qresource>
 </RCC>
