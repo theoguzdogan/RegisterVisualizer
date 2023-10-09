@@ -24,7 +24,7 @@ Window {
 
     color: "transparent"
 
-    title: qsTr("RegisterVisualiser")
+    title: qsTr("RegisterVisualizer")
     id: rootObject
 
 
@@ -100,7 +100,7 @@ Window {
         Text {
             id: appTitle
             anchors.centerIn: parent
-            text: "RegisterVisualiser"
+            text: "RegisterVisualizer"
             color: "#FFFFFF"
         }
 
