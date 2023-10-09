@@ -110,6 +110,15 @@ Rectangle {
             backend.stopScript()
         }
     }
+    Button{
+        anchors.left: scriptDialogTerminateButton.right
+        anchors.top: scriptDialogTextbox.top
+        id:scriptDialogFlushButton
+        text: "flush"
+        onClicked: {
+            backend.flushOuts()
+        }
+    }
 }
 
 

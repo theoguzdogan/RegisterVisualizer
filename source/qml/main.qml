@@ -183,6 +183,7 @@ Window {
                 color: "#FFFFFF"
             }
             onClicked: {
+                backend.emptyBuffer()
                 backend.stopScript()
                 Promise.resolve().then(Qt.quit)
             }

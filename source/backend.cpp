@@ -1082,6 +1082,7 @@ int Backend::countSpaces(std::string data) {
 
 void Backend::sshSet(QString address, QString value) {
     Backend::sendScriptCommand("wmem "+address+" "+value);
+    Backend::scriptProcess.waitForReadyRead();
 }
 
 //void Backend::sshSet(QString address, QString value) {
@@ -1685,31 +1686,50 @@ QString Backend::checkBuffer(QString address) {
     return "-1";
 }
 
+
 QString Backend::sshGet(QString address) {
-    std::ifstream infile;
-    infile.open(Path::getSetupDir() + "/TargetMocks/target.yaml");
-    std::string buffer;
-
-    while (std::getline(infile, buffer)) {
-        std::string temp;
-        int i;
-        for (i = 0; i < buffer.size(); i++) {
-            char letter = buffer.at(i);
-            if (letter == ':') {
-                break;
-            }
-            temp.push_back(letter);
-        }
-        if (temp == address.toStdString()) {
-            buffer.erase(0, (i + 2));
-            infile.close();
-            return QString::fromStdString(buffer);
-        }
+    processOuts.clear();
+    Backend::sendScriptCommand("mem "+address+" 4");
+    Backend::scriptProcess.waitForReadyRead();
+    QStringList lines = processOuts.split('\n', Qt::SkipEmptyParts);
+    QString line = lines[lines.size()-2];
+    QString data = line.split('\t')[1];
+    QString checkAddress = line.split('\t')[0];
+    qDebug()<<data;
+    if (checkAddress==address){
+        return "0x"+data;
+    } else {
+        qDebug()<< "GRMON data read error!";
+        return "";
     }
-
-    infile.close();
-    return "NULL";
 }
+
+//QString Backend::sshGet(QString address) {
+//    std::ifstream infile;
+//    infile.open(Path::getSetupDir() + "/TargetMocks/target.yaml");
+//    std::string buffer;
+
+//    while (std::getline(infile, buffer)) {
+//        std::string temp;
+//        int i;
+//        for (i = 0; i < buffer.size(); i++) {
+//            char letter = buffer.at(i);
+//            if (letter == ':') {
+//                break;
+//            }
+//            temp.push_back(letter);
+//        }
+//        if (temp == address.toStdString()) {
+//            buffer.erase(0, (i + 2));
+//            infile.close();
+//            return QString::fromStdString(buffer);
+//        }
+//    }
+
+//    infile.close();
+//    return "NULL";
+//}
+
 
 void Backend::checkAndSaveAll(QString newFileName) {
     // READ_FILE
@@ -2176,6 +2196,7 @@ void Backend::processOutput() {
     QString data = Backend::scriptProcess.readAllStandardOutput();
     if(data!="\n"){
         qDebug()<<qPrintable(data);
+        processOuts += qPrintable(data);
     }
 //HANDLE NEWLINE-ONLY OUTPUTS!!!
 //    std::cout<<Backend::scriptProcess.readAllStandardOutput().toStdString();
@@ -2226,6 +2247,7 @@ void Backend::sendScriptCommand(const QString &command) {
         Backend::scriptProcess.write(command.toUtf8());
         Backend::scriptProcess.write("\n");  // You might need to add a newline character
         Backend::scriptProcess.waitForBytesWritten();  // Wait for the data to be written to the process
+        qDebug()<<command + "sent";
     }
 }
 
@@ -2240,3 +2262,8 @@ void Backend::stopScript() {
     }
 }
 
+void Backend::flushOuts() {
+//    qDebug()<<qPrintable(processOuts);
+    QStringList lines = processOuts.split('\n', Qt::SkipEmptyParts);
+    qDebug()<<lines[lines.size()-2].split('\t')[1];
+}
