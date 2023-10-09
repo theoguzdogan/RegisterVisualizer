@@ -1695,7 +1695,6 @@ QString Backend::sshGet(QString address) {
     QString line = lines[lines.size()-2];
     QString data = line.split('\t')[1];
     QString checkAddress = line.split('\t')[0];
-    qDebug()<<data;
     if (checkAddress==address){
         return "0x"+data;
     } else {
@@ -2195,7 +2194,7 @@ bool Backend::launchScript(QString scriptName){
 void Backend::processOutput() {
     QString data = Backend::scriptProcess.readAllStandardOutput();
     if(data!="\n"){
-        qDebug()<<qPrintable(data);
+//        qDebug()<<qPrintable(data);
         processOuts += qPrintable(data);
     }
 //HANDLE NEWLINE-ONLY OUTPUTS!!!
@@ -2247,7 +2246,6 @@ void Backend::sendScriptCommand(const QString &command) {
         Backend::scriptProcess.write(command.toUtf8());
         Backend::scriptProcess.write("\n");  // You might need to add a newline character
         Backend::scriptProcess.waitForBytesWritten();  // Wait for the data to be written to the process
-        qDebug()<<command + "sent";
     }
 }
 
@@ -2259,6 +2257,14 @@ void Backend::stopScript() {
         qDebug() << "Script stopped.";
     } else {
         qDebug() << "Script is not running.";
+    }
+}
+
+bool Backend::returnScriptState() {
+    if (Backend::scriptProcess.state() == QProcess::Running) {
+        return true;
+    } else {
+        return false;
     }
 }
 

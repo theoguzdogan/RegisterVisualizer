@@ -268,6 +268,7 @@ Window {
         backend.setDefaultConfigId("default.yaml")
         Promise.resolve().then(refresh)
         backend.emptyBuffer()
+        scriptDialog.open()
     }
 
 //    FileDialog{
@@ -278,6 +279,45 @@ Window {
 ////        }
 //    }
 
+    MessageDialog {
+        id: scriptDialogWarning
+        width: 350
+        height: 100
+        Rectangle {
+            anchors.fill: parent
+            color: "#27273a"
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
+                anchors.topMargin: 10
+                width: parent.width-20
+                wrapMode: Text.WordWrap
+                text: "Please select a script to run and click OK."
+                color: "#FFFFFF"
+            }
+
+            Button {
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                anchors.margins: 10
+                text:"OK"
+                palette.buttonText: "white"
+                width: 55
+                height: 35
+                background: Rectangle {
+//                        color: "#4891d9"
+                    radius: 10
+                    gradient: Gradient {
+                        GradientStop { position: 0.0; color: (scriptDialogButton.pressed ? "#BDDBBD" : (scriptDialogButton.hovered ? "#D3E0E0" : "#BBE6E6")) }
+                        GradientStop { position: 1.0; color: (scriptDialogButton.pressed ? "#00B3B3" : (scriptDialogButton.hovered ? "#009999" : "#008080")) }
+                    }
+                }
+                onClicked: scriptDialogWarning.accepted()
+            }
+        }
+        onAccepted: scriptDialog.open()
+        onRejected: scriptDialog.open()
+    }
 
     AbstractDialog {
         id: scriptDialog
@@ -287,6 +327,13 @@ Window {
 
         onHeightChanged: {
 //            scriptDialog.setY(75)
+        }
+
+        onRejected: {
+            if(!backend.returnScriptState()){
+                console.log("reopen")
+                scriptDialogWarning.open()
+            }
         }
 
         Rectangle {
@@ -366,6 +413,9 @@ Window {
                             }else{
                                 console.log("Failed to start the script.")
                             }
+                        }
+                        if (backend.returnScriptState()){
+                            scriptDialogWarning.close()
                         }
                     }
 

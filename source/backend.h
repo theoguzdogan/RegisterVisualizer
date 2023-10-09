@@ -99,6 +99,7 @@ class Backend : public QObject {
     Q_INVOKABLE void sendScriptCommand(const QString& command);
     Q_INVOKABLE void stopScript();
     Q_INVOKABLE void processOutput();
+    Q_INVOKABLE bool returnScriptState();
     Q_INVOKABLE void flushOuts();
 
 
