@@ -2211,9 +2211,7 @@ bool Backend::startScript(const QString& scriptPath) {
 //        Backend::scriptProcess.setArguments(args);
 
         Backend::scriptProcess.setWorkingDirectory(QFileInfo(scriptPath).path());
-        qDebug()<<QFileInfo(scriptPath).path();
         Backend::scriptProcess.setProgram("./"+QFileInfo(scriptPath).fileName());
-        qDebug()<<QFileInfo(scriptPath).fileName();
     } else if(QSysInfo::kernelType()=="winnt") {
         Backend::scriptProcess.setProgram("cmd.exe");
 
