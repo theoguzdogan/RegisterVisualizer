@@ -1,2 +1,2 @@
-# RegisterVisualiser
-![registerVisualiser3](https://github.com/rendayigit/RegisterVisualizer/assets/28491388/44ce25fc-fb6d-401a-bb19-f70f2893bf02)
+# RegisterVisualizer
+![registerVisualizer4](https://github.com/rendayigit/RegisterVisualizer/assets/28491388/38560b0d-30dd-4295-9ebf-2064e0e9b9bc)
