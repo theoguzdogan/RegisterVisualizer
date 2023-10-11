@@ -271,14 +271,6 @@ Window {
         scriptDialog.open()
     }
 
-//    FileDialog{
-//        id: scriptFileDialog
-////        nameFilters: Qt.platform.os === "linux" ? "Bash files (*.sh)" : (Qt.platform.os === "windows" ? "Batch files (*.bat)":"Any file (*)")
-////        onSelectionAccepted: {
-////            console.log(fileUrl)
-////        }
-//    }
-
     MessageDialog {
         id: scriptDialogWarning
         width: 350
@@ -325,13 +317,8 @@ Window {
         height: scriptComboBox.down ? 100+scriptComboBox.popup.height : 100
         //+75
 
-        onHeightChanged: {
-//            scriptDialog.setY(75)
-        }
-
         onRejected: {
             if(!backend.returnScriptState()){
-                console.log("reopen")
                 scriptDialogWarning.open()
             }
         }
@@ -398,7 +385,6 @@ Window {
                     width: 55
                     height: 35
                     background: Rectangle {
-//                        color: "#4891d9"
                         radius: 10
                         gradient: Gradient {
                             GradientStop { position: 0.0; color: (scriptDialogButton.pressed ? "#BDDBBD" : (scriptDialogButton.hovered ? "#D3E0E0" : "#BBE6E6")) }
@@ -407,6 +393,7 @@ Window {
                     }
                     onClicked: {
                         if (scriptComboBox.currentText !== "Select an option") {
+                            if(backend.returnScriptState()){backend.stopScript()}
                             if(backend.launchScript(scriptComboBox.currentText)){
                                 scriptSelection.scriptName = scriptComboBox.currentText
                                 scriptDialog.close()
