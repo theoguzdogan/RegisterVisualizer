@@ -74,51 +74,6 @@ Rectangle {
         wrapMode: Text.Wrap
         width: parent.width - 10
     }
-
-    TextField{
-        id: scriptDialogTextbox
-        anchors.top: generalDescription.bottom
-    }
-
-    Button{
-        anchors.left: scriptDialogTextbox.right
-        anchors.top: scriptDialogTextbox.top
-        id:scriptDialogSendButton
-        text: "send"
-        onClicked: {
-            console.log(scriptDialogTextbox.text)
-            backend.sendScriptCommand(scriptDialogTextbox.text)
-        }
-    }
-    Button{
-        anchors.left: scriptDialogSendButton.right
-        anchors.top: scriptDialogTextbox.top
-        id:scriptDialogLaunchButton
-        text: "launch"
-        onClicked: {
-            backend.launchScript("grmon2_com")
-        }
-
-
-    }
-    Button{
-        anchors.left: scriptDialogLaunchButton.right
-        anchors.top: scriptDialogTextbox.top
-        id:scriptDialogTerminateButton
-        text: "terminate"
-        onClicked: {
-            backend.stopScript()
-        }
-    }
-    Button{
-        anchors.left: scriptDialogTerminateButton.right
-        anchors.top: scriptDialogTextbox.top
-        id:scriptDialogFlushButton
-        text: "flush"
-        onClicked: {
-            backend.flushOuts()
-        }
-    }
 }
 
 
