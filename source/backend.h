@@ -2,8 +2,12 @@
 #define BACKEND_H
 
 #include <QtCore/QtCore>
+#include <QProcess>
+#include <QByteArray>
+
 
 #include "treeNode.h"
+
 
 
 class Backend : public QObject {
@@ -11,6 +15,8 @@ class Backend : public QObject {
 
    public:
     Backend() = default;
+    QProcess scriptProcess;
+    QString processOuts = "";
 
    public slots:
     /**
@@ -19,6 +25,7 @@ class Backend : public QObject {
      */
     Q_INVOKABLE QList<QString> getFileList();
     Q_INVOKABLE QList<QString> getConfFileList();
+    Q_INVOKABLE QList<QString> getGrmonScriptList();
 
     /**
      * @brief Set the file path to the certain .yaml file in "./src/reg" according to the moduleId
@@ -85,6 +92,16 @@ class Backend : public QObject {
     Q_INVOKABLE void addToPinConfig(QString componentType, QString componentId);
     Q_INVOKABLE void removeFromPinConfig(QString componentType, QString componentId);
     Q_INVOKABLE void removeFromPinConfig(int lineNumber);
+
+
+    Q_INVOKABLE bool launchScript(QString scriptName);
+    Q_INVOKABLE bool startScript(const QString& scriptPath);
+    Q_INVOKABLE void sendScriptCommand(const QString& command);
+    Q_INVOKABLE void stopScript();
+    Q_INVOKABLE void processOutput();
+    Q_INVOKABLE bool returnScriptState();
+    Q_INVOKABLE void flushOuts();
+
 
    private:
     QList<QString> vectorToQList(std::vector<std::string> vector);

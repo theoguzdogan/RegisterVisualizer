@@ -6,9 +6,12 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QtCore/QDir>
 #include <QtCore/QThread>
+#include <QSysInfo>
+#include <QFileInfo>
 #include <bitset>
 #include <filesystem>
 #include <fstream>
+//#include <iostream>
 
 #include "yaml.h"
 #include "path.h"
@@ -55,6 +58,14 @@ QList<QString> Backend::getConfFileList() {
     QStringList yamlFiles = directory.entryList(QStringList() << "*.yaml", QDir::Files);
 
     return yamlFiles;
+}
+
+QList<QString> Backend::getGrmonScriptList() {
+    QDir directory(QString::fromStdString(Path::getSetupDir()) + "/TargetMocks/grmon_imitator/python_executables");
+    QStringList grmonScripts = directory.entryList(QDir::Dirs | QDir::NoDotAndDotDot );
+//    QStringList grmonScripts = directory.entryList(QStringList() << "*.sh", QDir::Files);
+
+    return grmonScripts;
 }
 
 void Backend::setFilePath(int moduleId) {
@@ -1070,54 +1081,59 @@ int Backend::countSpaces(std::string data) {
 }
 
 void Backend::sshSet(QString address, QString value) {
-    std::ifstream infile;
-    infile.open(Path::getSetupDir() + "/TargetMocks/target.yaml");
-    std::vector<std::string> lines;
-    std::string buffer;
-
-    while (std::getline(infile, buffer)) {
-        lines.push_back(buffer);
-    }
-
-    infile.close();
-    int i;
-    std::string temp;
-    bool found = false;
-
-    for (i = 0; i < lines.size(); i++) {
-        std::string line = lines.at(i);
-        temp.clear();
-        for (int j = 0; j < line.size(); j++) {
-            if (line.at(j) == ':') {
-                break;
-            }
-            temp.push_back(line[j]);
-        }
-
-        if (temp == address.toStdString()) {
-            found = true;
-            break;
-        }
-    }
-
-    if (found) {
-        lines.at(i) = temp + ": " + value.toStdString();
-    }
-
-    else {
-        lines.push_back(address.toStdString() + ": " + value.toStdString());
-    }
-
-    std::ofstream outfile;
-    outfile.open(Path::getSetupDir() +
-                 "/TargetMocks/target.yaml");
-
-    foreach (std::string line, lines) {
-        outfile << line << endl;
-    }
-
-    outfile.close();
+    Backend::sendScriptCommand("wmem "+address+" "+value);
+    Backend::scriptProcess.waitForReadyRead();
 }
+
+//void Backend::sshSet(QString address, QString value) {
+//    std::ifstream infile;
+//    infile.open(Path::getSetupDir() + "/TargetMocks/target.yaml");
+//    std::vector<std::string> lines;
+//    std::string buffer;
+
+//    while (std::getline(infile, buffer)) {
+//        lines.push_back(buffer);
+//    }
+
+//    infile.close();
+//    int i;
+//    std::string temp;
+//    bool found = false;
+
+//    for (i = 0; i < lines.size(); i++) {
+//        std::string line = lines.at(i);
+//        temp.clear();
+//        for (int j = 0; j < line.size(); j++) {
+//            if (line.at(j) == ':') {
+//                break;
+//            }
+//            temp.push_back(line[j]);
+//        }
+
+//        if (temp == address.toStdString()) {
+//            found = true;
+//            break;
+//        }
+//    }
+
+//    if (found) {
+//        lines.at(i) = temp + ": " + value.toStdString();
+//    }
+
+//    else {
+//        lines.push_back(address.toStdString() + ": " + value.toStdString());
+//    }
+
+//    std::ofstream outfile;
+//    outfile.open(Path::getSetupDir() +
+//                 "/TargetMocks/target.yaml");
+
+//    foreach (std::string line, lines) {
+//        outfile << line << endl;
+//    }
+
+//    outfile.close();
+//}
 
 // void Backend::fieldSet(QString address, QString value) {
 //     std::ifstream infile;
@@ -1670,31 +1686,49 @@ QString Backend::checkBuffer(QString address) {
     return "-1";
 }
 
+
 QString Backend::sshGet(QString address) {
-    std::ifstream infile;
-    infile.open(Path::getSetupDir() + "/TargetMocks/target.yaml");
-    std::string buffer;
-
-    while (std::getline(infile, buffer)) {
-        std::string temp;
-        int i;
-        for (i = 0; i < buffer.size(); i++) {
-            char letter = buffer.at(i);
-            if (letter == ':') {
-                break;
-            }
-            temp.push_back(letter);
-        }
-        if (temp == address.toStdString()) {
-            buffer.erase(0, (i + 2));
-            infile.close();
-            return QString::fromStdString(buffer);
-        }
+    processOuts.clear();
+    Backend::sendScriptCommand("mem "+address+" 4");
+    Backend::scriptProcess.waitForReadyRead();
+    QStringList lines = processOuts.split('\n', Qt::SkipEmptyParts);
+    QString line = lines[lines.size()-2];
+    QString data = line.split('\t')[1];
+    QString checkAddress = line.split('\t')[0];
+    if (checkAddress==address){
+        return "0x"+data;
+    } else {
+        qDebug()<< "GRMON data read error!";
+        return "";
     }
-
-    infile.close();
-    return "NULL";
 }
+
+//QString Backend::sshGet(QString address) {
+//    std::ifstream infile;
+//    infile.open(Path::getSetupDir() + "/TargetMocks/target.yaml");
+//    std::string buffer;
+
+//    while (std::getline(infile, buffer)) {
+//        std::string temp;
+//        int i;
+//        for (i = 0; i < buffer.size(); i++) {
+//            char letter = buffer.at(i);
+//            if (letter == ':') {
+//                break;
+//            }
+//            temp.push_back(letter);
+//        }
+//        if (temp == address.toStdString()) {
+//            buffer.erase(0, (i + 2));
+//            infile.close();
+//            return QString::fromStdString(buffer);
+//        }
+//    }
+
+//    infile.close();
+//    return "NULL";
+//}
+
 
 void Backend::checkAndSaveAll(QString newFileName) {
     // READ_FILE
@@ -2142,4 +2176,100 @@ void Backend::removeFromPinConfig(int lineNumber) {
             qDebug() << "pinConfig.yaml: Failed to open the file for reading.";
         }
     }
+}
+
+
+//SCRIPT CONNECTION
+
+bool Backend::launchScript(QString scriptName){
+    if(Backend::startScript(QString::fromStdString(Path::getSetupDir()+"TargetMocks/grmon_imitator/python_executables/")+scriptName+"/"+scriptName)){
+        qDebug()<<"Script launched.";
+        return true;
+    } else {
+        qDebug()<<"Script launch error!";
+        return false;
+    }
+}
+
+void Backend::processOutput() {
+    QString data = Backend::scriptProcess.readAllStandardOutput();
+    if(data!="\n"){
+//        qDebug()<<qPrintable(data);
+        processOuts += qPrintable(data);
+    }
+//HANDLE NEWLINE-ONLY OUTPUTS!!!
+//    std::cout<<Backend::scriptProcess.readAllStandardOutput().toStdString();
+    // Process the data as needed
+}
+
+bool Backend::startScript(const QString& scriptPath) {
+    // Start the Bash script and configure the process
+    if(QSysInfo::kernelType()=="linux"){
+//        Backend::scriptProcess.setProgram("bash");
+//        QStringList args;
+//        args << scriptPath;
+//        Backend::scriptProcess.setArguments(args);
+
+        Backend::scriptProcess.setWorkingDirectory(QFileInfo(scriptPath).path());
+        qDebug()<<QFileInfo(scriptPath).path();
+        Backend::scriptProcess.setProgram("./"+QFileInfo(scriptPath).fileName());
+        qDebug()<<QFileInfo(scriptPath).fileName();
+    } else if(QSysInfo::kernelType()=="winnt") {
+        Backend::scriptProcess.setProgram("cmd.exe");
+
+        QStringList args;
+        args << scriptPath;
+        Backend::scriptProcess.setArguments(args);
+    } else {
+        qDebug() << "Failed to start the script.(Unknown kernel type)";
+        return false;
+    }
+
+
+    // Configure the process for reading and writing
+    Backend::scriptProcess.setProcessChannelMode(QProcess::SeparateChannels);
+    Backend::scriptProcess.setReadChannel(QProcess::StandardOutput);
+    Backend::scriptProcess.start();  // Start the process
+
+    // Check if the process started successfully
+    if (!Backend::scriptProcess.waitForStarted()) {
+        qDebug() << "Failed to start the script.";
+        return false;
+    }
+
+    return true;
+}
+
+// Function to send a command to the running script
+void Backend::sendScriptCommand(const QString &command) {
+    if (Backend::scriptProcess.state() == QProcess::Running) {
+        Backend::scriptProcess.write(command.toUtf8());
+        Backend::scriptProcess.write("\n");  // You might need to add a newline character
+        Backend::scriptProcess.waitForBytesWritten();  // Wait for the data to be written to the process
+    }
+}
+
+// Function to stop the script
+void Backend::stopScript() {
+    if (Backend::scriptProcess.state() == QProcess::Running) {
+        Backend::scriptProcess.terminate();
+        Backend::scriptProcess.waitForFinished();
+        qDebug() << "Script stopped.";
+    } else {
+        qDebug() << "Script is not running.";
+    }
+}
+
+bool Backend::returnScriptState() {
+    if (Backend::scriptProcess.state() == QProcess::Running) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+void Backend::flushOuts() {
+//    qDebug()<<qPrintable(processOuts);
+    QStringList lines = processOuts.split('\n', Qt::SkipEmptyParts);
+    qDebug()<<lines[lines.size()-2].split('\t')[1];
 }

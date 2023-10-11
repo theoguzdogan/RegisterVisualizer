@@ -6,14 +6,17 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import Qt.labs.folderlistmodel 2.1
 import QtQuick.Dialogs 1.3
+import "./"
 
 Window {
-    property int columnGap: 120
     property string targetName: "SCOC3" //this is the variable for the header
 
+    flags: Qt.Window | Qt.FramelessWindowHint
+    modality: Qt.ApplicationModal
+
     width: 1200
-    height: 720
-    minimumWidth: 1100
+    height: 750
+    minimumWidth: 1024 + scriptSelectionText.width
     minimumHeight: 650
     visible: true
 //    color: "#27273a"
@@ -21,35 +24,407 @@ Window {
 
     color: "transparent"
 
-    title: qsTr("RegisterVisualiser")
+    title: qsTr("RegisterVisualizer")
     id: rootObject
 
-    ColorOverlay {
+
+    Rectangle {
         anchors.fill: parent
-//        color: "#16002C" // deep-purple
-//        color: "#061A15" // alpine-green
-//        color: "#1A1A1A" // dark-grey(alomst black)
+        radius: 10
         color: "#27273a"
         opacity: 0.96
     }
 
-//    Rectangle
-//    {
-//        anchors.fill: parent
-//        gradient: Gradient
-//        {
-//            GradientStop { position: 0.000; color: "#52002D" }
-//            GradientStop { position: 0.600; color: "#00013D" }
-//            GradientStop { position: 1.000; color: "#00013D" }
-//        }
-////        opacity: 0.9
-//    }
+    Rectangle {
+        id: titleBar
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: 35
+        color: "transparent"
+        radius: 10
+
+        MouseArea {
+            anchors.fill: parent
+            onDoubleClicked: {
+                if(maximizeButton.isMaximized){
+                    rootObject.showNormal()
+                    Promise.resolve().then(()=>{maximizeButton.isMaximized = false})
+                } else{
+                    rootObject.showMaximized()
+                    Promise.resolve().then(()=>{maximizeButton.isMaximized = true})
+                }
+            }
+
+            property variant clickPos: "1,1"
+            property bool isMinimizedByDragging: false
+
+            onPressed: {
+                clickPos  = Qt.point(mouse.x,mouse.y)
+                if(maximizeButton.isMaximized){
+                    rootObject.showNormal()
+                    Promise.resolve().then(()=>{maximizeButton.isMaximized = false; isMinimizedByDragging = true})
+                }
+            }
+            onReleased: {
+                if(rootObject.y<=0 && !isMinimizedByDragging){
+                    if(!maximizeButton.isMaximized){
+                        rootObject.showMaximized()
+                        Promise.resolve().then(()=>{maximizeButton.isMaximized = true})
+                    }
+                } else {
+                    isMinimizedByDragging = false
+                }
+            }
+
+            onPositionChanged: {
+                var delta = Qt.point(mouse.x-clickPos.x, mouse.y-clickPos.y)
+                rootObject.x += delta.x;
+                rootObject.y += delta.y;
+            }
+        }
+
+        Rectangle {
+            anchors.fill: parent
+            color: "#292929"
+            radius: 10
+        }
+        Rectangle {
+            anchors.top: parent.verticalCenter
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            color: "#292929"
+        }
+
+        Text {
+            id: appTitle
+            anchors.centerIn: parent
+            text: "RegisterVisualizer"
+            color: "#FFFFFF"
+        }
+
+        Button {
+            id: minimizeButton
+            height: 25
+            width: 25
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.right: maximizeButton.left
+            anchors.margins: 8
+            background: Rectangle {
+                color: minimizeButton.pressed ? "#7A7A7A" : (minimizeButton.hovered ? "#525252":"transparent")
+                radius: 15
+            }
+            Text{
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: 5
+                text: "—"
+                font.bold: true
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignHCenter
+                font.pointSize: 6
+                color: "#FFFFFF"
+            }
+            onClicked: rootObject.showMinimized()
+        }
+
+        Button {
+            id: maximizeButton
+            property bool isMaximized: false
+            height: 25
+            width: 25
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.right: closeButton.left
+            anchors.margins: 8
+            background: Rectangle {
+                color: maximizeButton.pressed ? "#7A7A7A" : (maximizeButton.hovered ? "#525252":"transparent")
+                radius: 15
+            }
+            Text{
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
+                anchors.topMargin: 4
+                text: maximizeButton.isMaximized ? "⧉" : "□"
+                font.pointSize: maximizeButton.isMaximized ? 11 : 9
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                color: "#FFFFFF"
+            }
+            onClicked: {
+                if(isMaximized){
+                    rootObject.showNormal()
+                    Promise.resolve().then(()=>{isMaximized = false})
+                } else{
+                    rootObject.showMaximized()
+                    Promise.resolve().then(()=>{isMaximized = true})
+                }
+            }
+        }
+
+        Button {
+            id: closeButton
+            height: 25
+            width: 25
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.right: parent.right
+            anchors.margins: 6
+            background: Rectangle {
+                color: closeButton.pressed ? "#FF5145" : (closeButton.hovered ? "#DE473C":"transparent")
+                radius: 15
+            }
+            Text{
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
+                text: "×"
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                font.pointSize: 15
+                color: "#FFFFFF"
+            }
+            onClicked: {
+                backend.emptyBuffer()
+                backend.stopScript()
+                Promise.resolve().then(Qt.quit)
+            }
+        }
+    }
+
+    MouseArea {
+        id: resizeLeft
+        width: 12
+        anchors.left: parent.left
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 15
+        anchors.leftMargin: 0
+        anchors.topMargin: 10
+        cursorShape: Qt.SizeHorCursor
+        z: 3
+
+        DragHandler {
+            target: null
+            onActiveChanged: if (active) { rootObject.startSystemResize(Qt.LeftEdge) }
+        }
+    }
+
+    MouseArea {
+        id: resizeRight
+        width: 12
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        anchors.rightMargin: 0
+        anchors.bottomMargin: 25
+        anchors.leftMargin: 6
+        anchors.topMargin: 10
+        cursorShape: Qt.SizeHorCursor
+        z: 3
+
+        DragHandler {
+            target: null
+            onActiveChanged: if (active) { rootObject.startSystemResize(Qt.RightEdge) }
+        }
+    }
+
+    MouseArea {
+        id: resizeBottom
+        height: 12
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        cursorShape: Qt.SizeVerCursor
+        anchors.rightMargin: 25
+        anchors.leftMargin: 15
+        anchors.bottomMargin: 0
+        z: 3
+
+        DragHandler{
+            target: null
+            onActiveChanged: if (active) { rootObject.startSystemResize(Qt.BottomEdge) }
+        }
+    }
+
+    MouseArea {
+        id: resizeApp
+        x: 1176
+        y: 697
+        width: 25
+        height: 25
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 0
+        anchors.rightMargin: 0
+        cursorShape: Qt.SizeFDiagCursor
+        z: 3
+
+        DragHandler{
+            target: null
+            onActiveChanged: if (active) { rootObject.startSystemResize(Qt.RightEdge | Qt.BottomEdge) }
+        }
+    }
 
     Component.onCompleted: {
         backend.setDefaultConfigId("default.yaml")
         Promise.resolve().then(refresh)
         backend.emptyBuffer()
+        scriptDialog.open()
     }
+
+//    FileDialog{
+//        id: scriptFileDialog
+////        nameFilters: Qt.platform.os === "linux" ? "Bash files (*.sh)" : (Qt.platform.os === "windows" ? "Batch files (*.bat)":"Any file (*)")
+////        onSelectionAccepted: {
+////            console.log(fileUrl)
+////        }
+//    }
+
+    MessageDialog {
+        id: scriptDialogWarning
+        width: 350
+        height: 100
+        Rectangle {
+            anchors.fill: parent
+            color: "#27273a"
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
+                anchors.topMargin: 10
+                width: parent.width-20
+                wrapMode: Text.WordWrap
+                text: "Please select a script to run and click OK."
+                color: "#FFFFFF"
+            }
+
+            Button {
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                anchors.margins: 10
+                text:"OK"
+                palette.buttonText: "white"
+                width: 55
+                height: 35
+                background: Rectangle {
+//                        color: "#4891d9"
+                    radius: 10
+                    gradient: Gradient {
+                        GradientStop { position: 0.0; color: (scriptDialogButton.pressed ? "#BDDBBD" : (scriptDialogButton.hovered ? "#D3E0E0" : "#BBE6E6")) }
+                        GradientStop { position: 1.0; color: (scriptDialogButton.pressed ? "#00B3B3" : (scriptDialogButton.hovered ? "#009999" : "#008080")) }
+                    }
+                }
+                onClicked: scriptDialogWarning.accepted()
+            }
+        }
+        onAccepted: scriptDialog.open()
+        onRejected: scriptDialog.open()
+    }
+
+    AbstractDialog {
+        id: scriptDialog
+        width: 300
+        height: scriptComboBox.down ? 100+scriptComboBox.popup.height : 100
+        //+75
+
+        onHeightChanged: {
+//            scriptDialog.setY(75)
+        }
+
+        onRejected: {
+            if(!backend.returnScriptState()){
+                console.log("reopen")
+                scriptDialogWarning.open()
+            }
+        }
+
+        Rectangle {
+            id: scriptSelectRectangle
+            color: "#27273a"
+
+            Text {
+                id: scriptSelectionCaption
+                anchors.top: scriptSelectRectangle.top
+                anchors.left: scriptSelectRectangle.left
+                anchors.margins: 15
+                color: "#ffffff"
+                text: "Select GRMON script:"
+                font.pointSize: 10
+            }
+
+            Row {
+                id: scriptSelectionRow
+                anchors.top: scriptSelectionCaption.bottom
+                anchors.left: scriptSelectRectangle.left
+                anchors.right: scriptSelectRectangle.right
+                anchors.margins: 15
+                height: 35
+                spacing: 10
+
+                ComboBox {
+                    id: scriptComboBox
+                    editable: true
+                    width: 200
+                    height: 35
+
+                    background: Rectangle {
+                        color: "#FFFFFF"
+                        opacity: 0.5
+                    }
+
+
+                    model: ListModel {
+                        id: scriptComboBoxContent
+                    }
+
+                    Component.onCompleted: {
+                        var grmonScriptList = backend.getGrmonScriptList()
+                        for (var it in grmonScriptList){
+                            scriptComboBoxContent.append({text:grmonScriptList[it]})
+                        }
+                    }
+                }
+
+                Text{
+                    text: scriptComboBox.currentText === "Select an option" ? "" : scriptComboBox.currentText
+                    color: "#000000"
+                    font.pixelSize: 12
+                    visible: scriptComboBox.currentText === "Select an option"
+
+                }
+
+                Button {
+                    id: scriptDialogButton
+                    text:"OK"
+                    palette.buttonText: "white"
+                    width: 55
+                    height: 35
+                    background: Rectangle {
+//                        color: "#4891d9"
+                        radius: 10
+                        gradient: Gradient {
+                            GradientStop { position: 0.0; color: (scriptDialogButton.pressed ? "#BDDBBD" : (scriptDialogButton.hovered ? "#D3E0E0" : "#BBE6E6")) }
+                            GradientStop { position: 1.0; color: (scriptDialogButton.pressed ? "#00B3B3" : (scriptDialogButton.hovered ? "#009999" : "#008080")) }
+                        }
+                    }
+                    onClicked: {
+                        if (scriptComboBox.currentText !== "Select an option") {
+                            if(backend.launchScript(scriptComboBox.currentText)){
+                                scriptSelection.scriptName = scriptComboBox.currentText
+                                scriptDialog.close()
+                            }else{
+                                console.log("Failed to start the script.")
+                            }
+                        }
+                        if (backend.returnScriptState()){
+                            scriptDialogWarning.close()
+                        }
+                    }
+
+                }
+            }
+
+        }
+    }
+
 
     AbstractDialog {
             id: configFileDialog
@@ -148,7 +523,7 @@ Window {
         height: 65
         anchors.left: parent.left
         anchors.leftMargin: 20
-        anchors.top: parent.top
+        anchors.top: titleBar.bottom
         anchors.topMargin: 10
         anchors.right: parent.right
         anchors.rightMargin: 20
@@ -163,7 +538,6 @@ Window {
             width: 40
             height: 55
             color: "transparent"
-            opacity: 0.6
 
             Image {
                 id: logo_tai
@@ -187,11 +561,80 @@ Window {
                 font.family: "Segoe UI"
                 id: headerText
                 anchors.centerIn: parent
-                opacity: 0.8
+            }
+        }
+
+
+        Rectangle {
+            id: scriptSelection
+            radius: 10
+            color: "transparent"
+            width: 167+scriptSelectionText.width
+            height: 35
+            anchors.right: referenceConfHeaderContainer.left
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.margins: 10
+
+            property string scriptName: "-"
+
+            Rectangle {
+                anchors.fill: parent
+                color: "#4d4d63"
+                border.color: "#8f8fa8"
+                opacity: 0.5
+                radius: 10
+            }
+
+            Text {
+                id: scriptSelectionHeader
+                anchors.left: parent.left
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.margins: 10
+                text: "GRMON Script:"
+                color: "#FFFFFF"
+            }
+
+            Text {
+                id: scriptSelectionText
+                anchors.left: scriptSelectionHeader.right
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.margins: 10
+                text: parent.scriptName
+                color: "#FFFFFF"
+            }
+
+            Button {
+                id: scriptSelectButton
+                anchors.left: scriptSelectionText.right
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.margins: 10
+                height: parent.height
+                width: parent.height
+                background: Rectangle {
+                    radius: 10
+//                    color: "transparent"
+//                    border.color: "#8f8fa8"
+                    gradient: Gradient {
+                        GradientStop { position: 0.0; color: (scriptSelectButton.pressed ? "#BDDBBD" : (scriptSelectButton.hovered ? "#D3E0E0" : "#BBE6E6")) }
+                        GradientStop { position: 1.0; color: (scriptSelectButton.pressed ? "#00B3B3" : (scriptSelectButton.hovered ? "#009999" : "#008080")) }
+                    }
+                }
+
+                Image {
+                    id: scriptButtonImage
+                    anchors.fill: parent
+                    anchors.margins: 7
+                    source: parent.hovered ? "../../assets/file-select_hovered.svg" : "../../assets/file-select.svg"
+                }
+
+                onClicked: {
+                    scriptDialog.open()
+                }
             }
         }
 
         Rectangle {
+            id: referenceConfHeaderContainer
             anchors.right: configComboBox.horizontalCenter
             anchors.verticalCenter: parent.verticalCenter
             width : referenceConfHeader.width + configComboBox.width/2 + 20
@@ -217,8 +660,6 @@ Window {
                 anchors.leftMargin: 10
             }
         }
-
-
 
         ComboBox {
             id: configComboBox
@@ -273,8 +714,7 @@ Window {
             text: "Refresh"
             width: 90
             height: 30
-            anchors.right: saveAllButton.left
-            anchors.rightMargin: 10
+            anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
 
             palette.buttonText: "white"
@@ -292,29 +732,29 @@ Window {
             }
         }
 
-        Button {
-            id: saveAllButton
-            text: "Save All"
-            width: 90
-            height: 30
-            anchors.right: parent.right
-            anchors.verticalCenter: parent.verticalCenter
+//        Button {
+//            id: saveAllButton
+//            text: "Save All"
+//            width: 90
+//            height: 30
+//            anchors.right: parent.right
+//            anchors.verticalCenter: parent.verticalCenter
 
-            palette.buttonText: "white"
+//            palette.buttonText: "white"
 
-            background: Rectangle {
-                radius: 10
-                gradient: Gradient {
-                    GradientStop { position: 0.0; color: saveAllButton.pressed ? "#BDDBBD" : (saveAllButton.hovered ? "#D3E0E0" : "#BBE6E6") }
-                    GradientStop { position: 1.0; color: saveAllButton.pressed ? "#00B3B3" : (saveAllButton.hovered ? "#009999" : "#008080") }
-                }
+//            background: Rectangle {
+//                radius: 10
+//                gradient: Gradient {
+//                    GradientStop { position: 0.0; color: saveAllButton.pressed ? "#BDDBBD" : (saveAllButton.hovered ? "#D3E0E0" : "#BBE6E6") }
+//                    GradientStop { position: 1.0; color: saveAllButton.pressed ? "#00B3B3" : (saveAllButton.hovered ? "#009999" : "#008080") }
+//                }
 
-            }
+//            }
 
-            onClicked: {
-                configFileDialog.open()
-            }
-        }
+//            onClicked: {
+//                configFileDialog.open()
+//            }
+//        }
     }
 
     Row {
@@ -586,6 +1026,7 @@ Window {
         MouseArea {
             anchors.fill: parent
             enabled: true
+            cursorShape: Qt.ForbiddenCursor
         }
     }
 
@@ -684,15 +1125,11 @@ Window {
                 anchors.bottomMargin: 1
                 width: binRadioButton.height - 2
                 radius: binRadioButton.height - 2
-//                color: "#4891d9"
 
                 gradient: Gradient
                 {
                     GradientStop { position: 0.000;  color: baseSelection.isHex ? "#81bffc" : "#2358a3"}
                     GradientStop { position: 1.000; color: baseSelection.isHex ? "#2358a3" : "#81bffc"}
-//                    GradientStop { position: 0.000; color: parent.isHex ? "#4891d9" : "#2358a3" }
-//                    GradientStop { position: 1.000; color: parent.isHex ? "#2358a3" : "#4891d9" }
-
                 }
 
             }
@@ -775,15 +1212,11 @@ Window {
                     visible: parent.selected
                 }
 
-
                 onClicked: {
                     parent.isHex = !parent.isHex
                     Promise.resolve().then(changeBase)
                 }
             }
-
-
-
         }
 
 
@@ -1028,14 +1461,9 @@ Window {
                 opacity: 0.6
             }
 
-            //TRIAL AREA
             Component.onCompleted: {
                 createPinButtons()
-
-
-
             }
-            //TRIAL AREA
 
             Text {
                 color: "#ffffff"
@@ -1048,40 +1476,75 @@ Window {
         }
 
         Flickable {
-                id: flickablePinBoard
-                width: parent.width
+            id: flickablePinBoard
+            width: parent.width
+            height: parent.height
+            anchors.left: pinBoardHeader.right
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            anchors.topMargin: 5
+            anchors.leftMargin: 5
+            anchors.rightMargin: 5
+
+            contentWidth: column.width
+            contentHeight: column.height
+            flickableDirection: Flickable.HorizontalFlick
+            boundsBehavior: Flickable.StopAtBounds
+            clip: true
+
+            Column {
+                id: column
+                spacing: 5
                 height: parent.height
-                anchors.left: pinBoardHeader.right
-                anchors.right: parent.right
-                anchors.top: parent.top
-                anchors.bottom: parent.bottom
-                anchors.topMargin: 5
-                anchors.leftMargin: 5
-                anchors.rightMargin: 5
 
-                contentWidth: column.width
-                contentHeight: column.height
-                flickableDirection: Flickable.HorizontalFlick
-                boundsBehavior: Flickable.StopAtBounds
-                clip: true
-
-                Column {
-                    id: column
+                Row {
                     spacing: 5
-                    height: parent.height
-
-                    Row {
-                        spacing: 5
-                        id: pinButtonRow0
-                    }
-
-                    Row {
-                        spacing: 5
-                        id: pinButtonRow1
-                    }
+                    id: pinButtonRow0
                 }
 
+                Row {
+                    spacing: 5
+                    id: pinButtonRow1
+                }
             }
+
+//            MouseArea {
+//                anchors.fill: parent
+//                cursorShape: drag.active ? Qt.ClosedHandCursor : Qt.ArrowCursor
+//            }
+
+        }
+
+        Rectangle {
+            anchors.right: flickablePinBoard.right
+            anchors.top: flickablePinBoard.top
+            anchors.bottom: flickablePinBoard.bottom
+            anchors.bottomMargin: 5
+            width: 25
+            opacity: 0.9
+            gradient: Gradient {
+                orientation: Gradient.Horizontal
+                GradientStop { position: 0.0; color: "transparent" }
+                GradientStop { position: 1.0; color: "#404052" }
+            }
+            visible: !flickablePinBoard.atXEnd
+        }
+
+        Rectangle {
+            anchors.left: flickablePinBoard.left
+            anchors.top: flickablePinBoard.top
+            anchors.bottom: flickablePinBoard.bottom
+            anchors.bottomMargin: 5
+            width: 25
+            opacity: 0.9
+            gradient: Gradient {
+                orientation: Gradient.Horizontal
+                GradientStop { position: 0.0; color: "#404052" }
+                GradientStop { position: 1.0; color: "transparent" }
+            }
+            visible: !flickablePinBoard.atXBeginning
+        }
 
         Rectangle {
             id: pinBoardPlaceHolder

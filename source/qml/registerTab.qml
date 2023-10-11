@@ -42,6 +42,7 @@ Button {
     }
 
     Button {
+        id: registerTabCloseButton
         width: 20
         height: 20
 
@@ -49,7 +50,7 @@ Button {
 
 //        text: "X"
         Image {
-            source: "../../../assets/close-filled.svg"
+            source: registerTabCloseButton.hovered ? "../../../assets/close-filled.svg" : "../../../assets/close-filled-grey.svg"
 
             width: parent.width-4
             height: parent.height-4
@@ -78,6 +79,7 @@ Button {
             destroyRegisterTabAlias(moduleId, registerId)
         }
     }
+
 }
 
 
