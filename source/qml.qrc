@@ -22,5 +22,6 @@
         <file>assets/forbidden.svg</file>
         <file>assets/file-select_hovered.svg</file>
         <file>assets/close-filled-grey.svg</file>
+        <file>assets/loading.svg</file>
     </qresource>
 </RCC>

@@ -27,6 +27,46 @@ Window {
     title: qsTr("RegisterVisualizer")
     id: rootObject
 
+    Rectangle {
+        id: loadingScreen
+        anchors.fill: parent
+        color: "transparent"
+        radius:10
+        z:2
+
+        Rectangle {
+            anchors.fill: parent
+            radius:10
+            opacity: 0.5
+            color: "#000000"
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            enabled: true
+        }
+
+        Image {
+            id: loadingIcon
+            anchors.centerIn: parent
+            source: "../../../assets/loading.svg"
+
+            NumberAnimation on rotation {
+                from: 0; to: 360; running: loadingScreen.visible === true;
+                loops: Animation.Infinite; duration: 1100;
+            }
+        }
+
+        Text {
+            id: loadingText
+            color: "#FFFFFF"
+            anchors.centerIn: parent
+            text: "Loading..."
+            font.pointSize: 15
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+        }
+    }
 
     Rectangle {
         anchors.fill: parent
@@ -43,6 +83,7 @@ Window {
         height: 35
         color: "transparent"
         radius: 10
+        z: 3
 
         MouseArea {
             anchors.fill: parent
