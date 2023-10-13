@@ -14,9 +14,9 @@ Window {
     flags: Qt.Window | Qt.FramelessWindowHint
     modality: Qt.ApplicationModal
 
-    width: 1200
+    width: 1250
     height: 750
-    minimumWidth: 1024 + scriptSelectionText.width
+    minimumWidth: 1122 + scriptSelectionText.width
     minimumHeight: 650
     visible: true
 //    color: "#27273a"
@@ -401,11 +401,15 @@ Window {
                                 console.log("Failed to start the script.")
                             }
                         }
-                        if (backend.returnScriptState()){
-                            scriptDialogWarning.close()
-                        }
-                    }
+                        Promise.resolve().then(()=>{
+                            if (backend.returnScriptState()){
+                                scriptDialogWarning.close()
+//                                refresh();
+                            }
+                        })
 
+
+                    }
                 }
             }
 
@@ -651,7 +655,7 @@ Window {
         ComboBox {
             id: configComboBox
             editable: true
-            anchors.right: refreshButton.left
+            anchors.right: scanConfButton.left
             anchors.rightMargin: 10
             anchors.verticalCenter: parent.verticalCenter
             width: 200
@@ -681,7 +685,11 @@ Window {
 
             onCurrentValueChanged: {
                 backend.setConfFilePath(currentIndex)
-                createModuleButtons()
+                if(backend.returnScriptState()){
+                   createModuleButtons()
+                }
+
+
 
                 if(!registerPlaceHolder.visible){
                     createRegisterButtons(backend.returnGlobalModuleId())
@@ -692,7 +700,33 @@ Window {
                         }
                     }
                 }
-                createPinButtons()
+                if(backend.returnScriptState()){
+                   createPinButtons()
+                }
+            }
+        }
+
+        Button {
+            id: scanConfButton
+            text: "Scan"
+            width: 90
+            height: 30
+            anchors.right: refreshButton.left
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.rightMargin: 8
+
+            palette.buttonText: "white"
+
+            background: Rectangle {
+                radius: 10
+                gradient: Gradient {
+                    GradientStop { position: 0.0; color: scanConfButton.pressed ? "#BDDBBD" : (scanConfButton.hovered ? "#D3E0E0" : "#BBE6E6") }
+                    GradientStop { position: 1.0; color: scanConfButton.pressed ? "#00B3B3" : (scanConfButton.hovered ? "#009999" : "#008080") }
+                }
+            }
+
+            onClicked: {
+                scanConf()
             }
         }
 
@@ -1237,8 +1271,10 @@ Window {
                     }
                     Promise.resolve().then(()=>{
                         refresh()
-                        updateRegisterTextBox()
-                        createPinButtons()
+                        if(backend.returnScriptState()){
+                           updateRegisterTextBox()
+                           createPinButtons()
+                        }
                     })
                 }
             }
@@ -1273,8 +1309,10 @@ Window {
                     }
                     Promise.resolve().then(()=>{
                         refresh()
-                        updateRegisterTextBox()
-                        createPinButtons()
+                        if(backend.returnScriptState()){
+                           createPinButtons()
+                           updateRegisterTextBox()
+                        }
                     })
                 }
             }
@@ -1449,7 +1487,9 @@ Window {
             }
 
             Component.onCompleted: {
-                createPinButtons()
+                if(backend.returnScriptState()){
+                   createPinButtons()
+                }
             }
 
             Text {
@@ -1558,9 +1598,11 @@ Window {
 
 
     function refresh() {
+
         createPinButtons()
         createModuleButtons()
-//        Promise.resolve().then(checkSelectedModule)
+
+        Promise.resolve().then(checkSelectedModule)
         if (!registerPlaceHolder.visible) {
             createRegisterButtons(backend.returnGlobalModuleId())
             if (!fieldPlaceHolder.visible) {
@@ -1570,7 +1612,9 @@ Window {
                 }
             }
         }
-
+        if(!registerDataViewPlaceHolder.visible){
+            updateRegisterTextBox()
+        }
         checkSelectedRegisterTabAlias()
     }
 
@@ -1623,7 +1667,6 @@ Window {
 //confscreen
     function createModuleButtons() {
         clearModules()
-        backend.checkAllConfigValues(-1)
         var fileList = backend.getFileList()
         for(var i = 0; i < fileList.length; i++) {
             var name = fileList[i].split(".")[0]
@@ -1632,7 +1675,7 @@ Window {
                               "moduleId": i,
                               "text": name,
                               "Layout.alignment": Qt.AlignHCenter | Qt.AlignVCenter,
-                              "alert": backend.checkAllConfigValues(0, name),
+                              "alert": backend.returnConfigState() ? backend.checkAllConfigValues(0, name) : 0
                           });
             moduleItem.moduleClicked.connect(moduleButtonClicked)
         }
@@ -1673,7 +1716,6 @@ Window {
     //REGISTER BUTTONS START
     function createRegisterButtons(moduleId) {
         clearRegisters()
-        backend.checkAllConfigValues(-1, "")
         backend.setFilePath(moduleId)
         for(var i = 0; i < backend.getRegisterList().length; i++) {
             var name = backend.getRegisterList()[i]
@@ -1682,7 +1724,7 @@ Window {
                               "registerId": i,
                               "text": name,
                               "Layout.alignment": Qt.AlignHCenter | Qt.AlignVCenter,
-                              "alert": backend.checkAllConfigValues(1, (backend.getFileList()[backend.returnGlobalModuleId()].split(".")[0]+"."+name)),
+                              "alert": backend.returnConfigState() ? backend.checkAllConfigValues(1, (backend.getFileList()[backend.returnGlobalModuleId()].split(".")[0]+"."+name)) : 0
                           });
             registerItem.registerClicked.connect(registerButtonClicked)
         }
@@ -1747,8 +1789,7 @@ Window {
                               "registerId": registerId,
                               "moduleId": backend.returnGlobalModuleId(),
                               "text": name,
-                              "Layout.alignment": Qt.AlignHCenter | Qt.AlignVCenter,
-                              "alert": backend.checkAllConfigValues(1, (backend.getFileList()[backend.returnGlobalModuleId()].split(".")[0]+"."+name)),
+                              "Layout.alignment": Qt.AlignHCenter | Qt.AlignVCenter
                           });
         }
         refresh()
@@ -1814,7 +1855,6 @@ Window {
     //FIELD BUTTONS END
     function createFieldButtons(registerId) {
         clearFields()
-        backend.checkAllConfigValues(-1, "")
         for(var i = 0; i < backend.getFieldList(registerId).length; i++) {
             var name = backend.getFieldList(registerId)[i]
             var fieldItem = Qt.createComponent("field.qml")
@@ -1822,7 +1862,7 @@ Window {
                               "fieldId": i,
                               "text": name,
                               "Layout.alignment": Qt.AlignHCenter | Qt.AlignVCenter,
-                              "alert": backend.checkAllConfigValues(2, (backend.getFileList()[backend.returnGlobalModuleId()].split(".")[0]+"."+backend.getRegisterList()[backend.returnGlobalRegId()]+"."+name)),
+                              "alert": backend.returnConfigState() ? backend.checkAllConfigValues(2, (backend.getFileList()[backend.returnGlobalModuleId()].split(".")[0]+"."+backend.getRegisterList()[backend.returnGlobalRegId()]+"."+name)) : 0
                           });
             fieldItem.fieldClicked.connect(fieldButtonClicked)
         }
@@ -1880,7 +1920,7 @@ Window {
                                         "text": pinConfig[pinType],
                                         "type": pinType,
                                         "module": pinConfig[1],
-                                        "alert": backend.checkAllConfigValues(0, pinConfig[1])
+                                        "alert": backend.returnConfigState() ? backend.checkAllConfigValues(0, pinConfig[1]) : 0
                                       });
                         break;
                     case 2:
@@ -1891,7 +1931,7 @@ Window {
                                         "type": pinType,
                                         "module": pinConfig[1],
                                         "reg": pinConfig[2],
-                                        "alert": backend.checkAllConfigValues(1, (pinConfig[1]+'.'+pinConfig[2]))
+                                        "alert": backend.returnConfigState() ? backend.checkAllConfigValues(1, (pinConfig[1]+'.'+pinConfig[2])) : 0
                                       });
                         break;
                     case 3:
@@ -1903,7 +1943,7 @@ Window {
                                         "module": pinConfig[1],
                                         "reg": pinConfig[2],
                                         "field": pinConfig[3],
-                                        "alert": backend.checkAllConfigValues(2, (pinConfig[1]+'.'+pinConfig[2]+'.'+pinConfig[3]))
+                                        "alert": backend.returnConfigState() ? backend.checkAllConfigValues(2, (pinConfig[1]+'.'+pinConfig[2]+'.'+pinConfig[3])) : 0
                                       });
                         break;
                 }
@@ -1918,7 +1958,7 @@ Window {
                                         "text": pinConfig[pinType],
                                         "type": pinType,
                                         "module": pinConfig[1],
-                                        "alert": backend.checkAllConfigValues(0, pinConfig[1].split('\r')[0])
+                                        "alert": backend.returnConfigState() ? backend.checkAllConfigValues(0, pinConfig[1].split('\r')[0]) : 0
                                       });
                         break;
                     case 2:
@@ -1929,7 +1969,7 @@ Window {
                                         "type": pinType,
                                         "module": pinConfig[1],
                                         "reg": pinConfig[2],
-                                        "alert": backend.checkAllConfigValues(1, (pinConfig[1]+'.'+pinConfig[2].split('\r')[0]))
+                                        "alert": backend.returnConfigState() ? backend.checkAllConfigValues(1, (pinConfig[1]+'.'+pinConfig[2].split('\r')[0])) : 0
                                       });
                         break;
                     case 3:
@@ -1941,7 +1981,7 @@ Window {
                                         "module": pinConfig[1],
                                         "reg": pinConfig[2],
                                         "field": pinConfig[3],
-                                        "alert": backend.checkAllConfigValues(2, (pinConfig[1]+'.'+pinConfig[2]+'.'+pinConfig[3].split('\r')[0]))
+                                        "alert": backend.returnConfigState() ? backend.checkAllConfigValues(2, (pinConfig[1]+'.'+pinConfig[2]+'.'+pinConfig[3].split('\r')[0])) : 0
                                       });
                         break;
                 }
@@ -1989,6 +2029,16 @@ Window {
         for (i = 0 ; i < pinButtonRow1.children.length; i++) {
             pinButtonRow1.children[i].destroy()
         }
+    }
+
+    function scanConf(){
+        console.log("SCAN")
+        if(backend.returnScriptState()){
+            backend.checkAllConfigValues(-1)
+        } else {
+            console.log("Script process is not running.")
+        }
+        Promise.resolve().then(refresh)
     }
 
     function hexToBinary(hex) {

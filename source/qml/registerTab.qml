@@ -8,7 +8,6 @@ import QtQuick.Layouts 1.15
 Button {
     property string registerId;
     property string moduleId;
-    property bool alert;
 
     width: 150
     height: 20
