@@ -71,13 +71,13 @@ QList<QString> Backend::getGrmonScriptList() {
 void Backend::setFilePath(int moduleId) {
     globalModuleId = moduleId;
     filePath = Path::getSetupDir() + "/Registers/" +
-               getFileList()[moduleId].toStdString();
+               getFileList().at(moduleId).toStdString();
 }
 
 void Backend::setConfFilePath(int configId) {
     globalConfigId = configId;
     configFilePath = Path::getSetupDir() + "/SavedConfigs/" +
-                     getConfFileList()[configId].toStdString();
+                     getConfFileList().at(configId).toStdString();
 }
 
 int Backend::returnSelectedConfigId() { return globalConfigId; }
@@ -136,7 +136,7 @@ std::vector<std::string> Backend::getFieldListByPath(std::string path) {
     int regId = -1;
     QList<QString> regList = vectorToQList(
         Yaml::getValueList(Path::getSetupDir() + "/Registers/" +
-                               getFileList()[moduleId].toStdString(),
+                               getFileList().at(moduleId).toStdString(),
                            "RegName"));
     for (int i = 0; i < regList.size(); i++) {
         if (regList.at(i).toStdString() == regName) {
@@ -244,7 +244,7 @@ bool Backend::getRegWriteable(int regId){
 
 QString Backend::getFieldAddr() {
     std::string moduleAddr = Yaml::getValue(filePath, "Module_ADDR");
-    QString regName = Backend::getRegisterList().at(globalRegId.toInt());
+//    QString regName = Backend::getRegisterList().at(globalRegId.toInt());
     QString regAddr =
         Backend::vectorToQList(Yaml::getValueList(filePath, "ADDR")).at(globalRegId.toInt());
     std::vector<YAML::Node> nodeList = Yaml::getNodeListByKey(filePath, "Fields");
@@ -256,7 +256,7 @@ QString Backend::getFieldAddr() {
     int moduleAddrInt = std::stoi(moduleAddr, 0, 16);
     int regAddrInt = std::stoi(regAddr.toStdString(), 0, 16);
     int fieldRangeStart = getRangeStart(fieldRange);
-    int fieldRangeEnd = getRangeEnd(fieldRange);
+//    int fieldRangeEnd = getRangeEnd(fieldRange);
     int sum = moduleAddrInt + regAddrInt + fieldRangeStart;
 
     std::stringstream temp;
@@ -559,7 +559,7 @@ std::string Backend::getRegAddrByPath(std::string path) {
     int regId = -1;
     QList<QString> regList = vectorToQList(
         Yaml::getValueList(Path::getSetupDir() + "/Registers/" +
-                               getFileList()[moduleId].toStdString(),
+                               getFileList().at(moduleId).toStdString(),
                            "RegName"));
     for (int i = 0; i < regList.size(); i++) {
         if (regList.at(i).toStdString() == regName) {
@@ -578,12 +578,12 @@ std::string Backend::getRegAddrByPath(std::string path) {
     // CALCULATE ADDR START
     std::string moduleAddr =
         Yaml::getValue(Path::getSetupDir() + "/Registers/" +
-                           getFileList()[moduleId].toStdString(),
+                           getFileList().at(moduleId).toStdString(),
                        "Module_ADDR");
     QString regAddr =
         Backend::vectorToQList(Yaml::getValueList(Path::getSetupDir() +
                                                       "/Registers/" +
-                                                      getFileList()[moduleId].toStdString(),
+                                                      getFileList().at(moduleId).toStdString(),
                                                   "ADDR"))
             .at(regId);
 
@@ -642,7 +642,7 @@ std::string Backend::getFieldAddrByPath(std::string path) {
     int regId = -1;
     QList<QString> regList = vectorToQList(
         Yaml::getValueList(Path::getSetupDir() + "/Registers/" +
-                               getFileList()[moduleId].toStdString(),
+                               getFileList().at(moduleId).toStdString(),
                            "RegName"));
     for (int i = 0; i < regList.size(); i++) {
         if (regList.at(i).toStdString() == regName) {
@@ -654,7 +654,7 @@ std::string Backend::getFieldAddrByPath(std::string path) {
     QList<QString> fieldList;
     std::vector<YAML::Node> nodeList =
         Yaml::getNodeListByKey(Path::getSetupDir() +
-                                   "/Registers/" + getFileList()[moduleId].toStdString(),
+                                   "/Registers/" + getFileList().at(moduleId).toStdString(),
                                "Fields");
     fieldList = vectorToQList(Yaml::getValueList(nodeList.at(regId), "Name"));
     for (int i = 0; i < fieldList.size(); i++) {
@@ -677,12 +677,12 @@ std::string Backend::getFieldAddrByPath(std::string path) {
     // CALCULATE ADDR START
     std::string moduleAddr =
         Yaml::getValue(Path::getSetupDir() + "/Registers/" +
-                           getFileList()[moduleId].toStdString(),
+                           getFileList().at(moduleId).toStdString(),
                        "Module_ADDR");
     QString regAddr =
         Backend::vectorToQList(Yaml::getValueList(Path::getSetupDir() +
                                                       "/Registers/" +
-                                                      getFileList()[moduleId].toStdString(),
+                                                      getFileList().at(moduleId).toStdString(),
                                                   "ADDR"))
             .at(regId);
     std::string fieldRange =
@@ -743,7 +743,7 @@ std::vector<int> Backend::getFieldRangeByPath(std::string path) {
     int regId = -1;
     QList<QString> regList = vectorToQList(
         Yaml::getValueList(Path::getSetupDir() + "/Registers/" +
-                               getFileList()[moduleId].toStdString(),
+                               getFileList().at(moduleId).toStdString(),
                            "RegName"));
     for (int i = 0; i < regList.size(); i++) {
         if (regList.at(i).toStdString() == regName) {
@@ -755,7 +755,7 @@ std::vector<int> Backend::getFieldRangeByPath(std::string path) {
     QList<QString> fieldList;
     std::vector<YAML::Node> nodeList =
         Yaml::getNodeListByKey(Path::getSetupDir() +
-                                   "/Registers/" + getFileList()[moduleId].toStdString(),
+                                   "/Registers/" + getFileList().at(moduleId).toStdString(),
                                "Fields");
     fieldList = vectorToQList(Yaml::getValueList(nodeList.at(regId), "Name"));
     for (int i = 0; i < fieldList.size(); i++) {
@@ -828,7 +828,7 @@ bool Backend::getIsFieldWriteOnlyByPath(std::string path) {
     int regId = -1;
     QList<QString> regList = vectorToQList(
         Yaml::getValueList(Path::getSetupDir() + "/Registers/" +
-                               getFileList()[moduleId].toStdString(),
+                               getFileList().at(moduleId).toStdString(),
                            "RegName"));
     for (int i = 0; i < regList.size(); i++) {
         if (regList.at(i).toStdString() == regName) {
@@ -840,7 +840,7 @@ bool Backend::getIsFieldWriteOnlyByPath(std::string path) {
     QList<QString> fieldList;
     std::vector<YAML::Node> nodeList =
         Yaml::getNodeListByKey(Path::getSetupDir() +
-                                   "/Registers/" + getFileList()[moduleId].toStdString(),
+                                   "/Registers/" + getFileList().at(moduleId).toStdString(),
                                "Fields");
     fieldList = vectorToQList(Yaml::getValueList(nodeList.at(regId), "Name"));
     for (int i = 0; i < fieldList.size(); i++) {
@@ -863,7 +863,7 @@ bool Backend::getIsFieldWriteOnlyByPath(std::string path) {
     // GET IS READ-WRITEABLE START
     nodeList =
         Yaml::getNodeListByKey(Path::getSetupDir() +
-                                   "/Registers/" + getFileList()[moduleId].toStdString(),
+                                   "/Registers/" + getFileList().at(moduleId).toStdString(),
                                "Fields");
     bool is_writeable =
         vectorToQList(Yaml::getValueList(nodeList.at(regId), "Write")).at(fieldId).toInt();
@@ -972,8 +972,6 @@ int Backend::checkAllConfigValues(int mode, QString checkPath) {
     static std::vector<std::string> redRegs;
     static std::vector<std::string> redFields;
 
-    //    qDebug()<<checkPath;
-
     // INITIALIZING MODE
     if (mode == -1) {
         TreeNode root = parseConfig(configFilePath);
@@ -1027,6 +1025,7 @@ int Backend::checkAllConfigValues(int mode, QString checkPath) {
                 }
             }
         }
+        Backend::configState = 1;
         return -1;
     }
 
@@ -1064,6 +1063,12 @@ int Backend::checkAllConfigValues(int mode, QString checkPath) {
     else {
         return -1;
     }
+}
+
+int Backend::returnConfigState(){return Backend::configState;}
+
+void Backend::forTestPurposes() {
+    checkAllConfigValues(-1);
 }
 
 QString Backend::returnHex(QString num) { return "0x" + QString::number(num.toInt(), 16); }
@@ -1230,49 +1235,11 @@ QString Backend::fieldGet(QString address) {
 
     if (foundBuffer) {  // IF ADDRESS FOUND IN BUFFER, COPY FOUND LINE TO THE COMMON VARIABLE
         line = bufferLines.at(i);
-    } else {  // IF NOT, SEARCH THE TARGET FILE !!!WILL BE REPLACED WITH GRMON SCRIPTS OR VIA OR NOT
-              // VIA SSH!!!
-        std::ifstream targetFile;
-        targetFile.open(Path::getSetupDir() + "/TargetMocks/target.yaml");
-        std::vector<std::string> targetLines;
-        std::string buffer;
-
-        while (std::getline(targetFile, buffer)) {
-            targetLines.push_back(buffer);
-        }
-
-        targetFile.close();
-        int i;
-        std::string temp;
-        bool foundTarget = false;
-
-        for (i = 0; i < targetLines.size(); i++) {
-            std::string line = targetLines.at(i);
-            temp.clear();
-            for (int j = 0; j < line.size(); j++) {
-                if (line.at(j) == ':') {
-                    break;
-                }
-                temp.push_back(line[j]);
-            }
-
-            if (temp == address.toStdString()) {
-                foundTarget = true;
-                break;
-            }
-        }
-
-        if (foundTarget) {  // IF ADDRESS FOUND ON TARGET, COPY FOUND LINE TO THE COMMON VARIABLE
-            line = targetLines.at(i);
-        } else {  // IF NOT FOUND ON BOTH RESOURCES, LOG AN ERROR AND EXIT FUNCTION.
-            qDebug() << "REGISTER ADDRESS NOT FOUND.";
-            qDebug() << address;
-            return "-1";
-        }
+    } else {  // IF NOT, SEARCH THE TARGET FILE
+        line = (address+": "+sshGet(address)).toStdString();
     }
 
-    // IF ADDRESS FOUND ON EITHER OF RESOURCES GET FIELD VALUE FROM THE RELEVANT PLACE OF REGISTER
-    // VALUE
+    // IF ADDRESS FOUND ON EITHER OF RESOURCES GET FIELD VALUE FROM THE RELEVANT PLACE OF REGISTER VALUE
     temp.clear();
     bool valueSwitch = false;
     for (int j = 0; j < line.size(); j++) {
@@ -1311,46 +1278,9 @@ QString Backend::fieldGet(QString address) {
 }
 
 QString Backend::fieldGetFromTarget(QString address) {
-    std::ifstream targetFile;
-    targetFile.open(Path::getSetupDir() + "/TargetMocks/target.yaml");
-    std::vector<std::string> targetLines;
-    std::string buffer;
-    std::string line;
+    std::string line = (address + ": " + sshGet(address)).toStdString();
 
-    while (std::getline(targetFile, buffer)) {
-        targetLines.push_back(buffer);
-    }
-
-    targetFile.close();
-    int i;
-    std::string temp;
-    bool foundTarget = false;
-
-    for (i = 0; i < targetLines.size(); i++) {
-        std::string line = targetLines.at(i);
-        temp.clear();
-        for (int j = 0; j < line.size(); j++) {
-            if (line.at(j) == ':') {
-                break;
-            }
-            temp.push_back(line[j]);
-        }
-
-        if (temp == address.toStdString()) {
-            foundTarget = true;
-            break;
-        }
-    }
-
-    if (foundTarget) {  // IF ADDRESS FOUND ON TARGET, COPY FOUND LINE TO THE COMMON VARIABLE
-        line = targetLines.at(i);
-    } else {  // IF NOT FOUND , LOG AN ERROR AND EXIT FUNCTION.
-        qDebug() << "REGISTER ADDRESS NOT FOUND.";
-        qDebug() << address;
-        return "-1";
-    }
-
-    temp.clear();
+    std::string temp = "";
     bool valueSwitch = false;
     for (int j = 0; j < line.size(); j++) {
         if (line[j] == ' ') {
@@ -1861,7 +1791,7 @@ int Backend::getIdByName(std::string component, std::string name) {
 QList<QString> Backend::vectorToQList(std::vector<std::string> vector) {
     QList<QString> qlist;
 
-    for (auto item : vector) {
+    foreach (std::string item, vector) {
         qlist.append(QString::fromStdString(item));
     }
 
@@ -2244,6 +2174,7 @@ void Backend::sendScriptCommand(const QString &command) {
         Backend::scriptProcess.write(command.toUtf8());
         Backend::scriptProcess.write("\n");  // You might need to add a newline character
         Backend::scriptProcess.waitForBytesWritten();  // Wait for the data to be written to the process
+        qDebug()<<"sent command";
     }
 }
 
@@ -2264,10 +2195,4 @@ bool Backend::returnScriptState() {
     } else {
         return false;
     }
-}
-
-void Backend::flushOuts() {
-//    qDebug()<<qPrintable(processOuts);
-    QStringList lines = processOuts.split('\n', Qt::SkipEmptyParts);
-    qDebug()<<lines[lines.size()-2].split('\t')[1];
 }

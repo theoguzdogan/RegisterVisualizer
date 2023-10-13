@@ -85,6 +85,7 @@ class Backend : public QObject {
     Q_INVOKABLE void setGlobalRegId(int regId);
     Q_INVOKABLE void setGlobalFieldId(int fieldId);
     Q_INVOKABLE int checkAllConfigValues(int mode, QString checkPath = "");
+    Q_INVOKABLE int returnConfigState();
     Q_INVOKABLE void checkAndSaveAll(QString newFileName);
     Q_INVOKABLE int returnPinConfig(QString initSignal);
     Q_INVOKABLE QList<QString> returnPinConfig(int index);
@@ -100,7 +101,9 @@ class Backend : public QObject {
     Q_INVOKABLE void stopScript();
     Q_INVOKABLE void processOutput();
     Q_INVOKABLE bool returnScriptState();
-    Q_INVOKABLE void flushOuts();
+
+
+    Q_INVOKABLE void forTestPurposes();
 
 
    private:
@@ -130,6 +133,7 @@ class Backend : public QObject {
     int globalConfigId = 0;
     std::string filePath;
     std::string configFilePath = "../src/conf/default.yaml";
+    int configState = 0; //0:not initialized, 1:initialized
     std::vector<QList<QString>> globalPinConfig;
 };
 
