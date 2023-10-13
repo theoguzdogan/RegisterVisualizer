@@ -685,24 +685,6 @@ Window {
 
             onCurrentValueChanged: {
                 backend.setConfFilePath(currentIndex)
-                if(backend.returnScriptState()){
-                   createModuleButtons()
-                }
-
-
-
-                if(!registerPlaceHolder.visible){
-                    createRegisterButtons(backend.returnGlobalModuleId())
-                    if(!fieldPlaceHolder.visible){
-                        createFieldButtons(backend.returnGlobalRegId())
-                        if(!confPlaceHolder.visible){
-                            createConfScreen(backend.returnGlobalFieldId())
-                        }
-                    }
-                }
-                if(backend.returnScriptState()){
-                   createPinButtons()
-                }
             }
         }
 
@@ -1270,10 +1252,8 @@ Window {
                         backend.sshSet(registerTextBox.regAddr, binaryToHex(registerTextBox.text))
                     }
                     Promise.resolve().then(()=>{
-                        refresh()
                         if(backend.returnScriptState()){
                            updateRegisterTextBox()
-                           createPinButtons()
                         }
                     })
                 }
@@ -1307,13 +1287,6 @@ Window {
                     } else {
                         backend.saveRegConfig(binaryToHex(registerTextBox.text))
                     }
-                    Promise.resolve().then(()=>{
-                        refresh()
-                        if(backend.returnScriptState()){
-                           createPinButtons()
-                           updateRegisterTextBox()
-                        }
-                    })
                 }
             }
         }
@@ -2032,7 +2005,6 @@ Window {
     }
 
     function scanConf(){
-        console.log("SCAN")
         if(backend.returnScriptState()){
             backend.checkAllConfigValues(-1)
         } else {
