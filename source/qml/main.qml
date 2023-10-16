@@ -27,6 +27,48 @@ Window {
     title: qsTr("RegisterVisualizer")
     id: rootObject
 
+    Rectangle {
+        id: loadingScreen
+        anchors.fill: parent
+        color: "transparent"
+        radius:10
+        z:2
+        visible: false
+
+        Rectangle {
+            anchors.fill: parent
+            radius:10
+            opacity: 0.5
+            color: "#000000"
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            enabled: true
+        }
+
+        Image {
+            id: loadingIcon
+            anchors.centerIn: parent
+            source: "../../../assets/loading.svg"
+
+            NumberAnimation on rotation {
+                from: 0; to: 360; running: loadingScreen.visible === true;
+                loops: Animation.Infinite; duration: 1100;
+            }
+        }
+
+        Text {
+            id: loadingText
+            color: "#FFFFFF"
+            anchors.centerIn: parent
+            text: "Loading..."
+            font.bold: true
+            font.pointSize: 15
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+        }
+    }
 
     Rectangle {
         anchors.fill: parent
@@ -43,6 +85,7 @@ Window {
         height: 35
         color: "transparent"
         radius: 10
+        z: 3
 
         MouseArea {
             anchors.fill: parent
@@ -530,9 +573,26 @@ Window {
             height: 55
             color: "transparent"
 
+            MouseArea {
+                anchors.fill: parent
+                property int counter: 0;
+                onClicked: {
+                    counter++
+                    if(counter==3){
+                        uselessAnimation.running = true
+                        counter=0
+                    }
+                }
+            }
+
             Image {
                 id: logo_tai
-                source: "../../../assets/tai_logo_white.svg"
+                source: "../../../assets/tai_logo_color.svg"
+                NumberAnimation on rotation {
+                    id: uselessAnimation
+                    from: 0; to: 360; running: false;
+                    loops: 1; duration: 1100;
+                }
             }
         }
 
@@ -2038,5 +2098,15 @@ Window {
         registerTextBox.text = baseSelection.isHex ? binaryToHex(registerTextBox.text) : hexToBinary(registerTextBox.text)
     }
 
-    Connections { target: backend }
+    Connections {
+        target: backend
+        function onConsoleReady(){
+            console.log("loading end")
+            loadingScreen.visible = false;
+        }
+        function onConsoleLoading(){
+            console.log("loading start")
+            loadingScreen.visible = true;
+        }
+    }
 }

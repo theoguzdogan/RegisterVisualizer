@@ -1,10 +1,11 @@
 import os
+import time
 
 # Read the message from message.txt
 with open('../../grmon_outs/grmon3_spw.txt', 'r') as file:
     message = file.read()
 print(message)
-
+time.sleep(3)
 
 while True:
     userInput = input("grmon3>")  # Print "Input: " without a newline character
@@ -35,7 +36,7 @@ while True:
         if len(inputParts) >= 3:
             keyword = inputParts[0]
             address = inputParts[1]
-            newString = inputParts[2]
+            newString = inputParts[2].replace("0x", "")
             
             # Update the file by finding and modifying the line
             memory = "../../registers/scoc3.txt"

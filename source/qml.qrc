@@ -22,5 +22,7 @@
         <file>assets/forbidden.svg</file>
         <file>assets/file-select_hovered.svg</file>
         <file>assets/close-filled-grey.svg</file>
+        <file>assets/loading.svg</file>
+        <file>assets/tai_logo_color_outlined.svg</file>
     </qresource>
 </RCC>
