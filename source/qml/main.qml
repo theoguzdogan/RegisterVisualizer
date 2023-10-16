@@ -63,6 +63,7 @@ Window {
             color: "#FFFFFF"
             anchors.centerIn: parent
             text: "Loading..."
+            font.bold: true
             font.pointSize: 15
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
