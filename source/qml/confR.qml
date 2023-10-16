@@ -74,6 +74,10 @@ Rectangle {
         wrapMode: Text.Wrap
         width: parent.width - 10
     }
+    Button {
+        text: "emitsignal"
+        onClicked: backend.forTestPurposes();
+    }
 }
 
 

@@ -101,9 +101,12 @@ class Backend : public QObject {
     Q_INVOKABLE void stopScript();
     Q_INVOKABLE void processOutput();
     Q_INVOKABLE bool returnScriptState();
+    Q_INVOKABLE bool endsWithGrmonX(const std::string& input);
+    Q_INVOKABLE void setStartUp(bool value);
 
-
-    Q_INVOKABLE void forTestPurposes();
+   signals:
+    void consoleReady();
+    void consoleLoading();
 
 
    private:
@@ -134,6 +137,7 @@ class Backend : public QObject {
     std::string filePath;
     std::string configFilePath = "../src/conf/default.yaml";
     int configState = 0; //0:not initialized, 1:initialized
+    bool isStartUp = true;
     std::vector<QList<QString>> globalPinConfig;
 };
 

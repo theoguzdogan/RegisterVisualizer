@@ -1067,10 +1067,6 @@ int Backend::checkAllConfigValues(int mode, QString checkPath) {
 
 int Backend::returnConfigState(){return Backend::configState;}
 
-void Backend::forTestPurposes() {
-    checkAllConfigValues(-1);
-}
-
 QString Backend::returnHex(QString num) { return "0x" + QString::number(num.toInt(), 16); }
 
 int Backend::countSpaces(std::string data) {
@@ -2108,11 +2104,12 @@ void Backend::removeFromPinConfig(int lineNumber) {
     }
 }
 
-
 //SCRIPT CONNECTION
 
 bool Backend::launchScript(QString scriptName){
     if(Backend::startScript(QString::fromStdString(Path::getSetupDir()+"TargetMocks/grmon_imitator/python_executables/")+scriptName+"/"+scriptName)){
+        Backend::setStartUp(true);
+        emit Backend::consoleLoading();
         qDebug()<<"Script launched.";
         return true;
     } else {
@@ -2126,6 +2123,12 @@ void Backend::processOutput() {
     if(data!="\n"){
 //        qDebug()<<qPrintable(data);
         processOuts += qPrintable(data);
+        if(Backend::isStartUp){
+            if(Backend::endsWithGrmonX(data.toStdString())){
+                emit Backend::consoleReady();
+                Backend::setStartUp(false);
+            }
+        }
     }
 //HANDLE NEWLINE-ONLY OUTPUTS!!!
 //    std::cout<<Backend::scriptProcess.readAllStandardOutput().toStdString();
@@ -2196,3 +2199,11 @@ bool Backend::returnScriptState() {
         return false;
     }
 }
+
+bool Backend::endsWithGrmonX(const std::string& input) {
+    if (input.length() < 7) {return false;}
+    if (input.substr(input.length() - 7).erase(5,1) == "grmon>") {return true;}
+    return false;
+}
+
+void Backend::setStartUp(bool value) {Backend::isStartUp = value;}
