@@ -15,11 +15,11 @@ Button {
     palette.buttonText: "white"
 
     background: Rectangle {
-        radius: 3
+        color: "transparent"
 
-        gradient: Gradient {
-            GradientStop { position: 0.0; color: pressed ? "#9ecbf7" : (hovered ? "#52a7fa" : "#4891d9") }
-            GradientStop { position: 1.0; color: pressed ? "#81bdf7" : (hovered ? "#81bffc" : "#2358a3") }
+        Image {
+            id: registerTabBackground
+            source: pressed ? "../../../assets/registerTab_pressed.svg" : (hovered ? "../../../assets/registerTab_hovered.svg" : "../../../assets/registerTab.svg")
         }
     }
 

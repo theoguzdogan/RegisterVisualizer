@@ -53,8 +53,11 @@ Window {
             source: "../../../assets/loading.svg"
 
             NumberAnimation on rotation {
-                from: 0; to: 360; running: loadingScreen.visible === true;
-                loops: Animation.Infinite; duration: 1100;
+                from: 0
+                to: 360
+                running: loadingScreen.visible;
+                loops: Animation.Infinite
+                duration: 1100;
             }
         }
 
