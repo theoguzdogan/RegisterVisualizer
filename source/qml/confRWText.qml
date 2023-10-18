@@ -103,7 +103,7 @@ Rectangle {
             background: Rectangle {
                 radius: 10
                 gradient: Gradient {
-                    GradientStop { position: 0.0; color: setButton.pressed ? "#BDDBBD" : (setButton.hovered ? "#A7C2A7" : "#A89F91") }
+                    GradientStop { position: 0.0; color: setButton.pressed ? "#BDDBBD" : (setButton.hovered ? "#D3E0E0" : "#BBE6E6") }
                     GradientStop { position: 1.0; color: setButton.pressed ? "#00B3B3" : (setButton.hovered ? "#009999" : "#008080") }
                 }
             }
@@ -138,7 +138,7 @@ Rectangle {
                 radius: 10
 
                 gradient: Gradient {
-                    GradientStop { position: 0.0; color: resetButton.pressed ? "#BDDBBD" : (resetButton.hovered ? "#A7C2A7" : "#A89F91") }
+                    GradientStop { position: 0.0; color: resetButton.pressed ? "#BDDBBD" : (resetButton.hovered ? "#D3E0E0" : "#BBE6E6") }
                     GradientStop { position: 1.0; color: resetButton.pressed ? "#00B3B3" : (resetButton.hovered ? "#009999" : "#008080") }
                 }
             }

@@ -17,5 +17,15 @@
         <file>assets/warning.svg</file>
         <file>assets/tai_logo_white.svg</file>
         <file>assets/tai_logo_color.svg</file>
+        <file>qml/DraggablePanel.qml</file>
+        <file>assets/file-select.svg</file>
+        <file>assets/forbidden.svg</file>
+        <file>assets/file-select_hovered.svg</file>
+        <file>assets/close-filled-grey.svg</file>
+        <file>assets/loading.svg</file>
+        <file>assets/tai_logo_color_outlined.svg</file>
+        <file>assets/registerTab.svg</file>
+        <file>assets/registerTab_hovered.svg</file>
+        <file>assets/registerTab_pressed.svg</file>
     </qresource>
 </RCC>

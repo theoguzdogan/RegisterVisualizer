@@ -8,7 +8,6 @@ import QtQuick.Layouts 1.15
 Button {
     property string registerId;
     property string moduleId;
-    property bool alert;
 
     width: 150
     height: 20
@@ -16,11 +15,11 @@ Button {
     palette.buttonText: "white"
 
     background: Rectangle {
-        radius: 3
+        color: "transparent"
 
-        gradient: Gradient {
-            GradientStop { position: 0.0; color: pressed ? "#9ecbf7" : (hovered ? "#52a7fa" : "#4891d9") }
-            GradientStop { position: 1.0; color: pressed ? "#81bdf7" : (hovered ? "#81bffc" : "#2358a3") }
+        Image {
+            id: registerTabBackground
+            source: pressed ? "../../../assets/registerTab_pressed.svg" : (hovered ? "../../../assets/registerTab_hovered.svg" : "../../../assets/registerTab.svg")
         }
     }
 
@@ -42,6 +41,7 @@ Button {
     }
 
     Button {
+        id: registerTabCloseButton
         width: 20
         height: 20
 
@@ -49,7 +49,7 @@ Button {
 
 //        text: "X"
         Image {
-            source: "../../../assets/close-filled.svg"
+            source: registerTabCloseButton.hovered ? "../../../assets/close-filled.svg" : "../../../assets/close-filled-grey.svg"
 
             width: parent.width-4
             height: parent.height-4
@@ -78,6 +78,7 @@ Button {
             destroyRegisterTabAlias(moduleId, registerId)
         }
     }
+
 }
 
 

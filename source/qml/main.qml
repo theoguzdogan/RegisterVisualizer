@@ -6,36 +6,462 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import Qt.labs.folderlistmodel 2.1
 import QtQuick.Dialogs 1.3
+import "./"
 
 Window {
-    property int columnGap: 120
-    property string targetName: "STARKIT" //this is the variable for the header
+    property string targetName: "SCOC3" //this is the variable for the header
 
-    width: 1200
-    height: 720
-    minimumWidth: 1100
+    flags: Qt.Window | Qt.FramelessWindowHint
+    modality: Qt.ApplicationModal
+
+    width: 1250
+    height: 750
+    minimumWidth: 1122 + scriptSelectionText.width
     minimumHeight: 650
     visible: true
 //    color: "#27273a"
+//    opacity: 0.5
 
-    title: qsTr("RegisterVisualiser")
+    color: "transparent"
+
+    title: qsTr("RegisterVisualizer")
     id: rootObject
 
-    Rectangle
-    {
+    Rectangle {
+        id: loadingScreen
         anchors.fill: parent
-        gradient: Gradient
-        {
-            GradientStop { position: 0.000; color: "#52002D" }
-            GradientStop { position: 0.600; color: "#00013D" }
-            GradientStop { position: 1.000; color: "#00013D" }
+        color: "transparent"
+        radius:10
+        z:2
+        visible: false
+
+        Rectangle {
+            anchors.fill: parent
+            radius:10
+            opacity: 0.5
+            color: "#000000"
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            enabled: true
+        }
+
+        Image {
+            id: loadingIcon
+            anchors.centerIn: parent
+            source: "../../../assets/loading.svg"
+
+            NumberAnimation on rotation {
+                from: 0
+                to: 360
+                running: loadingScreen.visible;
+                loops: Animation.Infinite
+                duration: 1100;
+            }
+        }
+
+        Text {
+            id: loadingText
+            color: "#FFFFFF"
+            anchors.centerIn: parent
+            text: "Loading..."
+            font.bold: true
+            font.pointSize: 15
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+        }
+    }
+
+    Rectangle {
+        anchors.fill: parent
+        radius: 10
+        color: "#27273a"
+        opacity: 0.96
+    }
+
+    Rectangle {
+        id: titleBar
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: 35
+        color: "transparent"
+        radius: 10
+        z: 3
+
+        MouseArea {
+            anchors.fill: parent
+            onDoubleClicked: {
+                if(maximizeButton.isMaximized){
+                    rootObject.showNormal()
+                    Promise.resolve().then(()=>{maximizeButton.isMaximized = false})
+                } else{
+                    rootObject.showMaximized()
+                    Promise.resolve().then(()=>{maximizeButton.isMaximized = true})
+                }
+            }
+
+            property variant clickPos: "1,1"
+            property bool isMinimizedByDragging: false
+
+            onPressed: {
+                clickPos  = Qt.point(mouse.x,mouse.y)
+                if(maximizeButton.isMaximized){
+                    rootObject.showNormal()
+                    Promise.resolve().then(()=>{maximizeButton.isMaximized = false; isMinimizedByDragging = true})
+                }
+            }
+            onReleased: {
+                if(rootObject.y<=0 && !isMinimizedByDragging){
+                    if(!maximizeButton.isMaximized){
+                        rootObject.showMaximized()
+                        Promise.resolve().then(()=>{maximizeButton.isMaximized = true})
+                    }
+                } else {
+                    isMinimizedByDragging = false
+                }
+            }
+
+            onPositionChanged: {
+                var delta = Qt.point(mouse.x-clickPos.x, mouse.y-clickPos.y)
+                rootObject.x += delta.x;
+                rootObject.y += delta.y;
+            }
+        }
+
+        Rectangle {
+            anchors.fill: parent
+            color: "#292929"
+            radius: 10
+        }
+        Rectangle {
+            anchors.top: parent.verticalCenter
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            color: "#292929"
+        }
+
+        Text {
+            id: appTitle
+            anchors.centerIn: parent
+            text: "RegisterVisualizer"
+            color: "#FFFFFF"
+        }
+
+        Button {
+            id: minimizeButton
+            height: 25
+            width: 25
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.right: maximizeButton.left
+            anchors.margins: 8
+            background: Rectangle {
+                color: minimizeButton.pressed ? "#7A7A7A" : (minimizeButton.hovered ? "#525252":"transparent")
+                radius: 15
+            }
+            Text{
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: 5
+                text: "—"
+                font.bold: true
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignHCenter
+                font.pointSize: 6
+                color: "#FFFFFF"
+            }
+            onClicked: rootObject.showMinimized()
+        }
+
+        Button {
+            id: maximizeButton
+            property bool isMaximized: false
+            height: 25
+            width: 25
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.right: closeButton.left
+            anchors.margins: 8
+            background: Rectangle {
+                color: maximizeButton.pressed ? "#7A7A7A" : (maximizeButton.hovered ? "#525252":"transparent")
+                radius: 15
+            }
+            Text{
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
+                anchors.topMargin: 4
+                text: maximizeButton.isMaximized ? "⧉" : "□"
+                font.pointSize: maximizeButton.isMaximized ? 11 : 9
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                color: "#FFFFFF"
+            }
+            onClicked: {
+                if(isMaximized){
+                    rootObject.showNormal()
+                    Promise.resolve().then(()=>{isMaximized = false})
+                } else{
+                    rootObject.showMaximized()
+                    Promise.resolve().then(()=>{isMaximized = true})
+                }
+            }
+        }
+
+        Button {
+            id: closeButton
+            height: 25
+            width: 25
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.right: parent.right
+            anchors.margins: 6
+            background: Rectangle {
+                color: closeButton.pressed ? "#FF5145" : (closeButton.hovered ? "#DE473C":"transparent")
+                radius: 15
+            }
+            Text{
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
+                text: "×"
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                font.pointSize: 15
+                color: "#FFFFFF"
+            }
+            onClicked: {
+                backend.emptyBuffer()
+                backend.stopScript()
+                Promise.resolve().then(Qt.quit)
+            }
+        }
+    }
+
+    MouseArea {
+        id: resizeLeft
+        width: 12
+        anchors.left: parent.left
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 15
+        anchors.leftMargin: 0
+        anchors.topMargin: 10
+        cursorShape: Qt.SizeHorCursor
+        z: 3
+
+        DragHandler {
+            target: null
+            onActiveChanged: if (active) { rootObject.startSystemResize(Qt.LeftEdge) }
+        }
+    }
+
+    MouseArea {
+        id: resizeRight
+        width: 12
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        anchors.rightMargin: 0
+        anchors.bottomMargin: 25
+        anchors.leftMargin: 6
+        anchors.topMargin: 10
+        cursorShape: Qt.SizeHorCursor
+        z: 3
+
+        DragHandler {
+            target: null
+            onActiveChanged: if (active) { rootObject.startSystemResize(Qt.RightEdge) }
+        }
+    }
+
+    MouseArea {
+        id: resizeBottom
+        height: 12
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        cursorShape: Qt.SizeVerCursor
+        anchors.rightMargin: 25
+        anchors.leftMargin: 15
+        anchors.bottomMargin: 0
+        z: 3
+
+        DragHandler{
+            target: null
+            onActiveChanged: if (active) { rootObject.startSystemResize(Qt.BottomEdge) }
+        }
+    }
+
+    MouseArea {
+        id: resizeApp
+        x: 1176
+        y: 697
+        width: 25
+        height: 25
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 0
+        anchors.rightMargin: 0
+        cursorShape: Qt.SizeFDiagCursor
+        z: 3
+
+        DragHandler{
+            target: null
+            onActiveChanged: if (active) { rootObject.startSystemResize(Qt.RightEdge | Qt.BottomEdge) }
         }
     }
 
     Component.onCompleted: {
         backend.setDefaultConfigId("default.yaml")
         Promise.resolve().then(refresh)
+        backend.emptyBuffer()
+        scriptDialog.open()
     }
+
+    MessageDialog {
+        id: scriptDialogWarning
+        width: 350
+        height: 100
+        Rectangle {
+            anchors.fill: parent
+            color: "#27273a"
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
+                anchors.topMargin: 10
+                width: parent.width-20
+                wrapMode: Text.WordWrap
+                text: "Please select a script to run and click OK."
+                color: "#FFFFFF"
+            }
+
+            Button {
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                anchors.margins: 10
+                text:"OK"
+                palette.buttonText: "white"
+                width: 55
+                height: 35
+                background: Rectangle {
+//                        color: "#4891d9"
+                    radius: 10
+                    gradient: Gradient {
+                        GradientStop { position: 0.0; color: (scriptDialogButton.pressed ? "#BDDBBD" : (scriptDialogButton.hovered ? "#D3E0E0" : "#BBE6E6")) }
+                        GradientStop { position: 1.0; color: (scriptDialogButton.pressed ? "#00B3B3" : (scriptDialogButton.hovered ? "#009999" : "#008080")) }
+                    }
+                }
+                onClicked: scriptDialogWarning.accepted()
+            }
+        }
+        onAccepted: scriptDialog.open()
+        onRejected: scriptDialog.open()
+    }
+
+    AbstractDialog {
+        id: scriptDialog
+        width: 300
+        height: scriptComboBox.down ? 100+scriptComboBox.popup.height : 100
+        //+75
+
+        onRejected: {
+            if(!backend.returnScriptState()){
+                scriptDialogWarning.open()
+            }
+        }
+
+        Rectangle {
+            id: scriptSelectRectangle
+            color: "#27273a"
+
+            Text {
+                id: scriptSelectionCaption
+                anchors.top: scriptSelectRectangle.top
+                anchors.left: scriptSelectRectangle.left
+                anchors.margins: 15
+                color: "#ffffff"
+                text: "Select GRMON script:"
+                font.pointSize: 10
+            }
+
+            Row {
+                id: scriptSelectionRow
+                anchors.top: scriptSelectionCaption.bottom
+                anchors.left: scriptSelectRectangle.left
+                anchors.right: scriptSelectRectangle.right
+                anchors.margins: 15
+                height: 35
+                spacing: 10
+
+                ComboBox {
+                    id: scriptComboBox
+                    editable: true
+                    width: 200
+                    height: 35
+
+                    background: Rectangle {
+                        color: "#FFFFFF"
+                        opacity: 0.5
+                    }
+
+
+                    model: ListModel {
+                        id: scriptComboBoxContent
+                    }
+
+                    Component.onCompleted: {
+                        var grmonScriptList = backend.getGrmonScriptList()
+                        for (var it in grmonScriptList){
+                            scriptComboBoxContent.append({text:grmonScriptList[it]})
+                        }
+                    }
+                }
+
+                Text{
+                    text: scriptComboBox.currentText === "Select an option" ? "" : scriptComboBox.currentText
+                    color: "#000000"
+                    font.pixelSize: 12
+                    visible: scriptComboBox.currentText === "Select an option"
+
+                }
+
+                Button {
+                    id: scriptDialogButton
+                    text:"OK"
+                    palette.buttonText: "white"
+                    width: 55
+                    height: 35
+                    background: Rectangle {
+                        radius: 10
+                        gradient: Gradient {
+                            GradientStop { position: 0.0; color: (scriptDialogButton.pressed ? "#BDDBBD" : (scriptDialogButton.hovered ? "#D3E0E0" : "#BBE6E6")) }
+                            GradientStop { position: 1.0; color: (scriptDialogButton.pressed ? "#00B3B3" : (scriptDialogButton.hovered ? "#009999" : "#008080")) }
+                        }
+                    }
+                    onClicked: {
+                        if (scriptComboBox.currentText !== "Select an option") {
+                            if(backend.returnScriptState()){backend.stopScript()}
+                            if(backend.launchScript(scriptComboBox.currentText)){
+                                scriptSelection.scriptName = scriptComboBox.currentText
+                                scriptDialog.close()
+                            }else{
+                                console.log("Failed to start the script.")
+                            }
+                        }
+                        Promise.resolve().then(()=>{
+                            if (backend.returnScriptState()){
+                                scriptDialogWarning.close()
+//                                refresh();
+                            }
+                        })
+
+
+                    }
+                }
+            }
+
+        }
+    }
+
 
     AbstractDialog {
             id: configFileDialog
@@ -134,7 +560,7 @@ Window {
         height: 65
         anchors.left: parent.left
         anchors.leftMargin: 20
-        anchors.top: parent.top
+        anchors.top: titleBar.bottom
         anchors.topMargin: 10
         anchors.right: parent.right
         anchors.rightMargin: 20
@@ -149,11 +575,27 @@ Window {
             width: 40
             height: 55
             color: "transparent"
-            opacity: 0.6
+
+            MouseArea {
+                anchors.fill: parent
+                property int counter: 0;
+                onClicked: {
+                    counter++
+                    if(counter==3){
+                        uselessAnimation.running = true
+                        counter=0
+                    }
+                }
+            }
 
             Image {
                 id: logo_tai
-                source: "../../../assets/tai_logo_white.svg"
+                source: "../../../assets/tai_logo_color.svg"
+                NumberAnimation on rotation {
+                    id: uselessAnimation
+                    from: 0; to: 360; running: false;
+                    loops: 1; duration: 1100;
+                }
             }
         }
 
@@ -173,11 +615,80 @@ Window {
                 font.family: "Segoe UI"
                 id: headerText
                 anchors.centerIn: parent
-                opacity: 0.8
+            }
+        }
+
+
+        Rectangle {
+            id: scriptSelection
+            radius: 10
+            color: "transparent"
+            width: 167+scriptSelectionText.width
+            height: 35
+            anchors.right: referenceConfHeaderContainer.left
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.margins: 10
+
+            property string scriptName: "-"
+
+            Rectangle {
+                anchors.fill: parent
+                color: "#4d4d63"
+                border.color: "#8f8fa8"
+                opacity: 0.5
+                radius: 10
+            }
+
+            Text {
+                id: scriptSelectionHeader
+                anchors.left: parent.left
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.margins: 10
+                text: "GRMON Script:"
+                color: "#FFFFFF"
+            }
+
+            Text {
+                id: scriptSelectionText
+                anchors.left: scriptSelectionHeader.right
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.margins: 10
+                text: parent.scriptName
+                color: "#FFFFFF"
+            }
+
+            Button {
+                id: scriptSelectButton
+                anchors.left: scriptSelectionText.right
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.margins: 10
+                height: parent.height
+                width: parent.height
+                background: Rectangle {
+                    radius: 10
+//                    color: "transparent"
+//                    border.color: "#8f8fa8"
+                    gradient: Gradient {
+                        GradientStop { position: 0.0; color: (scriptSelectButton.pressed ? "#BDDBBD" : (scriptSelectButton.hovered ? "#D3E0E0" : "#BBE6E6")) }
+                        GradientStop { position: 1.0; color: (scriptSelectButton.pressed ? "#00B3B3" : (scriptSelectButton.hovered ? "#009999" : "#008080")) }
+                    }
+                }
+
+                Image {
+                    id: scriptButtonImage
+                    anchors.fill: parent
+                    anchors.margins: 7
+                    source: parent.hovered ? "../../assets/file-select_hovered.svg" : "../../assets/file-select.svg"
+                }
+
+                onClicked: {
+                    scriptDialog.open()
+                }
             }
         }
 
         Rectangle {
+            id: referenceConfHeaderContainer
             anchors.right: configComboBox.horizontalCenter
             anchors.verticalCenter: parent.verticalCenter
             width : referenceConfHeader.width + configComboBox.width/2 + 20
@@ -204,12 +715,10 @@ Window {
             }
         }
 
-
-
         ComboBox {
             id: configComboBox
             editable: true
-            anchors.right: refreshButton.left
+            anchors.right: scanConfButton.left
             anchors.rightMargin: 10
             anchors.verticalCenter: parent.verticalCenter
             width: 200
@@ -239,48 +748,36 @@ Window {
 
             onCurrentValueChanged: {
                 backend.setConfFilePath(currentIndex)
-                createModuleButtons()
-
-                if(!registerPlaceHolder.visible){
-                    createRegisterButtons(backend.returnGlobalModuleId())
-                    if(!fieldPlaceHolder.visible){
-                        createFieldButtons(backend.returnGlobalRegId())
-                        if(!confPlaceHolder.visible){
-                            createConfScreen(backend.returnGlobalFieldId())
-                        }
-                    }
-                }
-                createPinButtons()
             }
         }
 
         Button {
-            id: refreshButton
-            text: "Refresh"
+            id: scanConfButton
+            text: "Scan"
             width: 90
             height: 30
-            anchors.right: saveAllButton.left
-            anchors.rightMargin: 10
+            anchors.right: refreshButton.left
             anchors.verticalCenter: parent.verticalCenter
+            anchors.rightMargin: 8
 
             palette.buttonText: "white"
 
             background: Rectangle {
                 radius: 10
                 gradient: Gradient {
-                    GradientStop { position: 0.0; color: refreshButton.pressed ? "#BDDBBD" : (refreshButton.hovered ? "#A7C2A7" : "#A89F91") }
-                    GradientStop { position: 1.0; color: refreshButton.pressed ? "#00B3B3" : (refreshButton.hovered ? "#009999" : "#008080") }
+                    GradientStop { position: 0.0; color: scanConfButton.pressed ? "#BDDBBD" : (scanConfButton.hovered ? "#D3E0E0" : "#BBE6E6") }
+                    GradientStop { position: 1.0; color: scanConfButton.pressed ? "#00B3B3" : (scanConfButton.hovered ? "#009999" : "#008080") }
                 }
             }
 
             onClicked: {
-                refresh()
+                scanConf()
             }
         }
 
         Button {
-            id: saveAllButton
-            text: "Save All"
+            id: refreshButton
+            text: "Refresh"
             width: 90
             height: 30
             anchors.right: parent.right
@@ -291,16 +788,39 @@ Window {
             background: Rectangle {
                 radius: 10
                 gradient: Gradient {
-                    GradientStop { position: 0.0; color: saveAllButton.pressed ? "#BDDBBD" : (saveAllButton.hovered ? "#A7C2A7" : "#A89F91") }
-                    GradientStop { position: 1.0; color: saveAllButton.pressed ? "#00B3B3" : (saveAllButton.hovered ? "#009999" : "#008080") }
+                    GradientStop { position: 0.0; color: refreshButton.pressed ? "#BDDBBD" : (refreshButton.hovered ? "#D3E0E0" : "#BBE6E6") }
+                    GradientStop { position: 1.0; color: refreshButton.pressed ? "#00B3B3" : (refreshButton.hovered ? "#009999" : "#008080") }
                 }
-
             }
 
             onClicked: {
-                configFileDialog.open()
+                refresh()
             }
         }
+
+//        Button {
+//            id: saveAllButton
+//            text: "Save All"
+//            width: 90
+//            height: 30
+//            anchors.right: parent.right
+//            anchors.verticalCenter: parent.verticalCenter
+
+//            palette.buttonText: "white"
+
+//            background: Rectangle {
+//                radius: 10
+//                gradient: Gradient {
+//                    GradientStop { position: 0.0; color: saveAllButton.pressed ? "#BDDBBD" : (saveAllButton.hovered ? "#D3E0E0" : "#BBE6E6") }
+//                    GradientStop { position: 1.0; color: saveAllButton.pressed ? "#00B3B3" : (saveAllButton.hovered ? "#009999" : "#008080") }
+//                }
+
+//            }
+
+//            onClicked: {
+//                configFileDialog.open()
+//            }
+//        }
     }
 
     Row {
@@ -572,6 +1092,7 @@ Window {
         MouseArea {
             anchors.fill: parent
             enabled: true
+            cursorShape: Qt.ForbiddenCursor
         }
     }
 
@@ -613,11 +1134,11 @@ Window {
             anchors.left: registerDataViewHeader.right
             anchors.top: parent.top
             anchors.bottom: parent.bottom
-            anchors.right: sendButton.left
+            anchors.right: baseSelection.left
             anchors.margins: 5
             property var regAddr
             property var targetData
-            color: (text === targetData) ? "black" : "red"
+            color: baseSelection.isHex ? ((text === targetData) ? "black" : "red") : ((binaryToHex(text) === targetData) ? "black" : "red")
             background: Rectangle {
                 color: "white"
                 border.color: "#8f8fa8"
@@ -626,25 +1147,145 @@ Window {
             }
 
             ToolTip.delay: 500
-//            ToolTip.timeout: 5000
             ToolTip.visible: (!registerDataViewPlaceHolder.visible) && hovered
-            ToolTip.text: hexToBinary(text)
+            ToolTip.text: "Register Address: " + regAddr
 
             onTextChanged: {
                 if (!registerDataViewPlaceHolder.visible) {
-                    backend.bufferSet(regAddr, text)
+                    if (baseSelection.isHex){
+                        if (text === ""){
+                            text = backend.sshGet(regAddr)
+                        }
+                        Promise.resolve().then(()=>{backend.bufferSet(regAddr, text)})
+
+                    }else{
+                        if (text === ""){
+                            text = hexToBinary(backend.sshGet(regAddr))
+                        }
+                        Promise.resolve().then(()=>{backend.bufferSet(regAddr, binaryToHex(text))})
+                    }
+                    if (!confPlaceHolder.visible) {
+                        createConfScreen(backend.returnGlobalFieldId())
+                    }
+                }
+            }
+        }
+
+        Rectangle {
+            id: baseSelection
+            anchors.right: sendButton.left
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            anchors.margins: 5
+            width: 50
+            height: 20
+            color: "transparent"
+
+            property bool isHex: true
+
+            Rectangle {
+                anchors.left: hexRadioButton.left
+                anchors.top: hexRadioButton.top
+                anchors.topMargin: 1
+                anchors.bottom: binRadioButton.bottom
+                anchors.bottomMargin: 1
+                width: binRadioButton.height - 2
+                radius: binRadioButton.height - 2
+
+                gradient: Gradient
+                {
+                    GradientStop { position: 0.000;  color: baseSelection.isHex ? "#81bffc" : "#2358a3"}
+                    GradientStop { position: 1.000; color: baseSelection.isHex ? "#2358a3" : "#81bffc"}
+                }
+
+            }
+
+
+
+            Button {
+                id: hexRadioButton
+                property bool selected : parent.isHex
+
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.left: parent.left
+                    anchors.leftMargin: parent.height+1
+                    anchors.right: parent.right
+                    color: "#FFFFFF"
+                    text: "Hex"
+                    font.bold: baseSelection.isHex
+                    verticalAlignment: Text.AlignVCenter
+                }
+
+                height: parent.height/2
+                background: Rectangle{
+                    color: "transparent"
+                }
+
+                Rectangle {
+                    anchors.left: parent.left
+                    anchors.leftMargin: 2
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: parent.height - 6
+                    height: parent.height - 6
+                    radius: parent.height - 6
+                    color: "#FFFFFF"
+                    visible: parent.selected
+                }
+
+                onClicked: {
+                    parent.isHex = !parent.isHex
+                    Promise.resolve().then(changeBase)
                 }
             }
 
-            function hexToBinary(hex) {
-                    var binary = parseInt(hex, 16).toString(2);
-                    if (binary !== "NaN" && binary.length <= 32) {
-                        binary = ("0".repeat((32-(binary.length)))) + binary;
-                    }
-                    binary = "Bin: " + binary
-                    return binary;
+            Button {
+                id: binRadioButton
+                property bool selected : !parent.isHex
+
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.left: parent.left
+                    anchors.leftMargin: parent.height+1
+                    anchors.right: parent.right
+                    color: "#FFFFFF"
+                    text: "Bin"
+                    font.bold: !baseSelection.isHex
+                    verticalAlignment: Text.AlignVCenter
                 }
+
+                height: parent.height/2
+                background: Rectangle{
+                    color: "transparent"
+                }
+
+                Rectangle {
+                    anchors.left: parent.left
+                    anchors.leftMargin: 2
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: parent.height - 6
+                    height: parent.height - 6
+                    radius: parent.height - 6
+                    color: "#FFFFFF"
+                    visible: parent.selected
+                }
+
+                onClicked: {
+                    parent.isHex = !parent.isHex
+                    Promise.resolve().then(changeBase)
+                }
+            }
         }
+
+
 
         Button {
             id: sendButton
@@ -661,23 +1302,21 @@ Window {
                 radius: 10
 
                 gradient: Gradient {
-                    GradientStop { position: 0.0; color: ((!registerDataViewPlaceHolder.visible) && sendButton.pressed) ? "#BDDBBD" : (((!registerDataViewPlaceHolder.visible)&&sendButton.hovered) ? "#A7C2A7" : "#A89F91") }
+                    GradientStop { position: 0.0; color: ((!registerDataViewPlaceHolder.visible) && sendButton.pressed) ? "#BDDBBD" : (((!registerDataViewPlaceHolder.visible)&&sendButton.hovered) ? "#D3E0E0" : "#BBE6E6") }
                     GradientStop { position: 1.0; color: ((!registerDataViewPlaceHolder.visible) && sendButton.pressed) ? "#00B3B3" : (((!registerDataViewPlaceHolder.visible)&&sendButton.hovered) ? "#009999" : "#008080") }
                 }
             }
 
             onClicked: {
                 if (!registerDataViewPlaceHolder.visible) {
-                    console.log("RegisterValue sent.")
-                    backend.sshSet(registerTextBox.regAddr, registerTextBox.text)
+                    if (baseSelection.isHex){
+                        backend.sshSet(registerTextBox.regAddr, registerTextBox.text)
+                    } else {
+                        backend.sshSet(registerTextBox.regAddr, binaryToHex(registerTextBox.text))
+                    }
                     Promise.resolve().then(()=>{
-                        refresh()
-                        updateRegisterTextBox()
-                        createPinButtons()
-                    })
-                    Promise.resolve().then(()=>{
-                        if ((registerTextBox.text === registerTextBox.targetData)){
-                        console.log("REGISTER WRITEMEM ERROR: check sshSet() function of backend or connection.")
+                        if(backend.returnScriptState()){
+                           updateRegisterTextBox()
                         }
                     })
                 }
@@ -699,20 +1338,18 @@ Window {
                 radius: 10
 
                 gradient: Gradient {
-                    GradientStop { position: 0.0; color: ((!registerDataViewPlaceHolder.visible) && registerConfigSaveButton.pressed) ? "#BDDBBD" : (((!registerDataViewPlaceHolder.visible)&&registerConfigSaveButton.hovered) ? "#A7C2A7" : "#A89F91") }
+                    GradientStop { position: 0.0; color: ((!registerDataViewPlaceHolder.visible) && registerConfigSaveButton.pressed) ? "#BDDBBD" : (((!registerDataViewPlaceHolder.visible)&&registerConfigSaveButton.hovered) ? "#D3E0E0" : "#BBE6E6") }
                     GradientStop { position: 1.0; color: ((!registerDataViewPlaceHolder.visible) && registerConfigSaveButton.pressed) ? "#00B3B3" : (((!registerDataViewPlaceHolder.visible)&&registerConfigSaveButton.hovered) ? "#009999" : "#008080") }
                 }
             }
 
             onClicked: {
                 if (!registerDataViewPlaceHolder.visible){
-                    backend.saveRegConfig(registerTextBox.text)
-                    Promise.resolve().then(()=>{
-                        refresh()
-                        updateRegisterTextBox()
-                        createPinButtons()
-                    })
-                //saved config value check may be added
+                    if (baseSelection.isHex) {
+                        backend.saveRegConfig(registerTextBox.text)
+                    } else {
+                        backend.saveRegConfig(binaryToHex(registerTextBox.text))
+                    }
                 }
             }
         }
@@ -885,14 +1522,11 @@ Window {
                 opacity: 0.6
             }
 
-            //TRIAL AREA
             Component.onCompleted: {
-                createPinButtons()
-
-
-
+                if(backend.returnScriptState()){
+                   createPinButtons()
+                }
             }
-            //TRIAL AREA
 
             Text {
                 color: "#ffffff"
@@ -905,40 +1539,75 @@ Window {
         }
 
         Flickable {
-                id: flickablePinBoard
-                width: parent.width
+            id: flickablePinBoard
+            width: parent.width
+            height: parent.height
+            anchors.left: pinBoardHeader.right
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            anchors.topMargin: 5
+            anchors.leftMargin: 5
+            anchors.rightMargin: 5
+
+            contentWidth: column.width
+            contentHeight: column.height
+            flickableDirection: Flickable.HorizontalFlick
+            boundsBehavior: Flickable.StopAtBounds
+            clip: true
+
+            Column {
+                id: column
+                spacing: 5
                 height: parent.height
-                anchors.left: pinBoardHeader.right
-                anchors.right: parent.right
-                anchors.top: parent.top
-                anchors.bottom: parent.bottom
-                anchors.topMargin: 5
-                anchors.leftMargin: 5
-                anchors.rightMargin: 5
 
-                contentWidth: column.width
-                contentHeight: column.height
-                flickableDirection: Flickable.HorizontalFlick
-                boundsBehavior: Flickable.StopAtBounds
-                clip: true
-
-                Column {
-                    id: column
+                Row {
                     spacing: 5
-                    height: parent.height
-
-                    Row {
-                        spacing: 5
-                        id: pinButtonRow0
-                    }
-
-                    Row {
-                        spacing: 5
-                        id: pinButtonRow1
-                    }
+                    id: pinButtonRow0
                 }
 
+                Row {
+                    spacing: 5
+                    id: pinButtonRow1
+                }
             }
+
+//            MouseArea {
+//                anchors.fill: parent
+//                cursorShape: drag.active ? Qt.ClosedHandCursor : Qt.ArrowCursor
+//            }
+
+        }
+
+        Rectangle {
+            anchors.right: flickablePinBoard.right
+            anchors.top: flickablePinBoard.top
+            anchors.bottom: flickablePinBoard.bottom
+            anchors.bottomMargin: 5
+            width: 25
+            opacity: 0.9
+            gradient: Gradient {
+                orientation: Gradient.Horizontal
+                GradientStop { position: 0.0; color: "transparent" }
+                GradientStop { position: 1.0; color: "#404052" }
+            }
+            visible: !flickablePinBoard.atXEnd
+        }
+
+        Rectangle {
+            anchors.left: flickablePinBoard.left
+            anchors.top: flickablePinBoard.top
+            anchors.bottom: flickablePinBoard.bottom
+            anchors.bottomMargin: 5
+            width: 25
+            opacity: 0.9
+            gradient: Gradient {
+                orientation: Gradient.Horizontal
+                GradientStop { position: 0.0; color: "#404052" }
+                GradientStop { position: 1.0; color: "transparent" }
+            }
+            visible: !flickablePinBoard.atXBeginning
+        }
 
         Rectangle {
             id: pinBoardPlaceHolder
@@ -965,9 +1634,11 @@ Window {
 
 
     function refresh() {
+
         createPinButtons()
         createModuleButtons()
-//        Promise.resolve().then(checkSelectedModule)
+
+        Promise.resolve().then(checkSelectedModule)
         if (!registerPlaceHolder.visible) {
             createRegisterButtons(backend.returnGlobalModuleId())
             if (!fieldPlaceHolder.visible) {
@@ -977,7 +1648,9 @@ Window {
                 }
             }
         }
-
+        if(!registerDataViewPlaceHolder.visible){
+            updateRegisterTextBox()
+        }
         checkSelectedRegisterTabAlias()
     }
 
@@ -1030,7 +1703,6 @@ Window {
 //confscreen
     function createModuleButtons() {
         clearModules()
-        backend.checkAllConfigValues(-1)
         var fileList = backend.getFileList()
         for(var i = 0; i < fileList.length; i++) {
             var name = fileList[i].split(".")[0]
@@ -1039,7 +1711,7 @@ Window {
                               "moduleId": i,
                               "text": name,
                               "Layout.alignment": Qt.AlignHCenter | Qt.AlignVCenter,
-                              "alert": backend.checkAllConfigValues(0, name),
+                              "alert": backend.returnConfigState() ? backend.checkAllConfigValues(0, name) : 0
                           });
             moduleItem.moduleClicked.connect(moduleButtonClicked)
         }
@@ -1080,7 +1752,6 @@ Window {
     //REGISTER BUTTONS START
     function createRegisterButtons(moduleId) {
         clearRegisters()
-        backend.checkAllConfigValues(-1, "")
         backend.setFilePath(moduleId)
         for(var i = 0; i < backend.getRegisterList().length; i++) {
             var name = backend.getRegisterList()[i]
@@ -1089,7 +1760,7 @@ Window {
                               "registerId": i,
                               "text": name,
                               "Layout.alignment": Qt.AlignHCenter | Qt.AlignVCenter,
-                              "alert": backend.checkAllConfigValues(1, (backend.getFileList()[backend.returnGlobalModuleId()].split(".")[0]+"."+name)),
+                              "alert": backend.returnConfigState() ? backend.checkAllConfigValues(1, (backend.getFileList()[backend.returnGlobalModuleId()].split(".")[0]+"."+name)) : 0
                           });
             registerItem.registerClicked.connect(registerButtonClicked)
         }
@@ -1106,20 +1777,34 @@ Window {
         checkSelectedRegister()
     }
 
-    function updateRegisterTextBox() {
+    function updateRegisterTextBox(registerId = backend.returnGlobalRegId()) {
         registerTextBox.regAddr = backend.getRegAddr()
-        var bufferData = backend.checkBuffer(registerTextBox.regAddr)
-        Promise.resolve().then(()=>{
-        registerTextBox.targetData = backend.sshGet(registerTextBox.regAddr)
-        })
-        Promise.resolve().then(()=>{
-            if (bufferData === "-1") {
-                registerTextBox.text = registerTextBox.targetData
-            }
-            else {
-                registerTextBox.text = bufferData
-            }
-        })
+        var isReadonly = !backend.getRegWriteable(registerId)
+
+        if (isReadonly){
+            registerTextBox.targetData = backend.sshGet(registerTextBox.regAddr)
+            registerTextBox.text = baseSelection.isHex ? (registerTextBox.targetData) : hexToBinary(registerTextBox.targetData)
+            registerTextBox.readOnly = true
+            sendButton.enabled = false
+            registerConfigSaveButton.enabled = false
+
+        } else {
+            var bufferData = backend.checkBuffer(registerTextBox.regAddr)
+            Promise.resolve().then(()=>{
+            registerTextBox.targetData = backend.sshGet(registerTextBox.regAddr)
+            })
+            Promise.resolve().then(()=>{
+                if (bufferData === "-1") {
+                    registerTextBox.text = baseSelection.isHex ? (registerTextBox.targetData) : hexToBinary(registerTextBox.targetData)
+                }
+                else {
+                    registerTextBox.text = baseSelection.isHex ? (bufferData) : hexToBinary(bufferData)
+                }
+            })
+            registerTextBox.readOnly = false
+            sendButton.enabled = true
+            registerConfigSaveButton.enabled = true
+        }
     }
 
     function createRegisterTabAlias(registerId) {
@@ -1140,8 +1825,7 @@ Window {
                               "registerId": registerId,
                               "moduleId": backend.returnGlobalModuleId(),
                               "text": name,
-                              "Layout.alignment": Qt.AlignHCenter | Qt.AlignVCenter,
-                              "alert": backend.checkAllConfigValues(1, (backend.getFileList()[backend.returnGlobalModuleId()].split(".")[0]+"."+name)),
+                              "Layout.alignment": Qt.AlignHCenter | Qt.AlignVCenter
                           });
         }
         refresh()
@@ -1207,7 +1891,6 @@ Window {
     //FIELD BUTTONS END
     function createFieldButtons(registerId) {
         clearFields()
-        backend.checkAllConfigValues(-1, "")
         for(var i = 0; i < backend.getFieldList(registerId).length; i++) {
             var name = backend.getFieldList(registerId)[i]
             var fieldItem = Qt.createComponent("field.qml")
@@ -1215,7 +1898,7 @@ Window {
                               "fieldId": i,
                               "text": name,
                               "Layout.alignment": Qt.AlignHCenter | Qt.AlignVCenter,
-                              "alert": backend.checkAllConfigValues(2, (backend.getFileList()[backend.returnGlobalModuleId()].split(".")[0]+"."+backend.getRegisterList()[backend.returnGlobalRegId()]+"."+name)),
+                              "alert": backend.returnConfigState() ? backend.checkAllConfigValues(2, (backend.getFileList()[backend.returnGlobalModuleId()].split(".")[0]+"."+backend.getRegisterList()[backend.returnGlobalRegId()]+"."+name)) : 0
                           });
             fieldItem.fieldClicked.connect(fieldButtonClicked)
         }
@@ -1273,7 +1956,7 @@ Window {
                                         "text": pinConfig[pinType],
                                         "type": pinType,
                                         "module": pinConfig[1],
-                                        "alert": backend.checkAllConfigValues(0, pinConfig[1])
+                                        "alert": backend.returnConfigState() ? backend.checkAllConfigValues(0, pinConfig[1]) : 0
                                       });
                         break;
                     case 2:
@@ -1284,7 +1967,7 @@ Window {
                                         "type": pinType,
                                         "module": pinConfig[1],
                                         "reg": pinConfig[2],
-                                        "alert": backend.checkAllConfigValues(1, (pinConfig[1]+'.'+pinConfig[2]))
+                                        "alert": backend.returnConfigState() ? backend.checkAllConfigValues(1, (pinConfig[1]+'.'+pinConfig[2])) : 0
                                       });
                         break;
                     case 3:
@@ -1296,7 +1979,7 @@ Window {
                                         "module": pinConfig[1],
                                         "reg": pinConfig[2],
                                         "field": pinConfig[3],
-                                        "alert": backend.checkAllConfigValues(2, (pinConfig[1]+'.'+pinConfig[2]+'.'+pinConfig[3]))
+                                        "alert": backend.returnConfigState() ? backend.checkAllConfigValues(2, (pinConfig[1]+'.'+pinConfig[2]+'.'+pinConfig[3])) : 0
                                       });
                         break;
                 }
@@ -1311,7 +1994,7 @@ Window {
                                         "text": pinConfig[pinType],
                                         "type": pinType,
                                         "module": pinConfig[1],
-                                        "alert": backend.checkAllConfigValues(0, pinConfig[1].split('\r')[0])
+                                        "alert": backend.returnConfigState() ? backend.checkAllConfigValues(0, pinConfig[1].split('\r')[0]) : 0
                                       });
                         break;
                     case 2:
@@ -1322,7 +2005,7 @@ Window {
                                         "type": pinType,
                                         "module": pinConfig[1],
                                         "reg": pinConfig[2],
-                                        "alert": backend.checkAllConfigValues(1, (pinConfig[1]+'.'+pinConfig[2].split('\r')[0]))
+                                        "alert": backend.returnConfigState() ? backend.checkAllConfigValues(1, (pinConfig[1]+'.'+pinConfig[2].split('\r')[0])) : 0
                                       });
                         break;
                     case 3:
@@ -1334,7 +2017,7 @@ Window {
                                         "module": pinConfig[1],
                                         "reg": pinConfig[2],
                                         "field": pinConfig[3],
-                                        "alert": backend.checkAllConfigValues(2, (pinConfig[1]+'.'+pinConfig[2]+'.'+pinConfig[3].split('\r')[0]))
+                                        "alert": backend.returnConfigState() ? backend.checkAllConfigValues(2, (pinConfig[1]+'.'+pinConfig[2]+'.'+pinConfig[3].split('\r')[0])) : 0
                                       });
                         break;
                 }
@@ -1384,5 +2067,49 @@ Window {
         }
     }
 
-    Connections { target: backend }
+    function scanConf(){
+        if(backend.returnScriptState()){
+            backend.checkAllConfigValues(-1)
+        } else {
+            console.log("Script process is not running.")
+        }
+        Promise.resolve().then(refresh)
+    }
+
+    function hexToBinary(hex) {
+        var binary = parseInt(hex, 16).toString(2);
+        if (binary !== "NaN" && binary.length <= 32) {
+            binary = ("0".repeat((32-(binary.length)))) + binary;
+        }
+        return binary;
+    }
+
+    function binaryToHex(binary) {
+        // Remove "Bin: " prefix if present
+        binary = binary.replace("Bin: ", "");
+
+        // Ensure the binary string has a multiple of 4 characters
+        while (binary.length % 4 !== 0) {
+            binary = "0" + binary;
+        }
+
+        var hex = parseInt(binary, 2).toString(16).toUpperCase();
+        return "0x"+hex;
+    }
+
+    function changeBase(){
+        registerTextBox.text = baseSelection.isHex ? binaryToHex(registerTextBox.text) : hexToBinary(registerTextBox.text)
+    }
+
+    Connections {
+        target: backend
+        function onConsoleReady(){
+            console.log("loading end")
+            loadingScreen.visible = false;
+        }
+        function onConsoleLoading(){
+            console.log("loading start")
+            loadingScreen.visible = true;
+        }
+    }
 }

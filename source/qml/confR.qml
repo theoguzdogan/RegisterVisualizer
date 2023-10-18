@@ -14,7 +14,7 @@ Rectangle {
     property var resetValue
 
     Component.onCompleted: {
-        currentValue = backend.fieldGet(regAddr)
+        currentValue = backend.fieldGetFromTarget(regAddr)
     }
 
     Row {
@@ -45,7 +45,6 @@ Rectangle {
                 color: "#FFFFFF"
             }
         }
-
     }
 
     Text {
@@ -75,12 +74,4 @@ Rectangle {
         wrapMode: Text.Wrap
         width: parent.width - 10
     }
-
-
-
-
 }
-
-
-
-

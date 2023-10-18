@@ -1,0 +1,135 @@
+INFO: The process "STARKIT_TESB.exe" not running.
+INFO: The process "MUB_V2_TESB.exe" not running.
+INFO: The process "TESBMULTI.exe" not running.
+
+Waiting for 0 seconds, press a key to continue ...
+INFO: The process "STARKIT_TESB_GRMON.exe" not running.
+INFO: The process "STARKIT_COM_GRMON.exe" not running.
+INFO: The process "MUB_V2_TESB_GRMON.exe" not running.
+
+Waiting for 0 seconds, press a key to continue ...
+
+  GRMON2 LEON debug monitor v2.0.70 32-bit pro version
+
+  Copyright (C) 2015 Cobham Gaisler - All rights reserved.
+  For latest updates, go to http://www.gaisler.com/
+  Comments or bug-reports to support@gaisler.com
+
+  Warning: Failed to call Tcl_Init. Some TCL functions won't be working properly
+           To avoid this warning, see Installation section in the manual about
+           the environment variable GRMON_SHARE
+Warning: Stack pointer not set
+  Warning: Failed to call Tcl_Init. Some TCL functions won't be working properly
+           To avoid this warning, see Installation section in the manual about
+           the environment variable GRMON_SHARE
+  GRLIB build version: 2949
+  Detected frequency:  64 MHz
+
+  Component                            Vendor
+  LEON3-FT SPARC V8 Processor          Cobham Gaisler
+  Unknown device                       Unknown vendor
+  Unknown device                       Unknown vendor
+  Unknown device                       Unknown vendor
+  AHB Debug UART                       Cobham Gaisler
+  Unknown device                       Unknown vendor
+  Unknown device                       Unknown vendor
+  AHB/APB Bridge                       Cobham Gaisler
+  LEON3 Debug Support Unit             Cobham Gaisler
+  Generic UART                         Cobham Gaisler
+  Multi-processor Interrupt Ctrl.      Cobham Gaisler
+  Modular Timer Unit                   Cobham Gaisler
+  LEON2 Secondary Irq Controller       European Space Agency
+  Unknown device                       Unknown vendor
+  General Purpose I/O port             Cobham Gaisler
+  Unknown device                       Unknown vendor
+  Unknown device                       Unknown vendor
+
+  Use command 'info sys' to print a detailed report of attached cores
+
+  wmem 0x80000930 0x2FFFFFF0
+  quit
+
+Exiting GRMON
+
+Waiting for 0 seconds, press a key to continue ...
+
+  GRMON2 LEON debug monitor v2.0.70 32-bit pro version
+
+  Copyright (C) 2015 Cobham Gaisler - All rights reserved.
+  For latest updates, go to http://www.gaisler.com/
+  Comments or bug-reports to support@gaisler.com
+
+Connecting to 10.41.73.2
+  Warning: Failed to call Tcl_Init. Some TCL functions won't be working properly
+           To avoid this warning, see Installation section in the manual about
+           the environment variable GRMON_SHARE
+Warning: Stack pointer not set
+  Warning: Failed to call Tcl_Init. Some TCL functions won't be working properly
+           To avoid this warning, see Installation section in the manual about
+           the environment variable GRMON_SHARE
+  GRLIB build version: 2949
+  Detected frequency:  64 MHz
+
+  Component                            Vendor
+  LEON3-FT SPARC V8 Processor          Cobham Gaisler
+  Unknown device                       Unknown vendor
+  Unknown device                       Unknown vendor
+  Unknown device                       Unknown vendor
+  AHB Debug UART                       Cobham Gaisler
+  Unknown device                       Unknown vendor
+  Unknown device                       Unknown vendor
+  AHB/APB Bridge                       Cobham Gaisler
+  LEON3 Debug Support Unit             Cobham Gaisler
+  Generic UART                         Cobham Gaisler
+  Multi-processor Interrupt Ctrl.      Cobham Gaisler
+  Modular Timer Unit                   Cobham Gaisler
+  LEON2 Secondary Irq Controller       European Space Agency
+  Unknown device                       Unknown vendor
+  General Purpose I/O port             Cobham Gaisler
+  Unknown device                       Unknown vendor
+  Unknown device                       Unknown vendor
+
+  Use command 'info sys' to print a detailed report of attached cores
+
+  wmem 0x90000000 0x20f
+  wmem 0x90400060 0
+  wmem 0x90400064 0
+  wmem 0x90400068 0
+  wmem 0x9040006C 0
+  wmem 0x90400070 0
+  wmem 0x90400074 0
+  wmem 0x90400078 0
+  wmem 0x9040007C 0
+  wmem 0x90400024 0x2
+  wmem 0x90700000 0x0088000F
+  wmem 0x90300038 0x4FFFFFF0
+  wmem 0x90300200 0
+  wmem 0x90300204 0
+  wmem 0x90300208 0
+  wmem 0x9030020C 0
+  wmem 0x90300210 0
+  wmem 0x90300214 0
+  wmem 0x90300218 0
+  wmem 0x9030021C 0
+  wmem 0x90400000 0
+  wmem 0x90400004 0x00e0
+  wmem 0x90400008 2
+  wmem 0x9040000C 0x40000000
+  wmem 0x90400010 0x40000000
+  wmem 0x90400014 0x40000004
+  wmem 0x90400018 0
+  wmem 0x80000020 0x00000801
+  wmem 0x80000024 0x00000003
+  wmem 0x8000002C 0x40000000
+  wmem 0x0400002C 0x20000000
+  wmem 0x80000030 0x4FFFFFFC
+  wmem 0x04000030 0x2FFFFFFC
+  wmem 0x80000034 0x0001B800
+  wmem 0x80000048 0x007F7F3F
+  wmem 0x80000050 0x0000001B
+  mem 0x04000A0C
+  0x04000a0c  47800807  00000000  00000000  00000000    G...............
+  0x04000a1c  00010001  00000003  00000000  00000000    ................
+  0x04000a2c  00000000  00000000  00000000  00000000    ................
+  0x04000a3c  00000000  00000000  00000000  00000000    ................
+

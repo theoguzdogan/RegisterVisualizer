@@ -2,8 +2,12 @@
 #define BACKEND_H
 
 #include <QtCore/QtCore>
+#include <QProcess>
+#include <QByteArray>
+
 
 #include "treeNode.h"
+
 
 
 class Backend : public QObject {
@@ -11,6 +15,8 @@ class Backend : public QObject {
 
    public:
     Backend() = default;
+    QProcess scriptProcess;
+    QString processOuts = "";
 
    public slots:
     /**
@@ -19,6 +25,7 @@ class Backend : public QObject {
      */
     Q_INVOKABLE QList<QString> getFileList();
     Q_INVOKABLE QList<QString> getConfFileList();
+    Q_INVOKABLE QList<QString> getGrmonScriptList();
 
     /**
      * @brief Set the file path to the certain .yaml file in "./src/reg" according to the moduleId
@@ -55,6 +62,7 @@ class Backend : public QObject {
     Q_INVOKABLE QString getResetValue(QString fieldId);
     Q_INVOKABLE QList<QString> getValueDescriptions(QString fieldId);
     Q_INVOKABLE QString getRegAddr();
+    Q_INVOKABLE bool getRegWriteable(int regId);
     Q_INVOKABLE QString getFieldAddr();
     Q_INVOKABLE void saveConfig(QString writeValue, int base);
     Q_INVOKABLE void saveRegConfig(QString writeValueHex);
@@ -62,8 +70,10 @@ class Backend : public QObject {
     Q_INVOKABLE QString returnHex(QString num);
     Q_INVOKABLE void sshSet(QString address, QString value);
     Q_INVOKABLE QString fieldGet(QString address);
+    Q_INVOKABLE QString fieldGetFromTarget(QString address);
     Q_INVOKABLE void fieldSet(QString address, QString value);
     Q_INVOKABLE void bufferSet(QString address, QString value);
+    Q_INVOKABLE void emptyBuffer();
     Q_INVOKABLE QString checkBuffer(QString address);
     Q_INVOKABLE QString sshGet(QString address);
     Q_INVOKABLE int returnGlobalModuleId();
@@ -75,6 +85,7 @@ class Backend : public QObject {
     Q_INVOKABLE void setGlobalRegId(int regId);
     Q_INVOKABLE void setGlobalFieldId(int fieldId);
     Q_INVOKABLE int checkAllConfigValues(int mode, QString checkPath = "");
+    Q_INVOKABLE int returnConfigState();
     Q_INVOKABLE void checkAndSaveAll(QString newFileName);
     Q_INVOKABLE int returnPinConfig(QString initSignal);
     Q_INVOKABLE QList<QString> returnPinConfig(int index);
@@ -82,6 +93,21 @@ class Backend : public QObject {
     Q_INVOKABLE void addToPinConfig(QString componentType, QString componentId);
     Q_INVOKABLE void removeFromPinConfig(QString componentType, QString componentId);
     Q_INVOKABLE void removeFromPinConfig(int lineNumber);
+
+
+    Q_INVOKABLE bool launchScript(QString scriptName);
+    Q_INVOKABLE bool startScript(const QString& scriptPath);
+    Q_INVOKABLE void sendScriptCommand(const QString& command);
+    Q_INVOKABLE void stopScript();
+    Q_INVOKABLE void processOutput();
+    Q_INVOKABLE bool returnScriptState();
+    Q_INVOKABLE bool endsWithGrmonX(const std::string& input);
+    Q_INVOKABLE void setStartUp(bool value);
+
+   signals:
+    void consoleReady();
+    void consoleLoading();
+
 
    private:
     QList<QString> vectorToQList(std::vector<std::string> vector);
@@ -110,6 +136,8 @@ class Backend : public QObject {
     int globalConfigId = 0;
     std::string filePath;
     std::string configFilePath = "../src/conf/default.yaml";
+    int configState = 0; //0:not initialized, 1:initialized
+    bool isStartUp = true;
     std::vector<QList<QString>> globalPinConfig;
 };
 

@@ -6,9 +6,12 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QtCore/QDir>
 #include <QtCore/QThread>
+#include <QSysInfo>
+#include <QFileInfo>
 #include <bitset>
 #include <filesystem>
 #include <fstream>
+//#include <iostream>
 
 #include "yaml.h"
 #include "path.h"
@@ -57,16 +60,24 @@ QList<QString> Backend::getConfFileList() {
     return yamlFiles;
 }
 
+QList<QString> Backend::getGrmonScriptList() {
+    QDir directory(QString::fromStdString(Path::getSetupDir()) + "/TargetMocks/grmon_imitator/python_executables");
+    QStringList grmonScripts = directory.entryList(QDir::Dirs | QDir::NoDotAndDotDot );
+//    QStringList grmonScripts = directory.entryList(QStringList() << "*.sh", QDir::Files);
+
+    return grmonScripts;
+}
+
 void Backend::setFilePath(int moduleId) {
     globalModuleId = moduleId;
     filePath = Path::getSetupDir() + "/Registers/" +
-               getFileList()[moduleId].toStdString();
+               getFileList().at(moduleId).toStdString();
 }
 
 void Backend::setConfFilePath(int configId) {
     globalConfigId = configId;
     configFilePath = Path::getSetupDir() + "/SavedConfigs/" +
-                     getConfFileList()[configId].toStdString();
+                     getConfFileList().at(configId).toStdString();
 }
 
 int Backend::returnSelectedConfigId() { return globalConfigId; }
@@ -125,7 +136,7 @@ std::vector<std::string> Backend::getFieldListByPath(std::string path) {
     int regId = -1;
     QList<QString> regList = vectorToQList(
         Yaml::getValueList(Path::getSetupDir() + "/Registers/" +
-                               getFileList()[moduleId].toStdString(),
+                               getFileList().at(moduleId).toStdString(),
                            "RegName"));
     for (int i = 0; i < regList.size(); i++) {
         if (regList.at(i).toStdString() == regName) {
@@ -216,9 +227,24 @@ QString Backend::getRegAddr() {
     return sumStr;
 }
 
+bool Backend::getRegWriteable(int regId){
+    int fieldAmount = Backend::getFieldList(Backend::returnGlobalRegId()).length();
+    bool isWriteable = false;
+    for (int i = 0; i < fieldAmount; i++) {
+        std::vector<YAML::Node> nodeList = Yaml::getNodeListByKey(filePath, "Fields");
+        int isFieldWriteable = vectorToQList(Yaml::getValueList(nodeList.at(regId), "Write")).at(i).toInt();
+        if (isFieldWriteable == 1){
+            isWriteable = true;
+            break;
+        }
+    }
+
+    return isWriteable;
+}
+
 QString Backend::getFieldAddr() {
     std::string moduleAddr = Yaml::getValue(filePath, "Module_ADDR");
-    QString regName = Backend::getRegisterList().at(globalRegId.toInt());
+//    QString regName = Backend::getRegisterList().at(globalRegId.toInt());
     QString regAddr =
         Backend::vectorToQList(Yaml::getValueList(filePath, "ADDR")).at(globalRegId.toInt());
     std::vector<YAML::Node> nodeList = Yaml::getNodeListByKey(filePath, "Fields");
@@ -230,7 +256,7 @@ QString Backend::getFieldAddr() {
     int moduleAddrInt = std::stoi(moduleAddr, 0, 16);
     int regAddrInt = std::stoi(regAddr.toStdString(), 0, 16);
     int fieldRangeStart = getRangeStart(fieldRange);
-    int fieldRangeEnd = getRangeEnd(fieldRange);
+//    int fieldRangeEnd = getRangeEnd(fieldRange);
     int sum = moduleAddrInt + regAddrInt + fieldRangeStart;
 
     std::stringstream temp;
@@ -533,7 +559,7 @@ std::string Backend::getRegAddrByPath(std::string path) {
     int regId = -1;
     QList<QString> regList = vectorToQList(
         Yaml::getValueList(Path::getSetupDir() + "/Registers/" +
-                               getFileList()[moduleId].toStdString(),
+                               getFileList().at(moduleId).toStdString(),
                            "RegName"));
     for (int i = 0; i < regList.size(); i++) {
         if (regList.at(i).toStdString() == regName) {
@@ -552,12 +578,12 @@ std::string Backend::getRegAddrByPath(std::string path) {
     // CALCULATE ADDR START
     std::string moduleAddr =
         Yaml::getValue(Path::getSetupDir() + "/Registers/" +
-                           getFileList()[moduleId].toStdString(),
+                           getFileList().at(moduleId).toStdString(),
                        "Module_ADDR");
     QString regAddr =
         Backend::vectorToQList(Yaml::getValueList(Path::getSetupDir() +
                                                       "/Registers/" +
-                                                      getFileList()[moduleId].toStdString(),
+                                                      getFileList().at(moduleId).toStdString(),
                                                   "ADDR"))
             .at(regId);
 
@@ -616,7 +642,7 @@ std::string Backend::getFieldAddrByPath(std::string path) {
     int regId = -1;
     QList<QString> regList = vectorToQList(
         Yaml::getValueList(Path::getSetupDir() + "/Registers/" +
-                               getFileList()[moduleId].toStdString(),
+                               getFileList().at(moduleId).toStdString(),
                            "RegName"));
     for (int i = 0; i < regList.size(); i++) {
         if (regList.at(i).toStdString() == regName) {
@@ -628,7 +654,7 @@ std::string Backend::getFieldAddrByPath(std::string path) {
     QList<QString> fieldList;
     std::vector<YAML::Node> nodeList =
         Yaml::getNodeListByKey(Path::getSetupDir() +
-                                   "/Registers/" + getFileList()[moduleId].toStdString(),
+                                   "/Registers/" + getFileList().at(moduleId).toStdString(),
                                "Fields");
     fieldList = vectorToQList(Yaml::getValueList(nodeList.at(regId), "Name"));
     for (int i = 0; i < fieldList.size(); i++) {
@@ -651,12 +677,12 @@ std::string Backend::getFieldAddrByPath(std::string path) {
     // CALCULATE ADDR START
     std::string moduleAddr =
         Yaml::getValue(Path::getSetupDir() + "/Registers/" +
-                           getFileList()[moduleId].toStdString(),
+                           getFileList().at(moduleId).toStdString(),
                        "Module_ADDR");
     QString regAddr =
         Backend::vectorToQList(Yaml::getValueList(Path::getSetupDir() +
                                                       "/Registers/" +
-                                                      getFileList()[moduleId].toStdString(),
+                                                      getFileList().at(moduleId).toStdString(),
                                                   "ADDR"))
             .at(regId);
     std::string fieldRange =
@@ -717,7 +743,7 @@ std::vector<int> Backend::getFieldRangeByPath(std::string path) {
     int regId = -1;
     QList<QString> regList = vectorToQList(
         Yaml::getValueList(Path::getSetupDir() + "/Registers/" +
-                               getFileList()[moduleId].toStdString(),
+                               getFileList().at(moduleId).toStdString(),
                            "RegName"));
     for (int i = 0; i < regList.size(); i++) {
         if (regList.at(i).toStdString() == regName) {
@@ -729,7 +755,7 @@ std::vector<int> Backend::getFieldRangeByPath(std::string path) {
     QList<QString> fieldList;
     std::vector<YAML::Node> nodeList =
         Yaml::getNodeListByKey(Path::getSetupDir() +
-                                   "/Registers/" + getFileList()[moduleId].toStdString(),
+                                   "/Registers/" + getFileList().at(moduleId).toStdString(),
                                "Fields");
     fieldList = vectorToQList(Yaml::getValueList(nodeList.at(regId), "Name"));
     for (int i = 0; i < fieldList.size(); i++) {
@@ -802,7 +828,7 @@ bool Backend::getIsFieldWriteOnlyByPath(std::string path) {
     int regId = -1;
     QList<QString> regList = vectorToQList(
         Yaml::getValueList(Path::getSetupDir() + "/Registers/" +
-                               getFileList()[moduleId].toStdString(),
+                               getFileList().at(moduleId).toStdString(),
                            "RegName"));
     for (int i = 0; i < regList.size(); i++) {
         if (regList.at(i).toStdString() == regName) {
@@ -814,7 +840,7 @@ bool Backend::getIsFieldWriteOnlyByPath(std::string path) {
     QList<QString> fieldList;
     std::vector<YAML::Node> nodeList =
         Yaml::getNodeListByKey(Path::getSetupDir() +
-                                   "/Registers/" + getFileList()[moduleId].toStdString(),
+                                   "/Registers/" + getFileList().at(moduleId).toStdString(),
                                "Fields");
     fieldList = vectorToQList(Yaml::getValueList(nodeList.at(regId), "Name"));
     for (int i = 0; i < fieldList.size(); i++) {
@@ -837,7 +863,7 @@ bool Backend::getIsFieldWriteOnlyByPath(std::string path) {
     // GET IS READ-WRITEABLE START
     nodeList =
         Yaml::getNodeListByKey(Path::getSetupDir() +
-                                   "/Registers/" + getFileList()[moduleId].toStdString(),
+                                   "/Registers/" + getFileList().at(moduleId).toStdString(),
                                "Fields");
     bool is_writeable =
         vectorToQList(Yaml::getValueList(nodeList.at(regId), "Write")).at(fieldId).toInt();
@@ -946,8 +972,6 @@ int Backend::checkAllConfigValues(int mode, QString checkPath) {
     static std::vector<std::string> redRegs;
     static std::vector<std::string> redFields;
 
-    //    qDebug()<<checkPath;
-
     // INITIALIZING MODE
     if (mode == -1) {
         TreeNode root = parseConfig(configFilePath);
@@ -1001,6 +1025,7 @@ int Backend::checkAllConfigValues(int mode, QString checkPath) {
                 }
             }
         }
+        Backend::configState = 1;
         return -1;
     }
 
@@ -1040,6 +1065,8 @@ int Backend::checkAllConfigValues(int mode, QString checkPath) {
     }
 }
 
+int Backend::returnConfigState(){return Backend::configState;}
+
 QString Backend::returnHex(QString num) { return "0x" + QString::number(num.toInt(), 16); }
 
 int Backend::countSpaces(std::string data) {
@@ -1055,54 +1082,59 @@ int Backend::countSpaces(std::string data) {
 }
 
 void Backend::sshSet(QString address, QString value) {
-    std::ifstream infile;
-    infile.open(Path::getSetupDir() + "/TargetMocks/target.yaml");
-    std::vector<std::string> lines;
-    std::string buffer;
-
-    while (std::getline(infile, buffer)) {
-        lines.push_back(buffer);
-    }
-
-    infile.close();
-    int i;
-    std::string temp;
-    bool found = false;
-
-    for (i = 0; i < lines.size(); i++) {
-        std::string line = lines.at(i);
-        temp.clear();
-        for (int j = 0; j < line.size(); j++) {
-            if (line.at(j) == ':') {
-                break;
-            }
-            temp.push_back(line[j]);
-        }
-
-        if (temp == address.toStdString()) {
-            found = true;
-            break;
-        }
-    }
-
-    if (found) {
-        lines.at(i) = temp + ": " + value.toStdString();
-    }
-
-    else {
-        lines.push_back(address.toStdString() + ": " + value.toStdString());
-    }
-
-    std::ofstream outfile;
-    outfile.open(Path::getSetupDir() +
-                 "/TargetMocks/target.yaml");
-
-    foreach (std::string line, lines) {
-        outfile << line << endl;
-    }
-
-    outfile.close();
+    Backend::sendScriptCommand("wmem "+address+" "+value);
+    Backend::scriptProcess.waitForReadyRead();
 }
+
+//void Backend::sshSet(QString address, QString value) {
+//    std::ifstream infile;
+//    infile.open(Path::getSetupDir() + "/TargetMocks/target.yaml");
+//    std::vector<std::string> lines;
+//    std::string buffer;
+
+//    while (std::getline(infile, buffer)) {
+//        lines.push_back(buffer);
+//    }
+
+//    infile.close();
+//    int i;
+//    std::string temp;
+//    bool found = false;
+
+//    for (i = 0; i < lines.size(); i++) {
+//        std::string line = lines.at(i);
+//        temp.clear();
+//        for (int j = 0; j < line.size(); j++) {
+//            if (line.at(j) == ':') {
+//                break;
+//            }
+//            temp.push_back(line[j]);
+//        }
+
+//        if (temp == address.toStdString()) {
+//            found = true;
+//            break;
+//        }
+//    }
+
+//    if (found) {
+//        lines.at(i) = temp + ": " + value.toStdString();
+//    }
+
+//    else {
+//        lines.push_back(address.toStdString() + ": " + value.toStdString());
+//    }
+
+//    std::ofstream outfile;
+//    outfile.open(Path::getSetupDir() +
+//                 "/TargetMocks/target.yaml");
+
+//    foreach (std::string line, lines) {
+//        outfile << line << endl;
+//    }
+
+//    outfile.close();
+//}
 
 // void Backend::fieldSet(QString address, QString value) {
 //     std::ifstream infile;
@@ -1199,50 +1231,52 @@ QString Backend::fieldGet(QString address) {
 
     if (foundBuffer) {  // IF ADDRESS FOUND IN BUFFER, COPY FOUND LINE TO THE COMMON VARIABLE
         line = bufferLines.at(i);
-    } else {  // IF NOT, SEARCH THE TARGET FILE !!!WILL BE REPLACED WITH GRMON SCRIPTS OR VIA OR NOT
-              // VIA SSH!!!
-        std::ifstream targetFile;
-        targetFile.open(Path::getSetupDir() + "/target.yaml");
-        std::vector<std::string> targetLines;
-        std::string buffer;
-
-        while (std::getline(targetFile, buffer)) {
-            targetLines.push_back(buffer);
-        }
-
-        targetFile.close();
-        int i;
-        std::string temp;
-        bool foundTarget = false;
-
-        for (i = 0; i < targetLines.size(); i++) {
-            std::string line = targetLines.at(i);
-            temp.clear();
-            for (int j = 0; j < line.size(); j++) {
-                if (line.at(j) == ':') {
-                    break;
-                }
-                temp.push_back(line[j]);
-            }
-
-            if (temp == address.toStdString()) {
-                foundTarget = true;
-                break;
-            }
-        }
-
-        if (foundTarget) {  // IF ADDRESS FOUND ON TARGET, COPY FOUND LINE TO THE COMMON VARIABLE
-            line = targetLines.at(i);
-        } else {  // IF NOT FOUND ON BOTH RESOURCES, LOG AN ERROR AND EXIT FUNCTION.
-            qDebug() << "REGISTER ADDRESS NOT FOUND.";
-            qDebug() << address;
-            return "-1";
-        }
+    } else {  // IF NOT, SEARCH THE TARGET FILE
+        line = (address+": "+sshGet(address)).toStdString();
     }
 
-    // IF ADDRESS FOUND ON EITHER OF RESOURCES GET FIELD VALUE FROM THE RELEVANT PLACE OF REGISTER
-    // VALUE
+    // IF ADDRESS FOUND ON EITHER OF RESOURCES GET FIELD VALUE FROM THE RELEVANT PLACE OF REGISTER VALUE
     temp.clear();
+    bool valueSwitch = false;
+    for (int j = 0; j < line.size(); j++) {
+        if (line[j] == ' ') {
+            continue;
+        }
+        if (valueSwitch) {
+            temp.push_back(line[j]);
+        }
+        if (line.at(j) == ':') {
+            valueSwitch = true;
+        }
+    }
+    std::string initialHex = temp;
+    std::string initialBin = Backend::hexToBinaryWithPadding(initialHex);
+    initialBin = Backend::reverseString(initialBin);  // REVERSED BINARY VALUE FOR ENDIANNESS
+    std::vector<YAML::Node> nodeList = Yaml::getNodeListByKey(filePath, "Fields");
+    std::string fieldRange =
+        vectorToQList(Yaml::getValueList(nodeList.at(globalRegId.toInt()), "Range"))
+            .at(globalFieldId.toInt())
+            .toStdString();
+    int fieldRangeStart = getRangeStart(fieldRange);
+    int fieldRangeEnd = getRangeEnd(fieldRange);
+
+    std::string binaryValue;
+
+    for (int i = 0; i < (fieldRangeEnd - fieldRangeStart); i++) {
+        binaryValue.push_back(initialBin[fieldRangeStart + i]);
+    }
+    for (int i = 0; i < 32 - (fieldRangeEnd - fieldRangeStart); i++) {
+        binaryValue.push_back('0');
+    }
+    binaryValue = Backend::reverseString(binaryValue);  // REVERSED BACK BINARY VALUE FOR ENDIANNESS
+    std::string hexValue = Backend::binaryToHex(binaryValue);
+    return QString::fromStdString(hexValue);
+}
+
+QString Backend::fieldGetFromTarget(QString address) {
+    std::string line = (address + ": " + sshGet(address)).toStdString();
+
+    std::string temp = "";
     bool valueSwitch = false;
     for (int j = 0; j < line.size(); j++) {
         if (line[j] == ' ') {
@@ -1317,7 +1351,7 @@ void Backend::fieldSet(QString address, QString value) {
     } else {  // IF NOT SEARCH THE TARGET FILE !!!WILL BE REPLACED WITH GRMON SCRIPTS OR VIA OR NOT
               // VIA SSH!!!
         std::ifstream targetFile;
-        targetFile.open(Path::getSetupDir() + "/target.yaml");
+        targetFile.open(Path::getSetupDir() + "/TargetMocks/target.yaml");
         std::vector<std::string> targetLines;
         std::string buffer;
 
@@ -1483,52 +1517,68 @@ std::string Backend::reverseString(std::string str) {
 }
 
 void Backend::bufferSet(QString address, QString value) {
-    std::ifstream infile;
-    infile.open(Path::getSetupDir() + "/buffer.yaml");
-    std::vector<std::string> lines;
-    std::string buffer;
+    if(Backend::getRegWriteable(globalRegId.toInt())) {
+        std::ifstream infile;
+        infile.open(Path::getSetupDir() + "/buffer.yaml");
+        std::vector<std::string> lines;
+        std::string buffer;
 
-    while (std::getline(infile, buffer)) {
-        lines.push_back(buffer);
-    }
+        while (std::getline(infile, buffer)) {
+            lines.push_back(buffer);
+        }
 
-    infile.close();
-    int i;
-    std::string temp;
-    bool found = false;
+        infile.close();
+        int i;
+        std::string temp;
+        bool found = false;
 
-    for (i = 0; i < lines.size(); i++) {
-        std::string line = lines.at(i);
-        temp.clear();
-        for (int j = 0; j < line.size(); j++) {
-            if (line.at(j) == ':') {
+        for (i = 0; i < lines.size(); i++) {
+            std::string line = lines.at(i);
+            temp.clear();
+            for (int j = 0; j < line.size(); j++) {
+                if (line.at(j) == ':') {
+                    break;
+                }
+                temp.push_back(line[j]);
+            }
+
+            if (temp == address.toStdString()) {
+                found = true;
                 break;
             }
-            temp.push_back(line[j]);
         }
 
-        if (temp == address.toStdString()) {
-            found = true;
-            break;
+        if (found) {
+            lines.at(i) = temp + ": " + value.toStdString();
+        }
+
+        else {
+            lines.push_back(address.toStdString() + ": " + value.toStdString());
+        }
+
+        std::ofstream outfile;
+        outfile.open(Path::getSetupDir() + "/buffer.yaml");
+
+        foreach (std::string line, lines) {
+            outfile << line << endl;
+        }
+
+        outfile.close();
+
+        if (value.isEmpty()){
+            Backend::bufferSet(address, Backend::sshGet(address));
         }
     }
+}
 
-    if (found) {
-        lines.at(i) = temp + ": " + value.toStdString();
+void Backend::emptyBuffer() {
+    std::ofstream file(Path::getSetupDir() + "/buffer.yaml", std::ios::trunc); // Open the file in truncate mode
+
+    if (file.is_open()) {
+        file.close();
+    } else {
+        qDebug() << "Error opening the buffer.yaml file.";
     }
-
-    else {
-        lines.push_back(address.toStdString() + ": " + value.toStdString());
-    }
-
-    std::ofstream outfile;
-    outfile.open(Path::getSetupDir() + "/buffer.yaml");
-
-    foreach (std::string line, lines) {
-        outfile << line << endl;
-    }
-
-    outfile.close();
 }
 
 QString Backend::checkBuffer(QString address) {
@@ -1549,7 +1599,12 @@ QString Backend::checkBuffer(QString address) {
         if (temp == address.toStdString()) {
             buffer.erase(0, (i + 2));
             infile.close();
+            if(buffer == ""){
+                Backend::bufferSet(address, Backend::sshGet(address));
+                return Backend::sshGet(address);
+            } else {
             return QString::fromStdString(buffer);
+            }
         }
     }
 
@@ -1557,31 +1612,49 @@ QString Backend::checkBuffer(QString address) {
     return "-1";
 }
 
+
 QString Backend::sshGet(QString address) {
-    std::ifstream infile;
-    infile.open(Path::getSetupDir() + "/TargetMocks/target.yaml");
-    std::string buffer;
-
-    while (std::getline(infile, buffer)) {
-        std::string temp;
-        int i;
-        for (i = 0; i < buffer.size(); i++) {
-            char letter = buffer.at(i);
-            if (letter == ':') {
-                break;
-            }
-            temp.push_back(letter);
-        }
-        if (temp == address.toStdString()) {
-            buffer.erase(0, (i + 2));
-            infile.close();
-            return QString::fromStdString(buffer);
-        }
+    processOuts.clear();
+    Backend::sendScriptCommand("mem "+address+" 4");
+    Backend::scriptProcess.waitForReadyRead();
+    QStringList lines = processOuts.split('\n', Qt::SkipEmptyParts);
+    QString line = lines[lines.size()-2];
+    QString data = line.split('\t')[1];
+    QString checkAddress = line.split('\t')[0];
+    if (checkAddress==address){
+        return "0x"+data;
+    } else {
+        qDebug()<< "GRMON data read error!";
+        return "";
     }
-
-    infile.close();
-    return "NULL";
 }
+
+//QString Backend::sshGet(QString address) {
+//    std::ifstream infile;
+//    infile.open(Path::getSetupDir() + "/TargetMocks/target.yaml");
+//    std::string buffer;
+
+//    while (std::getline(infile, buffer)) {
+//        std::string temp;
+//        int i;
+//        for (i = 0; i < buffer.size(); i++) {
+//            char letter = buffer.at(i);
+//            if (letter == ':') {
+//                break;
+//            }
+//            temp.push_back(letter);
+//        }
+//        if (temp == address.toStdString()) {
+//            buffer.erase(0, (i + 2));
+//            infile.close();
+//            return QString::fromStdString(buffer);
+//        }
+//    }
+
+//    infile.close();
+//    return "NULL";
+//}
+
 
 void Backend::checkAndSaveAll(QString newFileName) {
     // READ_FILE
@@ -1714,7 +1787,7 @@ int Backend::getIdByName(std::string component, std::string name) {
 QList<QString> Backend::vectorToQList(std::vector<std::string> vector) {
     QList<QString> qlist;
 
-    for (auto item : vector) {
+    foreach (std::string item, vector) {
         qlist.append(QString::fromStdString(item));
     }
 
@@ -2030,3 +2103,107 @@ void Backend::removeFromPinConfig(int lineNumber) {
         }
     }
 }
+
+//SCRIPT CONNECTION
+
+bool Backend::launchScript(QString scriptName){
+    if(Backend::startScript(QString::fromStdString(Path::getSetupDir()+"TargetMocks/grmon_imitator/python_executables/")+scriptName+"/"+scriptName)){
+        Backend::setStartUp(true);
+        emit Backend::consoleLoading();
+        qDebug()<<"Script launched.";
+        return true;
+    } else {
+        qDebug()<<"Script launch error!";
+        return false;
+    }
+}
+
+void Backend::processOutput() {
+    QString data = Backend::scriptProcess.readAllStandardOutput();
+    if(data!="\n"){
+//        qDebug()<<qPrintable(data);
+        processOuts += qPrintable(data);
+        if(Backend::isStartUp){
+            if(Backend::endsWithGrmonX(data.toStdString())){
+                emit Backend::consoleReady();
+                Backend::setStartUp(false);
+            }
+        }
+    }
+//HANDLE NEWLINE-ONLY OUTPUTS!!!
+//    std::cout<<Backend::scriptProcess.readAllStandardOutput().toStdString();
+    // Process the data as needed
+}
+
+bool Backend::startScript(const QString& scriptPath) {
+    // Start the Bash script and configure the process
+    if(QSysInfo::kernelType()=="linux"){
+//        Backend::scriptProcess.setProgram("bash");
+//        QStringList args;
+//        args << scriptPath;
+//        Backend::scriptProcess.setArguments(args);
+
+        Backend::scriptProcess.setWorkingDirectory(QFileInfo(scriptPath).path());
+        Backend::scriptProcess.setProgram("./"+QFileInfo(scriptPath).fileName());
+    } else if(QSysInfo::kernelType()=="winnt") {
+        Backend::scriptProcess.setProgram("cmd.exe");
+
+        QStringList args;
+        args << scriptPath;
+        Backend::scriptProcess.setArguments(args);
+    } else {
+        qDebug() << "Failed to start the script.(Unknown kernel type)";
+        return false;
+    }
+
+
+    // Configure the process for reading and writing
+    Backend::scriptProcess.setProcessChannelMode(QProcess::SeparateChannels);
+    Backend::scriptProcess.setReadChannel(QProcess::StandardOutput);
+    Backend::scriptProcess.start();  // Start the process
+
+    // Check if the process started successfully
+    if (!Backend::scriptProcess.waitForStarted()) {
+        qDebug() << "Failed to start the script.";
+        return false;
+    }
+
+    return true;
+}
+
+// Function to send a command to the running script
+void Backend::sendScriptCommand(const QString &command) {
+    if (Backend::scriptProcess.state() == QProcess::Running) {
+        Backend::scriptProcess.write(command.toUtf8());
+        Backend::scriptProcess.write("\n");  // You might need to add a newline character
+        Backend::scriptProcess.waitForBytesWritten();  // Wait for the data to be written to the process
+        qDebug()<<"sent command";
+    }
+}
+
+// Function to stop the script
+void Backend::stopScript() {
+    if (Backend::scriptProcess.state() == QProcess::Running) {
+        Backend::scriptProcess.terminate();
+        Backend::scriptProcess.waitForFinished();
+        qDebug() << "Script stopped.";
+    } else {
+        qDebug() << "Script is not running.";
+    }
+}
+
+bool Backend::returnScriptState() {
+    if (Backend::scriptProcess.state() == QProcess::Running) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool Backend::endsWithGrmonX(const std::string& input) {
+    if (input.length() < 7) {return false;}
+    if (input.substr(input.length() - 7).erase(5,1) == "grmon>") {return true;}
+    return false;
+}
+
+void Backend::setStartUp(bool value) {Backend::isStartUp = value;}

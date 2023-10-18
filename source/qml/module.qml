@@ -15,10 +15,10 @@ Button {
 
     palette.buttonText: "white"
 
+
     background: Rectangle {
         id: moduleButtonBackground
         radius: 10
-
         gradient: Gradient {
             GradientStop { position: 0.0; color: pressed ? "#9ecbf7" : (hovered ? "#52a7fa" : "#4891d9") }
             GradientStop { position: 1.0; color: pressed ? "#81bdf7" : (hovered ? "#81bffc" : "#2358a3") }

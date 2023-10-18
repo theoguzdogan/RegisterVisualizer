@@ -32,7 +32,7 @@
                 }
             ],
             "showDisplayString": true,
-            "visualizerFile": "${workspaceFolder}/.vscode/qt.natvis.xml"
+            "visualizerFile": "/home/oguzd/.config/Code/User/workspaceStorage/6d84e47512aaf6ca729ec15483c06ff8/tonka3000.qtvsctools/qt.natvis.xml"
         }
     ]
 }
