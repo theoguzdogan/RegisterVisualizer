@@ -7,7 +7,7 @@ import QtQuick.Layouts 1.15
 
 Rectangle {
     border.color: "black"
-    width: (rootObject.width / 2) - 20
+    width: confColumn.width
 
     property var regAddr: backend.getRegAddr()
     property var currentValue

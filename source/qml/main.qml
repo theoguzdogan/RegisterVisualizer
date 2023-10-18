@@ -669,8 +669,8 @@ Window {
 //                    color: "transparent"
 //                    border.color: "#8f8fa8"
                     gradient: Gradient {
-                        GradientStop { position: 0.0; color: (scriptSelectButton.pressed ? "#BDDBBD" : (scriptSelectButton.hovered ? "#D3E0E0" : "#BBE6E6")) }
-                        GradientStop { position: 1.0; color: (scriptSelectButton.pressed ? "#00B3B3" : (scriptSelectButton.hovered ? "#009999" : "#008080")) }
+                        GradientStop { position: 0.0; color: loadingScreen.visible ? "#BBE6E6" : (scriptSelectButton.pressed ? "#BDDBBD" : (scriptSelectButton.hovered ? "#D3E0E0" : "#BBE6E6")) }
+                        GradientStop { position: 1.0; color: loadingScreen.visible ? "#008080" : (scriptSelectButton.pressed ? "#00B3B3" : (scriptSelectButton.hovered ? "#009999" : "#008080")) }
                     }
                 }
 
@@ -678,7 +678,7 @@ Window {
                     id: scriptButtonImage
                     anchors.fill: parent
                     anchors.margins: 7
-                    source: parent.hovered ? "../../assets/file-select_hovered.svg" : "../../assets/file-select.svg"
+                    source: ((!loadingScreen.visible) && parent.hovered) ? "../../assets/file-select_hovered.svg" : "../../assets/file-select.svg"
                 }
 
                 onClicked: {
@@ -765,8 +765,8 @@ Window {
             background: Rectangle {
                 radius: 10
                 gradient: Gradient {
-                    GradientStop { position: 0.0; color: scanConfButton.pressed ? "#BDDBBD" : (scanConfButton.hovered ? "#D3E0E0" : "#BBE6E6") }
-                    GradientStop { position: 1.0; color: scanConfButton.pressed ? "#00B3B3" : (scanConfButton.hovered ? "#009999" : "#008080") }
+                    GradientStop { position: 0.0; color: loadingScreen.visible ? "#BBE6E6" : (scanConfButton.pressed ? "#BDDBBD" : (scanConfButton.hovered ? "#D3E0E0" : "#BBE6E6")) }
+                    GradientStop { position: 1.0; color: loadingScreen.visible ? "#008080" : (scanConfButton.pressed ? "#00B3B3" : (scanConfButton.hovered ? "#009999" : "#008080")) }
                 }
             }
 
@@ -788,8 +788,8 @@ Window {
             background: Rectangle {
                 radius: 10
                 gradient: Gradient {
-                    GradientStop { position: 0.0; color: refreshButton.pressed ? "#BDDBBD" : (refreshButton.hovered ? "#D3E0E0" : "#BBE6E6") }
-                    GradientStop { position: 1.0; color: refreshButton.pressed ? "#00B3B3" : (refreshButton.hovered ? "#009999" : "#008080") }
+                    GradientStop { position: 0.0; color: loadingScreen.visible ? "#BBE6E6" : (refreshButton.pressed ? "#BDDBBD" : (refreshButton.hovered ? "#D3E0E0" : "#BBE6E6")) }
+                    GradientStop { position: 1.0; color: loadingScreen.visible ? "#008080" : (refreshButton.pressed ? "#00B3B3" : (refreshButton.hovered ? "#009999" : "#008080")) }
                 }
             }
 
@@ -811,8 +811,8 @@ Window {
 //            background: Rectangle {
 //                radius: 10
 //                gradient: Gradient {
-//                    GradientStop { position: 0.0; color: saveAllButton.pressed ? "#BDDBBD" : (saveAllButton.hovered ? "#D3E0E0" : "#BBE6E6") }
-//                    GradientStop { position: 1.0; color: saveAllButton.pressed ? "#00B3B3" : (saveAllButton.hovered ? "#009999" : "#008080") }
+//                    GradientStop { position: 0.0; color: loadingScreen.visible ? "#BBE6E6" : (saveAllButton.pressed ? "#BDDBBD" : (saveAllButton.hovered ? "#D3E0E0" : "#BBE6E6")) }
+//                    GradientStop { position: 1.0; color: loadingScreen.visible ? "#008080" : (saveAllButton.pressed ? "#00B3B3" : (saveAllButton.hovered ? "#009999" : "#008080")) }
 //                }
 
 //            }
@@ -825,17 +825,16 @@ Window {
 
     Row {
         id: topBar
-        width: parent.width
+        width: parent.width/3
         anchors.left: parent.left
         anchors.top: confBar.bottom
         anchors.topMargin: 15
-        anchors.right: parent.right
-        anchors.margins: 4
+        anchors.leftMargin: 4
         spacing: 4
 
         Text {
             text: "Modules"
-            width: parent.width / 6
+            width: (parent.width) / 2
             horizontalAlignment: Text.AlignHCenter
             font.pointSize: 11
             color: "#FFFFFF"
@@ -843,34 +842,68 @@ Window {
 
         Text {
             text: "Registers"
-            width: parent.width / 6
+            width: (parent.width) / 2
             horizontalAlignment: Text.AlignHCenter
             font.pointSize: 11
             color: "#FFFFFF"
         }
+    }
+
+    Rectangle {
+        id: registerTabContainer
+        height: 20
+        color: "transparent"
+        anchors.left: topBar.right
+        anchors.right: tabContainer.right
+        anchors.top: confBar.bottom
+        anchors.topMargin: 15
+        anchors.rightMargin: 10
+        anchors.leftMargin: 18
+
+        Flickable {
+            id: tabFlick
+            width: parent.width
+            height: 20
+            clip: true
+
+            // Set the scroll direction to horizontal
+            contentWidth: registerTabRow.width
+            boundsBehavior: Flickable.StopAtBounds
+
+            // Define a row of buttons
+            Row {
+                id: registerTabRow
+                spacing: 1
+            }
+        }
 
         Rectangle {
-                    width: (parent.width / 6) + (parent.width / 2)
-                    height: 20
-                    color: "transparent"
+            anchors.right: tabFlick.right
+            anchors.top: tabFlick.top
+            anchors.bottom: tabFlick.bottom
+            width: 20
+            opacity: 0.9
+            gradient: Gradient {
+                orientation: Gradient.Horizontal
+                GradientStop { position: 0.0; color: "transparent" }
+                GradientStop { position: 1.0; color: "#27273a" }
+            }
+            visible: !tabFlick.atXEnd
+        }
 
-                    Flickable {
-                        id: tabFlick
-                        width: parent.width
-                        height: 20
-                        clip: true
-
-                        // Set the scroll direction to horizontal
-                        contentWidth: registerTabRow.width
-                        boundsBehavior: Flickable.StopAtBounds
-
-                        // Define a row of buttons
-                        Row {
-                            id: registerTabRow
-                            spacing: 1
-                        }
-                    }
-                }
+        Rectangle {
+            anchors.left: tabFlick.left
+            anchors.top: tabFlick.top
+            anchors.bottomMargin: 5
+            width: 20
+            opacity: 0.9
+            gradient: Gradient {
+                orientation: Gradient.Horizontal
+                GradientStop { position: 0.0; color: "#27273a" }
+                GradientStop { position: 1.0; color: "transparent" }
+            }
+            visible: !tabFlick.atXBeginning
+        }
     }
 
     ScrollView {
@@ -907,6 +940,21 @@ Window {
             anchors.centerIn: parent
             spacing: 2
         }
+    }
+
+    Rectangle {
+        id: tabContainer
+        anchors.left: registerScrollView.right
+        anchors.top: registerTabContainer.bottom
+        anchors.right: parent.right
+        anchors.bottom: selectedUnitViewer.top
+        anchors.rightMargin: 4
+        anchors.leftMargin: 4
+        anchors.bottomMargin: 4
+        radius: 10
+        color: "#4d4d63"
+        opacity: 0.5
+        border.color: "#8f8fa8"
     }
 
     Rectangle {
@@ -1302,8 +1350,8 @@ Window {
                 radius: 10
 
                 gradient: Gradient {
-                    GradientStop { position: 0.0; color: ((!registerDataViewPlaceHolder.visible) && sendButton.pressed) ? "#BDDBBD" : (((!registerDataViewPlaceHolder.visible)&&sendButton.hovered) ? "#D3E0E0" : "#BBE6E6") }
-                    GradientStop { position: 1.0; color: ((!registerDataViewPlaceHolder.visible) && sendButton.pressed) ? "#00B3B3" : (((!registerDataViewPlaceHolder.visible)&&sendButton.hovered) ? "#009999" : "#008080") }
+                    GradientStop { position: 0.0; color: loadingScreen.visible ? "#BBE6E6" : ((!registerDataViewPlaceHolder.visible) && sendButton.pressed) ? "#BDDBBD" : (((!registerDataViewPlaceHolder.visible)&&sendButton.hovered) ? "#D3E0E0" : "#BBE6E6") }
+                    GradientStop { position: 1.0; color: loadingScreen.visible ? "#008080" : ((!registerDataViewPlaceHolder.visible) && sendButton.pressed) ? "#00B3B3" : (((!registerDataViewPlaceHolder.visible)&&sendButton.hovered) ? "#009999" : "#008080") }
                 }
             }
 
@@ -1338,8 +1386,8 @@ Window {
                 radius: 10
 
                 gradient: Gradient {
-                    GradientStop { position: 0.0; color: ((!registerDataViewPlaceHolder.visible) && registerConfigSaveButton.pressed) ? "#BDDBBD" : (((!registerDataViewPlaceHolder.visible)&&registerConfigSaveButton.hovered) ? "#D3E0E0" : "#BBE6E6") }
-                    GradientStop { position: 1.0; color: ((!registerDataViewPlaceHolder.visible) && registerConfigSaveButton.pressed) ? "#00B3B3" : (((!registerDataViewPlaceHolder.visible)&&registerConfigSaveButton.hovered) ? "#009999" : "#008080") }
+                    GradientStop { position: 0.0; color: loadingScreen.visible ? "#BBE6E6" : ((!registerDataViewPlaceHolder.visible) && registerConfigSaveButton.pressed) ? "#BDDBBD" : (((!registerDataViewPlaceHolder.visible)&&registerConfigSaveButton.hovered) ? "#D3E0E0" : "#BBE6E6") }
+                    GradientStop { position: 1.0; color: loadingScreen.visible ? "#008080" : ((!registerDataViewPlaceHolder.visible) && registerConfigSaveButton.pressed) ? "#00B3B3" : (((!registerDataViewPlaceHolder.visible)&&registerConfigSaveButton.hovered) ? "#009999" : "#008080") }
                 }
             }
 
@@ -1355,12 +1403,26 @@ Window {
         }
     }
 
+    Text {
+        id: fieldScrollViewHeader
+        anchors.left: tabContainer.left
+        anchors.top: tabContainer.top
+        anchors.leftMargin: 4
+        anchors.topMargin: 4
+        text: "Fields"
+        width: fieldScrollView.width
+        horizontalAlignment: Text.AlignHCenter
+        font.pointSize: 11
+        color: "#FFFFFF"
+        visible: !fieldPlaceHolder.visible
+    }
+
 
     ScrollView {
         id: fieldScrollView
-        anchors.left: registerScrollView.right
-        anchors.bottom: selectedUnitViewer.top
-        anchors.top: topBar.bottom
+        anchors.left: tabContainer.left
+        anchors.bottom: tabContainer.bottom
+        anchors.top: fieldScrollViewHeader.bottom
         anchors.leftMargin: 4
         anchors.bottomMargin: 4
         anchors.topMargin: 4
@@ -1405,15 +1467,13 @@ Window {
 
     Rectangle {
         id: fieldPlaceHolder
-        anchors.left: registerScrollView.right
-        anchors.bottom: selectedUnitViewer.top
-        anchors.top: topBar.bottom
-        anchors.leftMargin: 4
-        anchors.bottomMargin: 4
-        anchors.topMargin: 4
+        anchors.left: tabContainer.left
+        anchors.bottom: tabContainer.bottom
+        anchors.top: tabContainer.top
+        anchors.margins: 4
         width: rootObject.width / 6
         clip: true
-        color: "#4d4d63"
+        color: "transparent"
         radius: 10
         border.color: "#8f8fa8"
         opacity: 0.5
@@ -1443,12 +1503,13 @@ Window {
     ScrollView {
         id: confScrollView
         anchors.left: fieldScrollView.right
-        anchors.bottom: selectedUnitViewer.top
-        anchors.top: topBar.bottom
-        anchors.leftMargin: 4
-        anchors.bottomMargin: 4
-        anchors.topMargin: 4
-        width: (rootObject.width / 2) - 20
+        anchors.bottom: tabContainer.bottom
+        anchors.top: fieldScrollView.top
+        anchors.right: tabContainer.right
+        anchors.rightMargin: 6
+        anchors.leftMargin: 6
+        anchors.bottomMargin: 6
+//        width: (rootObject.width / 2) - 30
         clip: true
 
         Column {
@@ -1461,14 +1522,12 @@ Window {
     Rectangle {
         id: confPlaceHolder
         anchors.left: fieldScrollView.right
-        anchors.bottom: selectedUnitViewer.top
-        anchors.top: topBar.bottom
-        anchors.leftMargin: 4
-        anchors.bottomMargin: 4
-        anchors.topMargin: 4
-        width: (rootObject.width / 2) - 20
+        anchors.right: tabContainer.right
+        anchors.bottom: tabContainer.bottom
+        anchors.top: tabContainer.top
+        anchors.margins: 4
         clip: true
-        color: "#4d4d63"
+        color: "transparent"
         radius: 10
         border.color: "#8f8fa8"
         opacity: 0.5
