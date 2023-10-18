@@ -19,7 +19,7 @@ Button {
 
         Image {
             id: registerTabBackground
-            source: pressed ? "../../../assets/registerTab_pressed.svg" : (hovered ? "../../../assets/registerTab_hovered.svg" : "../../../assets/registerTab.svg")
+            source: loadingScreen.visible ? "../../../assets/registerTab.svg" : (pressed ? "../../../assets/registerTab_pressed.svg" : (hovered ? "../../../assets/registerTab_hovered.svg" : "../../../assets/registerTab.svg"))
         }
     }
 

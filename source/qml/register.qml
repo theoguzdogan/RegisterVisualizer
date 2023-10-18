@@ -20,8 +20,8 @@ Button {
         radius: 10
 
         gradient: Gradient {
-            GradientStop { position: 0.0; color: pressed ? "#9ecbf7" : (hovered ? "#52a7fa" : "#4891d9") }
-            GradientStop { position: 1.0; color: pressed ? "#81bdf7" : (hovered ? "#81bffc" : "#2358a3") }
+            GradientStop { position: 0.0; color: loadingScreen.visible ? "#4891d9" : (pressed ? "#9ecbf7" : (hovered ? "#52a7fa" : "#4891d9")) }
+            GradientStop { position: 1.0; color: loadingScreen.visible ? "#2358a3" : (pressed ? "#81bdf7" : (hovered ? "#81bffc" : "#2358a3")) }
         }
     }
 
@@ -33,6 +33,8 @@ Button {
         source: "../../../assets/warning.svg"
         width: 23
         anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.topMargin: 1
         anchors.rightMargin: 5
         height: 25
         visible: alert

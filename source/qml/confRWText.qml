@@ -40,7 +40,7 @@ Rectangle {
         return configValue
     }
 
-    width: (rootObject.width / 2) - 20
+    width: confColumn.width
     id: parentRectangle
 
     Component.onCompleted: {
@@ -103,8 +103,8 @@ Rectangle {
             background: Rectangle {
                 radius: 10
                 gradient: Gradient {
-                    GradientStop { position: 0.0; color: setButton.pressed ? "#BDDBBD" : (setButton.hovered ? "#D3E0E0" : "#BBE6E6") }
-                    GradientStop { position: 1.0; color: setButton.pressed ? "#00B3B3" : (setButton.hovered ? "#009999" : "#008080") }
+                    GradientStop { position: 0.0; color: loadingScreen.visible ? "#BBE6E6" : (setButton.pressed ? "#BDDBBD" : (setButton.hovered ? "#D3E0E0" : "#BBE6E6")) }
+                    GradientStop { position: 1.0; color: loadingScreen.visible ? "#008080" : (setButton.pressed ? "#00B3B3" : (setButton.hovered ? "#009999" : "#008080")) }
                 }
             }
 
@@ -138,8 +138,8 @@ Rectangle {
                 radius: 10
 
                 gradient: Gradient {
-                    GradientStop { position: 0.0; color: resetButton.pressed ? "#BDDBBD" : (resetButton.hovered ? "#D3E0E0" : "#BBE6E6") }
-                    GradientStop { position: 1.0; color: resetButton.pressed ? "#00B3B3" : (resetButton.hovered ? "#009999" : "#008080") }
+                    GradientStop { position: 0.0; color: loadingScreen.visible ? "#BBE6E6" : (resetButton.pressed ? "#BDDBBD" : (resetButton.hovered ? "#D3E0E0" : "#BBE6E6")) }
+                    GradientStop { position: 1.0; color: loadingScreen.visible ? "#008080" : (resetButton.pressed ? "#00B3B3" : (resetButton.hovered ? "#009999" : "#008080")) }
                 }
             }
 

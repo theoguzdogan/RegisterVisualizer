@@ -7,5 +7,5 @@
       <stop offset="1" style="stop-color: rgb(35, 88, 163);"/>
     </linearGradient>
   </defs>
-  <path style="fill: url(#gradient-0);" d="M 2 0 H 140.448 A 10 10 0 0 1 150.448 10 V 18.041 A 2 2 0 0 1 148.448 20.041 H 2 A 2 2 0 0 1 0 18.041 V 2 A 2 2 0 0 1 2 0 Z" bx:shape="rect 0 0 150.448 20.041 2 10 2 2 1@0f66b81e"/>
+  <path style="fill: url(#gradient-0);" d="M 2 0 H 140.448 A 10 10 0 0 1 150.448 10 V 20.041 H 0 V 2 A 2 2 0 0 1 2 0 Z" bx:shape="rect 0 0 150.448 20.041 2 10 0 0 1@f3a5049d"/>
 </svg>
