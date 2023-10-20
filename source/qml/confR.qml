@@ -6,7 +6,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
 Rectangle {
-    border.color: "black"
+//    border.color: "black"
     width: confColumn.width
 
     property var regAddr: backend.getRegAddr()

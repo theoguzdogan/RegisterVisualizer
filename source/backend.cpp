@@ -39,7 +39,9 @@ void Backend::setDefaultConfigId(QString configName) {
 
 void Backend::setGlobalModuleId(int moduleId) {
     globalModuleId = moduleId;
-    Backend::setFilePath(moduleId);
+    if (moduleId >= 0) {
+        Backend::setFilePath(moduleId);
+    }
 }
 
 void Backend::setGlobalRegId(int regId) { globalRegId = QString::number(regId); }
@@ -2177,7 +2179,7 @@ void Backend::sendScriptCommand(const QString &command) {
         Backend::scriptProcess.write(command.toUtf8());
         Backend::scriptProcess.write("\n");  // You might need to add a newline character
         Backend::scriptProcess.waitForBytesWritten();  // Wait for the data to be written to the process
-        qDebug()<<"sent command";
+        qDebug()<<"sent command:"<<command;
     }
 }
 
