@@ -1900,21 +1900,18 @@ Window {
                 destroyedId = i
             }
         }
-        refresh()
 
         if (backend.returnGlobalModuleId()===parseInt(moduleId) && parseInt(backend.returnGlobalRegId())===parseInt(registerId)){
-//            console.log("Destroyed:"+destroyedId)
-//            console.log("toBeOpenedMod:"+registerTabRow.children[destroyedId-1].moduleId)
             clearFields()
             clearConf()
             Promise.resolve().then(()=>{
                 if (registerTabRow.children.length>0) {
                     if (destroyedId===0){
                         moduleButtonClicked(registerTabRow.children[0].moduleId)
-                        Promise.resolve().then(()=>registerButtonClicked(registerTabRow.children[0].registerId))
+                        Promise.resolve().then(()=>{registerButtonClicked(registerTabRow.children[0].registerId)})
                     } else if (destroyedId>0) {
                         moduleButtonClicked(registerTabRow.children[destroyedId-1].moduleId)
-                        Promise.resolve().then(()=>registerButtonClicked(registerTabRow.children[destroyedId-1].registerId))
+                        Promise.resolve().then(()=>{registerButtonClicked(registerTabRow.children[destroyedId-1].registerId)})
                     }
                 } else if (registerTabRow.children.length===0) {
                     Promise.resolve().then(()=>{
@@ -1924,7 +1921,6 @@ Window {
                         registerTextBox.clear()
                         refresh()
                     })
-
                 }
             })
         }
