@@ -21,3 +21,4 @@
 ![GitHub Release Date](https://img.shields.io/github/release-date/rendayigit/registervisualizer)
 
 ![RegisterVisualizerScreenshot](https://github.com/rendayigit/RegisterVisualizer/assets/28491388/00eadebb-69ba-4415-bd9d-e32ca3e444ce)
+![RegisterVisualizer_opening](https://github.com/rendayigit/RegisterVisualizer/assets/28491388/fb69434d-9ef0-42d2-9894-2ed013c06b37)
