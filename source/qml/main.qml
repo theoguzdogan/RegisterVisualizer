@@ -362,7 +362,7 @@ Window {
     AbstractDialog {
         id: scriptDialog
         width: 430
-        height: 430
+        height: 330
 
         onRejected: {
             if(!backend.returnScriptState()){
@@ -373,7 +373,7 @@ Window {
         onVisibilityChanged: {
             if(visible){
                 width = 430
-                height = 430
+                height = 330
                 startScriptAnimation()
             } else {
                 stopScriptAnimation()
@@ -384,6 +384,23 @@ Window {
             id: scriptSelectRectangle
             color: "#27273a"
 
+            Rectangle {
+                id: scriptSelectBackground
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.margins: 1
+                height: 150
+                opacity: 0.9
+                z:1
+
+                gradient: Gradient {
+                    GradientStop { position: 0.0; color: "#27273a" }
+                    GradientStop { position: 0.4; color: "#27273a" }
+                    GradientStop { position: 1.0; color: "transparent" }
+                }
+            }
+
             Text {
                 id: scriptSelectionCaption
                 anchors.top: scriptSelectRectangle.top
@@ -392,6 +409,7 @@ Window {
                 color: "#ffffff"
                 text: "Select GRMON script:"
                 font.pointSize: 10
+                z:1
             }
 
             Row {
@@ -404,6 +422,7 @@ Window {
                 anchors.horizontalCenter: parent.horizontalCenter
                 height: 35
                 spacing: 10
+                z:1
 
                 ComboBox {
                     id: scriptComboBox
@@ -476,7 +495,7 @@ Window {
                 width: parent.width
                 height: parent.height - 100
                 color: "transparent"
-                border.color: "white"
+//                border.color: "black"
                 anchors.bottom: parent.bottom
 
                 Image {
