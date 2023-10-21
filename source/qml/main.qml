@@ -1832,7 +1832,7 @@ Window {
         clearConf()
         createFieldButtons(registerId)
         createRegisterTabAlias(registerId)
-        updateRegisterTextBox()
+//        updateRegisterTextBox()
         checkSelectedRegister()
     }
 
