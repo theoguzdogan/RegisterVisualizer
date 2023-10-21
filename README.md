@@ -6,7 +6,7 @@
 ![GitHub contributors](https://img.shields.io/github/contributors/rendayigit/registervisualizer)
 ![GitHub forks](https://img.shields.io/github/forks/rendayigit/registervisualizer?style=flat)
 ![GitHub Repo stars](https://img.shields.io/github/stars/rendayigit/registervisualizer?style=flat)
-![Lines of code](https://img.shields.io/tokei/lines/github/rendayigit/registervisualizer?style=flat)
+![Lines of code](https://tokei.rs/b1/github/rendayigit/RegisterVisualizer)
 ![GitHub repo file count](https://img.shields.io/github/directory-file-count/rendayigit/registervisualizer?style=flat)
 ![GitHub release (latest by date)](https://img.shields.io/github/downloads/rendayigit/registervisualizer/tag/total)
 ![GitHub issues](https://img.shields.io/github/issues-raw/rendayigit/registervisualizer)
@@ -18,3 +18,5 @@
 ![GitHub Release Date](https://img.shields.io/github/release-date/rendayigit/registervisualizer)
 ![GitHub commit activity (branch)](https://img.shields.io/github/commit-activity/m/rendayigit/registervisualizer)
 ![Codacy grade](https://img.shields.io/codacy/grade/asdasd)
+
+![RegisterVisualizerScreenshot](https://github.com/rendayigit/RegisterVisualizer/assets/28491388/00eadebb-69ba-4415-bd9d-e32ca3e444ce)
