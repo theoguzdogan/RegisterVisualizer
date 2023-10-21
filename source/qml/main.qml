@@ -1867,6 +1867,7 @@ Window {
     }
 
     function createRegisterTabAlias(registerId) {
+
         var name = backend.getRegisterList()[registerId]
         var moduleId = backend.returnGlobalModuleId()
 
@@ -1902,13 +1903,30 @@ Window {
         refresh()
 
         if (backend.returnGlobalModuleId()===parseInt(moduleId) && parseInt(backend.returnGlobalRegId())===parseInt(registerId)){
-            backend.setGlobalRegId(-1)
+//            console.log("Destroyed:"+destroyedId)
+//            console.log("toBeOpenedMod:"+registerTabRow.children[destroyedId-1].moduleId)
             clearFields()
             clearConf()
-        }
+            Promise.resolve().then(()=>{
+                if (registerTabRow.children.length>0) {
+                    if (destroyedId===0){
+                        moduleButtonClicked(registerTabRow.children[0].moduleId)
+                        Promise.resolve().then(()=>registerButtonClicked(registerTabRow.children[0].registerId))
+                    } else if (destroyedId>0) {
+                        moduleButtonClicked(registerTabRow.children[destroyedId-1].moduleId)
+                        Promise.resolve().then(()=>registerButtonClicked(registerTabRow.children[destroyedId-1].registerId))
+                    }
+                } else if (registerTabRow.children.length===0) {
+                    Promise.resolve().then(()=>{
+                        backend.setGlobalRegId(-1)
+                        clearRegisters()
+                        backend.setGlobalModuleId(-1)
+                        registerTextBox.clear()
+                        refresh()
+                    })
 
-        else {
-            //SELECT CLOSEST TAB !!!!!!!!!!!!!!!!!!!!!!!!
+                }
+            })
         }
     }
 
