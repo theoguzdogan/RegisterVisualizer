@@ -355,17 +355,28 @@ Window {
         }
         onAccepted: scriptDialog.open()
         onRejected: scriptDialog.open()
+
     }
+
 
     AbstractDialog {
         id: scriptDialog
-        width: 300
-        height: scriptComboBox.down ? 100+scriptComboBox.popup.height : 100
-        //+75
+        width: 430
+        height: 430
 
         onRejected: {
             if(!backend.returnScriptState()){
                 scriptDialogWarning.open()
+            }
+        }
+
+        onVisibilityChanged: {
+            if(visible){
+                width = 430
+                height = 430
+                startScriptAnimation()
+            } else {
+                stopScriptAnimation()
             }
         }
 
@@ -376,8 +387,8 @@ Window {
             Text {
                 id: scriptSelectionCaption
                 anchors.top: scriptSelectRectangle.top
-                anchors.left: scriptSelectRectangle.left
-                anchors.margins: 15
+                anchors.left: scriptSelectionRow.left
+                anchors.topMargin: 15
                 color: "#ffffff"
                 text: "Select GRMON script:"
                 font.pointSize: 10
@@ -386,9 +397,11 @@ Window {
             Row {
                 id: scriptSelectionRow
                 anchors.top: scriptSelectionCaption.bottom
-                anchors.left: scriptSelectRectangle.left
-                anchors.right: scriptSelectRectangle.right
-                anchors.margins: 15
+                anchors.topMargin: 15
+//                anchors.left: scriptSelectRectangle.left
+//                anchors.right: scriptSelectRectangle.right
+//                anchors.margins: 15
+                anchors.horizontalCenter: parent.horizontalCenter
                 height: 35
                 spacing: 10
 
@@ -450,7 +463,6 @@ Window {
                         Promise.resolve().then(()=>{
                             if (backend.returnScriptState()){
                                 scriptDialogWarning.close()
-//                                refresh();
                             }
                         })
 
@@ -459,7 +471,96 @@ Window {
                 }
             }
 
+            Rectangle {
+                id: movingScene
+                width: parent.width
+                height: parent.height - 100
+                color: "transparent"
+                border.color: "white"
+                anchors.bottom: parent.bottom
+
+                Image {
+                    id: movingSceneImage
+                    anchors.fill: parent
+                    source: "../../../assets/starryBackground.jpeg"
+                    z: -1
+                }
+
+                Rectangle {
+                    id: movingObject
+                    width: 50
+                    height: 50
+                    color: "transparent"
+                    property bool run: false
+
+                    Image {
+                        id: movingObjectImage
+                        anchors.fill: parent
+                        property bool sourceSwitch: true
+                        source: sourceSwitch ? "../../../assets/tai_logo_white.svg" : "../../../assets/tai_logo_outline.svg"
+                    }
+
+                    NumberAnimation on x {
+                        id: xAnimation
+                        running: false
+                        from: 0
+                        to: (movingScene.width-movingObject.width)
+                        property var speedFactor: generateRandomSpeedFactor()
+                        duration: (Math.abs(to-from))/speedFactor
+                    }
+
+                    onXChanged: {
+                        if (run) {
+                            if (x === (parent.width-width)){
+                                xAnimation.from = (parent.width-width)
+                                xAnimation.to = 0
+                                xAnimation.speedFactor = generateRandomSpeedFactor()
+                                movingObjectImage.sourceSwitch = (!movingObjectImage.sourceSwitch)
+                                Promise.resolve().then(xAnimation.restart)
+                            }   else if (x == 0) {
+                                xAnimation.from = 0
+                                xAnimation.to = (parent.width-width)
+                                xAnimation.speedFactor = generateRandomSpeedFactor()
+                                movingObjectImage.sourceSwitch = (!movingObjectImage.sourceSwitch)
+                                Promise.resolve().then(xAnimation.restart)
+                            }
+                        }
+                    }
+
+                    NumberAnimation on y {
+                        id: yAnimation
+                        running: false
+                        from: 0
+                        to: (movingScene.height-movingObject.height)
+                        property var speedFactor: generateRandomSpeedFactor()
+                        duration: (Math.abs(to-from))/speedFactor
+                    }
+
+                    onYChanged: {
+                        if (run) {
+                            if (y === (parent.height-height)){
+                                yAnimation.from = (parent.height-height)
+                                yAnimation.to = 0
+                                yAnimation.speedFactor = generateRandomSpeedFactor()
+                                movingObjectImage.sourceSwitch = (!movingObjectImage.sourceSwitch)
+                                Promise.resolve().then(yAnimation.restart)
+                            }   else if (y == 0) {
+                                yAnimation.from = 0
+                                yAnimation.to = (parent.height-height)
+                                yAnimation.speedFactor = generateRandomSpeedFactor()
+                                movingObjectImage.sourceSwitch = (!movingObjectImage.sourceSwitch)
+                                Promise.resolve().then(yAnimation.restart)
+                            }
+                        }
+                    }
+                }
+            }
+
+
+
         }
+
+
     }
 
 
@@ -1195,7 +1296,7 @@ Window {
             }
 
             ToolTip.delay: 500
-            ToolTip.visible: (!registerDataViewPlaceHolder.visible) && hovered
+            ToolTip.visible: ((!registerDataViewPlaceHolder.visible) && ((!loadingScreen.visible)&&(hovered)))
             ToolTip.text: "Register Address: " + regAddr
 
             onTextChanged: {
@@ -2172,6 +2273,36 @@ Window {
 
     function changeBase(){
         registerTextBox.text = baseSelection.isHex ? binaryToHex(registerTextBox.text) : hexToBinary(registerTextBox.text)
+    }
+
+    function startScriptAnimation() {
+        movingObject.run = true
+        movingScene.width = 430
+        movingScene.height = 330
+        xAnimation.from = 0
+        xAnimation.to = (movingScene.width-movingObject.width)
+        yAnimation.from = 0
+        yAnimation.to = (movingScene.height-movingObject.height)
+        Promise.resolve().then(()=>{
+            xAnimation.start()
+            yAnimation.start()
+        })
+    }
+
+    function stopScriptAnimation() {
+        movingObject.run = false
+        Promise.resolve().then(()=>{
+           xAnimation.stop()
+           yAnimation.stop()
+               Promise.resolve().then(()=>{
+                  movingObject.x = 0
+                  movingObject.y = 0
+           })
+        })
+    }
+
+    function generateRandomSpeedFactor() {
+        return parseFloat((Math.random() * 0.1 + 0.1).toFixed(2));
     }
 
     Connections {
