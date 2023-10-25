@@ -34,7 +34,7 @@ Button {
 
     ToolTip.delay: 500
     ToolTip.timeout: 5000
-    ToolTip.visible: hovered
+    ToolTip.visible: ((!loadingScreen.visible)&&(hovered))
 
     Component.onCompleted: {
         ToolTip.text = qsTr(backend.getFileList()[moduleId].split(".")[0] + " > " + backend.getRegisterList()[registerId])

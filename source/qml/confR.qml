@@ -75,3 +75,5 @@ Rectangle {
         width: parent.width - 10
     }
 }
+
+
