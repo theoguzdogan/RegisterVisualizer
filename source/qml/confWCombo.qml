@@ -103,6 +103,10 @@ Rectangle {
                 }
             }
 
+            ToolTip.delay: 500
+            ToolTip.visible: ((!loadingScreen.visible)&&(hovered))
+            ToolTip.text: "Apply the selected value on the data word below (Not applied directly on target)."
+
             onClicked: {
                 desiredValue = valueComboBox.currentIndex
 
@@ -139,6 +143,10 @@ Rectangle {
                     GradientStop { position: 1.0; color: loadingScreen.visible ? "#008080" : (resetButton.pressed ? "#00B3B3" : (resetButton.hovered ? "#009999" : "#008080")) }
                 }
             }
+
+            ToolTip.delay: 500
+            ToolTip.visible: ((!loadingScreen.visible)&&(hovered))
+            ToolTip.text: "Apply the reset value on the data word below (Not applied directly on target)."
 
             onClicked: {
 //                desiredValue = parseInt(resetValue, 16)

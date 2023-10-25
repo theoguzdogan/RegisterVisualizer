@@ -747,6 +747,10 @@ Window {
                     source: ((!loadingScreen.visible) && parent.hovered) ? "../../assets/file-select_hovered.svg" : "../../assets/file-select.svg"
                 }
 
+                ToolTip.delay: 500
+                ToolTip.visible: ((!loadingScreen.visible)&&(hovered))
+                ToolTip.text: "Open selection window to launch GRMON script."
+
                 onClicked: {
                     scriptDialog.open()
                 }
@@ -836,6 +840,10 @@ Window {
                 }
             }
 
+            ToolTip.delay: 500
+            ToolTip.visible: ((!loadingScreen.visible)&&(hovered))
+            ToolTip.text: "Scan selected reference config file and compare with target values."
+
             onClicked: {
                 scanConf()
             }
@@ -858,6 +866,10 @@ Window {
                     GradientStop { position: 1.0; color: loadingScreen.visible ? "#008080" : (refreshButton.pressed ? "#00B3B3" : (refreshButton.hovered ? "#009999" : "#008080")) }
                 }
             }
+
+            ToolTip.delay: 500
+            ToolTip.visible: ((!loadingScreen.visible)&&(hovered))
+            ToolTip.text: "Refresh all visible screens and values."
 
             onClicked: {
                 refresh()
@@ -1421,6 +1433,10 @@ Window {
                 }
             }
 
+            ToolTip.delay: 500
+            ToolTip.visible: ((!registerDataViewPlaceHolder.visible) && ((!loadingScreen.visible)&&(hovered)))
+            ToolTip.text: "Apply current data on target."
+
             onClicked: {
                 if (!registerDataViewPlaceHolder.visible) {
                     if (baseSelection.isHex){
@@ -1442,7 +1458,7 @@ Window {
             anchors.right: parent.right
             anchors.margins: 5
             anchors.verticalCenter: parent.verticalCenter
-            text: "Override Config"
+            text: "Save"
             width: 80
             height: parent.height-10
 
@@ -1456,6 +1472,10 @@ Window {
                     GradientStop { position: 1.0; color: loadingScreen.visible ? "#008080" : ((!registerDataViewPlaceHolder.visible) && registerConfigSaveButton.pressed) ? "#00B3B3" : (((!registerDataViewPlaceHolder.visible)&&registerConfigSaveButton.hovered) ? "#009999" : "#008080") }
                 }
             }
+
+            ToolTip.delay: 500
+            ToolTip.visible: ((!registerDataViewPlaceHolder.visible) && ((!loadingScreen.visible)&&(hovered)))
+            ToolTip.text: "Save current data on selected reference config file."
 
             onClicked: {
                 if (!registerDataViewPlaceHolder.visible){
