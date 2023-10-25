@@ -1322,13 +1322,13 @@ Window {
                 if (!registerDataViewPlaceHolder.visible) {
                     if (baseSelection.isHex){
                         if (text === ""){
-                            text = backend.sshGet(regAddr)
+                            text = backend.grmonGet(regAddr)
                         }
                         Promise.resolve().then(()=>{backend.bufferSet(regAddr, text)})
 
                     }else{
                         if (text === ""){
-                            text = hexToBinary(backend.sshGet(regAddr))
+                            text = hexToBinary(backend.grmonGet(regAddr))
                         }
                         Promise.resolve().then(()=>{backend.bufferSet(regAddr, binaryToHex(text))})
                     }
@@ -1478,9 +1478,9 @@ Window {
             onClicked: {
                 if (!registerDataViewPlaceHolder.visible) {
                     if (baseSelection.isHex){
-                        backend.sshSet(registerTextBox.regAddr, registerTextBox.text)
+                        backend.grmonSet(registerTextBox.regAddr, registerTextBox.text)
                     } else {
-                        backend.sshSet(registerTextBox.regAddr, binaryToHex(registerTextBox.text))
+                        backend.grmonSet(registerTextBox.regAddr, binaryToHex(registerTextBox.text))
                     }
                     Promise.resolve().then(()=>{
                         if(backend.returnScriptState()){
@@ -1839,7 +1839,7 @@ Window {
         var isReadable = backend.getReadable(fieldId);
         var isWriteable = backend.getWriteable(fieldId);
         var resetValue = backend.getResetValue(fieldId);
-        var currentValue = "0"//backend.sshGet(backend.getFieldAddr());
+        var currentValue = "0"//backend.grmonGet(backend.getFieldAddr());
 
         var itemName
         var values
@@ -1961,7 +1961,7 @@ Window {
         var isReadonly = !backend.getRegWriteable(registerId)
 
         if (isReadonly){
-            registerTextBox.targetData = backend.sshGet(registerTextBox.regAddr)
+            registerTextBox.targetData = backend.grmonGet(registerTextBox.regAddr)
             registerTextBox.text = baseSelection.isHex ? (registerTextBox.targetData) : hexToBinary(registerTextBox.targetData)
             registerTextBox.readOnly = true
             sendButton.enabled = false
@@ -1970,7 +1970,7 @@ Window {
         } else {
             var bufferData = backend.checkBuffer(registerTextBox.regAddr)
             Promise.resolve().then(()=>{
-            registerTextBox.targetData = backend.sshGet(registerTextBox.regAddr)
+            registerTextBox.targetData = backend.grmonGet(registerTextBox.regAddr)
             })
             Promise.resolve().then(()=>{
                 if (bufferData === "-1") {

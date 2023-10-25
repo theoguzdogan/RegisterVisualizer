@@ -10,7 +10,7 @@ Rectangle {
     property var configList: backend.getConfFileList()
     property var resetValue
     property var regAddr: backend.getRegAddr()
-    property var currentValue: backend.sshGet(regAddr)
+    property var currentValue: backend.grmonGet(regAddr)
     property var desiredValue: currentValue
 
     function checkCurrent(){

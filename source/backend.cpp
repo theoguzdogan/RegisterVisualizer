@@ -891,7 +891,7 @@ int Backend::checkAllConfigValues(int mode, QString checkPath) {
                 std::string regName = root.children.at(moduleIt).children.at(regIt).name;
                 std::string regValue = root.children.at(moduleIt).children.at(regIt).value;
                 std::string regTargetValue =
-                    Backend::sshGet(
+                    Backend::grmonGet(
                         QString::fromStdString(getRegAddrByPath(moduleName + '.' + regName)))
                         .toStdString();
 
@@ -986,7 +986,7 @@ int Backend::countSpaces(std::string data) {
     return counter;
 }
 
-void Backend::sshSet(QString address, QString value) {
+void Backend::grmonSet(QString address, QString value) {
     Backend::sendScriptCommand("wmem "+address+" "+value);
     Backend::scriptProcess.waitForReadyRead();
 }
@@ -1027,7 +1027,7 @@ QString Backend::fieldGet(QString address) {
     if (foundBuffer) {  // IF ADDRESS FOUND IN BUFFER, COPY FOUND LINE TO THE COMMON VARIABLE
         line = bufferLines.at(i);
     } else {  // IF NOT, SEARCH THE TARGET FILE
-        line = (address+": "+sshGet(address)).toStdString();
+        line = (address+": "+grmonGet(address)).toStdString();
     }
 
     // IF ADDRESS FOUND ON EITHER OF RESOURCES GET FIELD VALUE FROM THE RELEVANT PLACE OF REGISTER VALUE
@@ -1069,7 +1069,7 @@ QString Backend::fieldGet(QString address) {
 }
 
 QString Backend::fieldGetFromTarget(QString address) {
-    std::string line = (address + ": " + sshGet(address)).toStdString();
+    std::string line = (address + ": " + grmonGet(address)).toStdString();
 
     std::string temp = "";
     bool valueSwitch = false;
@@ -1361,7 +1361,7 @@ void Backend::bufferSet(QString address, QString value) {
         outfile.close();
 
         if (value.isEmpty()){
-            Backend::bufferSet(address, Backend::sshGet(address));
+            Backend::bufferSet(address, Backend::grmonGet(address));
         }
     }
 }
@@ -1395,8 +1395,8 @@ QString Backend::checkBuffer(QString address) {
             buffer.erase(0, (i + 2));
             infile.close();
             if(buffer == ""){
-                Backend::bufferSet(address, Backend::sshGet(address));
-                return Backend::sshGet(address);
+                Backend::bufferSet(address, Backend::grmonGet(address));
+                return Backend::grmonGet(address);
             } else {
             return QString::fromStdString(buffer);
             }
@@ -1408,7 +1408,7 @@ QString Backend::checkBuffer(QString address) {
 }
 
 
-QString Backend::sshGet(QString address) {
+QString Backend::grmonGet(QString address) {
     processOuts.clear();
     Backend::sendScriptCommand("mem "+address+" 4");
     Backend::scriptProcess.waitForReadyRead();
@@ -1467,7 +1467,7 @@ void Backend::checkAndSaveAll(QString newFileName) {
             for (int k = 0; k < fieldList.length(); k++) {
                 globalFieldId = QString::number(k);
 
-                QString value = sshGet(getFieldAddr());
+                QString value = grmonGet(getFieldAddr());
 
                 if (value != "NULL") {
                     qDebug() << moduleList[i] << regList[j] << fieldList[k] << globalModuleId
