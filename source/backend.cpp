@@ -1,8 +1,8 @@
 #include "backend.h"
-
+#include "yaml.h"
+#include "path.h"
 #include <fcntl.h>
 #include <sys/stat.h>
-
 #include <QtConcurrent/QtConcurrent>
 #include <QtCore/QDir>
 #include <QtCore/QThread>
@@ -11,10 +11,6 @@
 #include <bitset>
 #include <filesystem>
 #include <fstream>
-//#include <iostream>
-
-#include "yaml.h"
-#include "path.h"
 
 using namespace std;
 
@@ -876,99 +872,6 @@ bool Backend::getIsFieldWriteOnlyByPath(std::string path) {
     return (is_writeable && !is_readable);
 }
 
-// int Backend::checkAllConfigValues(int mode, QString check) {
-//     static std::vector<std::string> redModules;
-//     static std::vector<std::string> redRegs;
-//     static std::vector<std::string> redFields;
-
-//    if (mode == -1) {
-//        TreeNode root = parseConfig(configFilePath);
-
-//        redModules.clear();
-//        redRegs.clear();
-//        redFields.clear();
-
-//        for (int moduleIt = 0; moduleIt < root.children.size(); moduleIt++) {
-//            for (int regIt = 0; regIt < root.children.at(moduleIt).children.size(); regIt++) {
-//                for (int fieldIt = 0;
-//                     fieldIt < root.children.at(moduleIt).children.at(regIt).children.size();
-//                     ++fieldIt) {
-//                    std::string moduleName = root.children.at(moduleIt).name;
-//                    std::string regName = root.children.at(moduleIt).children.at(regIt).name;
-//                    std::string fieldName =
-//                        root.children.at(moduleIt).children.at(regIt).children.at(fieldIt).name;
-//                    std::string fieldValue =
-//                        root.children.at(moduleIt).children.at(regIt).children.at(fieldIt).value;
-//                    if (getIsFieldWriteOnlyByPath(moduleName + '.' + regName + '.' + fieldName)) {
-//                        continue;
-//                    } else if (QString::fromStdString(fieldValue) !=
-//                               Backend::sshGet(QString::fromStdString(getFieldAddrByPath(
-//                                   moduleName + '.' + regName + '.' + fieldName)))) {
-//                        redFields.push_back(moduleName + '.' + regName + '.' + fieldName);
-
-//                        bool isAvailable = false;
-//                        foreach (std::string reg, redRegs) {
-//                            if (reg == (moduleName + '.' + regName)) {
-//                                isAvailable = true;
-//                                break;
-//                            }
-//                        }
-
-//                        if (!isAvailable) {
-//                            redRegs.push_back((moduleName + '.' + regName));
-//                        }
-
-//                        isAvailable = false;
-
-//                        foreach (std::string mod, redModules) {
-//                            if (mod == moduleName) {
-//                                isAvailable = true;
-//                                break;
-//                            }
-//                        }
-
-//                        if (!isAvailable) {
-//                            redModules.push_back(moduleName);
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        return -1;
-//    }
-
-//    else if (mode == 0) {
-//        foreach (QString module, Backend::vectorToQList(redModules)) {
-//            if (module == check) {
-//                return 1;
-//            }
-//        }
-//        return 0;
-//    }
-
-//    else if (mode == 1) {
-//        foreach (QString reg, Backend::vectorToQList(redRegs)) {
-//            if (reg == check) {
-//                return 1;
-//            }
-//        }
-//        return 0;
-//    }
-
-//    else if (mode == 2) {
-//        foreach (QString field, Backend::vectorToQList(redFields)) {
-//            if (field == check) {
-//                return 1;
-//            }
-//        }
-//        return 0;
-//    }
-
-//    else {
-//        return -1;
-//    }
-//}
-
 int Backend::checkAllConfigValues(int mode, QString checkPath) {
     static std::vector<std::string> redModules;
     static std::vector<std::string> redRegs;
@@ -1088,116 +991,6 @@ void Backend::sshSet(QString address, QString value) {
     Backend::scriptProcess.waitForReadyRead();
 }
 
-//void Backend::sshSet(QString address, QString value) {
-//    std::ifstream infile;
-//    infile.open(Path::getSetupDir() + "/TargetMocks/target.yaml");
-//    std::vector<std::string> lines;
-//    std::string buffer;
-
-//    while (std::getline(infile, buffer)) {
-//        lines.push_back(buffer);
-//    }
-
-//    infile.close();
-//    int i;
-//    std::string temp;
-//    bool found = false;
-
-//    for (i = 0; i < lines.size(); i++) {
-//        std::string line = lines.at(i);
-//        temp.clear();
-//        for (int j = 0; j < line.size(); j++) {
-//            if (line.at(j) == ':') {
-//                break;
-//            }
-//            temp.push_back(line[j]);
-//        }
-
-//        if (temp == address.toStdString()) {
-//            found = true;
-//            break;
-//        }
-//    }
-
-//    if (found) {
-//        lines.at(i) = temp + ": " + value.toStdString();
-//    }
-
-//    else {
-//        lines.push_back(address.toStdString() + ": " + value.toStdString());
-//    }
-
-//    std::ofstream outfile;
-//    outfile.open(Path::getSetupDir() +
-//                 "/TargetMocks/target.yaml");
-
-//    foreach (std::string line, lines) {
-//        outfile << line << endl;
-//    }
-
-//    outfile.close();
-//}
-
-// void Backend::fieldSet(QString address, QString value) {
-//     std::ifstream infile;
-//     infile.open(Path::getSetupDir() +
-//     "/TargetMocks/target.yaml"); std::vector<std::string> lines; std::string buffer;
-
-//     while (std::getline(infile, buffer)) {
-//         lines.push_back(buffer);
-//     }
-
-//     infile.close();
-//     int i;
-//     std::string temp;
-//     bool found = false;
-
-//     for (i = 0; i < lines.size(); i++) {
-//         std::string line = lines.at(i);
-//         temp.clear();
-//         for (int j = 0; j < line.size(); j++) {
-//             if (line.at(j) == ':') {
-//                 break;
-//             }
-//             temp.push_back(line[j]);
-//         }
-
-//         if (temp == address.toStdString()) {
-//             found = true;
-//             break;
-//         }
-//     }
-
-//     std::vector<YAML::Node> nodeList = Yaml::getNodeListByKey(filePath, "Fields");
-//     std::string fieldRange =
-//         vectorToQList(Yaml::getValueList(nodeList.at(globalRegId.toInt()), "Range"))
-//             .at(globalFieldId.toInt())
-//             .toStdString();
-
-// //    int regAddrInt = std::stoi(address.toStdString(), 0, 16);
-//     int fieldRangeStart = getRangeStart(fieldRange);
-//     int fieldRangeEnd = getRangeEnd(fieldRange);
-
-//     qDebug()<<fieldRangeStart<<"\t"<<fieldRangeEnd;
-
-// //    if (found) {
-// //        lines.at(i) = temp + ": " + value.toStdString();
-// //    }
-
-// //    else {
-// //        lines.push_back(address.toStdString() + ": " + value.toStdString());
-// //    }
-
-// //    std::ofstream outfile;
-// //    outfile.open(Path::getSetupDir() +
-// "/TargetMocks/target.yaml");
-
-// //    foreach (std::string line, lines) {
-// //        outfile << line << endl;
-// //    }
-
-// //    outfile.close();
-// }
 QString Backend::fieldGet(QString address) {
     // GET BUFFER FILE LINES AND CHECK IF THE ADDRESS EXISTS
     std::ifstream bufferFile;
@@ -1630,33 +1423,6 @@ QString Backend::sshGet(QString address) {
         return "";
     }
 }
-
-//QString Backend::sshGet(QString address) {
-//    std::ifstream infile;
-//    infile.open(Path::getSetupDir() + "/TargetMocks/target.yaml");
-//    std::string buffer;
-
-//    while (std::getline(infile, buffer)) {
-//        std::string temp;
-//        int i;
-//        for (i = 0; i < buffer.size(); i++) {
-//            char letter = buffer.at(i);
-//            if (letter == ':') {
-//                break;
-//            }
-//            temp.push_back(letter);
-//        }
-//        if (temp == address.toStdString()) {
-//            buffer.erase(0, (i + 2));
-//            infile.close();
-//            return QString::fromStdString(buffer);
-//        }
-//    }
-
-//    infile.close();
-//    return "NULL";
-//}
-
 
 void Backend::checkAndSaveAll(QString newFileName) {
     // READ_FILE
@@ -2197,9 +1963,8 @@ void Backend::stopScript() {
 bool Backend::returnScriptState() {
     if (Backend::scriptProcess.state() == QProcess::Running) {
         return true;
-    } else {
-        return false;
     }
+    return false;
 }
 
 bool Backend::endsWithGrmonX(const std::string& input) {

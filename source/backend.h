@@ -4,11 +4,7 @@
 #include <QtCore/QtCore>
 #include <QProcess>
 #include <QByteArray>
-
-
 #include "treeNode.h"
-
-
 
 class Backend : public QObject {
     Q_OBJECT
@@ -93,8 +89,6 @@ class Backend : public QObject {
     Q_INVOKABLE void addToPinConfig(QString componentType, QString componentId);
     Q_INVOKABLE void removeFromPinConfig(QString componentType, QString componentId);
     Q_INVOKABLE void removeFromPinConfig(int lineNumber);
-
-
     Q_INVOKABLE bool launchScript(QString scriptName);
     Q_INVOKABLE bool startScript(const QString& scriptPath);
     Q_INVOKABLE void sendScriptCommand(const QString& command);
@@ -107,7 +101,6 @@ class Backend : public QObject {
    signals:
     void consoleReady();
     void consoleLoading();
-
 
    private:
     QList<QString> vectorToQList(std::vector<std::string> vector);
