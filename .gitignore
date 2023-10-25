@@ -2,3 +2,5 @@ build/
 .cache/
 bin/RegisterVisualizer*
 *.user
+bin/Setup/TargetMocks/grmon_imitator/python_executables
+bin/Setup/TargetMocks/grmon_imitator/python/dist
