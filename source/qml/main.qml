@@ -375,8 +375,6 @@ Window {
                 width = 430
                 height = 330
                 startScriptAnimation()
-            } else {
-                stopScriptAnimation()
             }
         }
 
@@ -458,9 +456,9 @@ Window {
 
                 Button {
                     id: scriptDialogButton
-                    text:"OK"
+                    text: "Launch"
                     palette.buttonText: "white"
-                    width: 55
+                    width: 75
                     height: 35
                     background: Rectangle {
                         radius: 10
@@ -490,88 +488,41 @@ Window {
                 }
             }
 
-            Rectangle {
-                id: movingScene
-                width: parent.width
-                height: parent.height - 100
-                color: "transparent"
-//                border.color: "black"
-                anchors.bottom: parent.bottom
+            Image {
+                id: tai_logo_scriptDialog
+                source: "../../assets/tai_logo_white.svg"
 
-                Image {
-                    id: movingSceneImage
-                    anchors.fill: parent
-                    source: "../../../assets/starryBackground.jpeg"
-                    z: -1
+                NumberAnimation on x {
+                    id: scriptXAnimation
+                    easing.type: Easing.InOutQuad
+                    from: 0
+                    to: 190
+                    duration: 1500
+                    onFinished: scriptWidthAnimation.start()
                 }
-
-                Rectangle {
-                    id: movingObject
-                    width: 50
-                    height: 50
-                    color: "transparent"
-                    property bool run: false
-
-                    Image {
-                        id: movingObjectImage
-                        anchors.fill: parent
-                        property bool sourceSwitch: true
-                        source: sourceSwitch ? "../../../assets/tai_logo_white.svg" : "../../../assets/tai_logo_outline.svg"
-                    }
-
-                    NumberAnimation on x {
-                        id: xAnimation
-                        running: false
-                        from: 0
-                        to: (movingScene.width-movingObject.width)
-                        property var speedFactor: generateRandomSpeedFactor()
-                        duration: (Math.abs(to-from))/speedFactor
-                    }
-
-                    onXChanged: {
-                        if (run) {
-                            if (x === (parent.width-width)){
-                                xAnimation.from = (parent.width-width)
-                                xAnimation.to = 0
-                                xAnimation.speedFactor = generateRandomSpeedFactor()
-                                movingObjectImage.sourceSwitch = (!movingObjectImage.sourceSwitch)
-                                Promise.resolve().then(xAnimation.restart)
-                            }   else if (x == 0) {
-                                xAnimation.from = 0
-                                xAnimation.to = (parent.width-width)
-                                xAnimation.speedFactor = generateRandomSpeedFactor()
-                                movingObjectImage.sourceSwitch = (!movingObjectImage.sourceSwitch)
-                                Promise.resolve().then(xAnimation.restart)
-                            }
-                        }
-                    }
-
-                    NumberAnimation on y {
-                        id: yAnimation
-                        running: false
-                        from: 0
-                        to: (movingScene.height-movingObject.height)
-                        property var speedFactor: generateRandomSpeedFactor()
-                        duration: (Math.abs(to-from))/speedFactor
-                    }
-
-                    onYChanged: {
-                        if (run) {
-                            if (y === (parent.height-height)){
-                                yAnimation.from = (parent.height-height)
-                                yAnimation.to = 0
-                                yAnimation.speedFactor = generateRandomSpeedFactor()
-                                movingObjectImage.sourceSwitch = (!movingObjectImage.sourceSwitch)
-                                Promise.resolve().then(yAnimation.restart)
-                            }   else if (y == 0) {
-                                yAnimation.from = 0
-                                yAnimation.to = (parent.height-height)
-                                yAnimation.speedFactor = generateRandomSpeedFactor()
-                                movingObjectImage.sourceSwitch = (!movingObjectImage.sourceSwitch)
-                                Promise.resolve().then(yAnimation.restart)
-                            }
-                        }
-                    }
+                NumberAnimation on y {
+                    id: scriptYAnimation
+                    easing.type: Easing.InOutQuad
+                    from: 0
+                    to: 157.5
+                    duration: 1500
+                    onFinished: scriptHeightAnimation.start()
+                }
+                NumberAnimation on width {
+                    id: scriptWidthAnimation
+                    easing.type: Easing.InOutQuad
+                    from: 40
+                    to: 60
+                    duration: 1500
+                    running: false
+                }
+                NumberAnimation on height {
+                    id: scriptHeightAnimation
+                    easing.type: Easing.InOutQuad
+                    from: 50
+                    to: 75
+                    duration: 1500
+                    running: false
                 }
             }
 
@@ -702,20 +653,15 @@ Window {
                 onClicked: {
                     counter++
                     if(counter==3){
-                        uselessAnimation.running = true
+                        startBouncingAnimation()
                         counter=0
                     }
                 }
             }
 
             Image {
-                id: logo_tai
-                source: "../../../assets/tai_logo_color.svg"
-                NumberAnimation on rotation {
-                    id: uselessAnimation
-                    from: 0; to: 360; running: false;
-                    loops: 1; duration: 1100;
-                }
+                id: tai_logo
+                source: "../../assets/tai_logo_color.svg"
             }
         }
 
@@ -2294,21 +2240,19 @@ Window {
         registerTextBox.text = baseSelection.isHex ? binaryToHex(registerTextBox.text) : hexToBinary(registerTextBox.text)
     }
 
-    function startScriptAnimation() {
+    function startBouncingAnimation() {
         movingObject.run = true
-        movingScene.width = 430
-        movingScene.height = 330
         xAnimation.from = 0
-        xAnimation.to = (movingScene.width-movingObject.width)
+        xAnimation.to = (rootObject.width-movingObject.width)
         yAnimation.from = 0
-        yAnimation.to = (movingScene.height-movingObject.height)
+        yAnimation.to = (rootObject.height-movingObject.height)
         Promise.resolve().then(()=>{
             xAnimation.start()
             yAnimation.start()
         })
     }
 
-    function stopScriptAnimation() {
+    function stopBouncingAnimation() {
         movingObject.run = false
         Promise.resolve().then(()=>{
            xAnimation.stop()
@@ -2323,6 +2267,14 @@ Window {
     function generateRandomSpeedFactor() {
         return parseFloat((Math.random() * 0.1 + 0.1).toFixed(2));
     }
+
+    function startScriptAnimation(){
+        tai_logo_scriptDialog.width = 40
+        tai_logo_scriptDialog.height = 50
+        scriptXAnimation.start()
+        scriptYAnimation.start()
+    }
+    function stopScriptAnimation(){}
 
     Connections {
         target: backend
