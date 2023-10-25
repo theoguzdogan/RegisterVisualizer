@@ -74,6 +74,7 @@ Window {
     }
 
     Rectangle {
+        id: background
         anchors.fill: parent
         radius: 10
         color: "#27273a"
@@ -525,12 +526,7 @@ Window {
                     running: false
                 }
             }
-
-
-
         }
-
-
     }
 
 
@@ -653,7 +649,7 @@ Window {
                 onClicked: {
                     counter++
                     if(counter==3){
-                        startBouncingAnimation()
+                        uselessAnimation.start()
                         counter=0
                     }
                 }
@@ -662,6 +658,11 @@ Window {
             Image {
                 id: tai_logo
                 source: "../../assets/tai_logo_color.svg"
+                NumberAnimation on rotation {
+                    id: uselessAnimation
+                    from: 0; to: 360; running: false;
+                    loops: 1; duration: 1100;
+                }
             }
         }
 
@@ -2260,41 +2261,12 @@ Window {
         registerTextBox.text = baseSelection.isHex ? binaryToHex(registerTextBox.text) : hexToBinary(registerTextBox.text)
     }
 
-    function startBouncingAnimation() {
-        movingObject.run = true
-        xAnimation.from = 0
-        xAnimation.to = (rootObject.width-movingObject.width)
-        yAnimation.from = 0
-        yAnimation.to = (rootObject.height-movingObject.height)
-        Promise.resolve().then(()=>{
-            xAnimation.start()
-            yAnimation.start()
-        })
-    }
-
-    function stopBouncingAnimation() {
-        movingObject.run = false
-        Promise.resolve().then(()=>{
-           xAnimation.stop()
-           yAnimation.stop()
-               Promise.resolve().then(()=>{
-                  movingObject.x = 0
-                  movingObject.y = 0
-           })
-        })
-    }
-
-    function generateRandomSpeedFactor() {
-        return parseFloat((Math.random() * 0.1 + 0.1).toFixed(2));
-    }
-
     function startScriptAnimation(){
         tai_logo_scriptDialog.width = 40
         tai_logo_scriptDialog.height = 50
         scriptXAnimation.start()
         scriptYAnimation.start()
     }
-    function stopScriptAnimation(){}
 
     Connections {
         target: backend
