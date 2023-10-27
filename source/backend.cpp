@@ -242,7 +242,6 @@ bool Backend::getRegWriteable(int regId){
 
 QString Backend::getFieldAddr() {
     std::string moduleAddr = Yaml::getValue(filePath, "Module_ADDR");
-//    QString regName = Backend::getRegisterList().at(globalRegId.toInt());
     QString regAddr =
         Backend::vectorToQList(Yaml::getValueList(filePath, "ADDR")).at(globalRegId.toInt());
     std::vector<YAML::Node> nodeList = Yaml::getNodeListByKey(filePath, "Fields");
@@ -254,7 +253,6 @@ QString Backend::getFieldAddr() {
     int moduleAddrInt = std::stoi(moduleAddr, 0, 16);
     int regAddrInt = std::stoi(regAddr.toStdString(), 0, 16);
     int fieldRangeStart = getRangeStart(fieldRange);
-//    int fieldRangeEnd = getRangeEnd(fieldRange);
     int sum = moduleAddrInt + regAddrInt + fieldRangeStart;
 
     std::stringstream temp;
@@ -514,7 +512,6 @@ QString Backend::getValueFromConfigFile() {
             }
         }
     }
-
     return "-1";
 }
 
@@ -1143,48 +1140,11 @@ void Backend::fieldSet(QString address, QString value) {
 
     if (foundBuffer) {  // IF ADDRESS FOUND IN BUFFER, COPY FOUND LINE TO THE COMMON VARIABLE
         line = bufferLines.at(i);
-    } else {  // IF NOT SEARCH THE TARGET FILE !!!WILL BE REPLACED WITH GRMON SCRIPTS OR VIA OR NOT
-              // VIA SSH!!!
-        std::ifstream targetFile;
-        targetFile.open(Path::getSetupDir() + "/TargetMocks/target.yaml");
-        std::vector<std::string> targetLines;
-        std::string buffer;
-
-        while (std::getline(targetFile, buffer)) {
-            targetLines.push_back(buffer);
-        }
-
-        targetFile.close();
-        int i;
-        std::string temp;
-        bool foundTarget = false;
-
-        for (i = 0; i < targetLines.size(); i++) {
-            std::string line = targetLines.at(i);
-            temp.clear();
-            for (int j = 0; j < line.size(); j++) {
-                if (line.at(j) == ':') {
-                    break;
-                }
-                temp.push_back(line[j]);
-            }
-
-            if (temp == address.toStdString()) {
-                foundTarget = true;
-                break;
-            }
-        }
-
-        if (foundTarget) {  // IF ADDRESS FOUND ON TARGET, COPY FOUND LINE TO THE COMMON VARIABLE
-            line = targetLines.at(i);
-        } else {  // IF NOT FOUND ON BOTH RESOURCES, LOG AN ERROR AND EXIT FUNCTION.
-            qDebug() << "REGISTER ADDRESS NOT FOUND."<< address;
-            return;
-        }
+    } else {  // IF NOT GET FROM THE TARGET
+        line = (address + ": " + grmonGet(address)).toStdString();
     }
 
-    // IF ADDRESS FOUND ON EITHER OF RESOURCES APPLY FIELD VALUE ON THE RELEVANT PLACE OF REGISTER
-    // VALUE
+    // IF ADDRESS FOUND ON EITHER OF RESOURCES APPLY FIELD VALUE ON THE RELEVANT PLACE OF REGISTER VALUE
     temp.clear();
     bool valueSwitch = false;
     for (int j = 0; j < line.size(); j++) {
