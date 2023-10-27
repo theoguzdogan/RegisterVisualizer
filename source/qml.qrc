@@ -28,5 +28,7 @@
         <file>assets/registerTab_pressed.svg</file>
         <file>assets/tai_logo_outline.svg</file>
         <file>assets/starryBackground.jpeg</file>
+        <file>assets/tai_logo_white_down.svg</file>
+        <file>assets/tai_logo_white_up.svg</file>
     </qresource>
 </RCC>

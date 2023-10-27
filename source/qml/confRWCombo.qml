@@ -169,15 +169,16 @@ Rectangle {
             ToolTip.text: "Apply the reset value on the data word below (Not applied directly on target)."
 
             onClicked: {
-//                desiredValue = parseInt(resetValue, 16)
-//                backend.fieldSet(regAddr, backend.returnHex(desiredValue))
+                var resetValue = backend.getResetValue(backend.returnGlobalFieldId())
+                desiredValue = parseInt(resetValue, 16)
+                backend.fieldSet(regAddr, resetValue)
+                Promise.resolve().then(updateRegisterTextBox)
 
-//                checkConfCurrent()
-
+                checkConfCurrent()
                 createModuleButtons()
                 createRegisterButtons(backend.returnGlobalModuleId())
                 createFieldButtons(backend.returnGlobalRegId())
-//                valueComboBox.currentIndex = desiredValue
+                valueComboBox.currentIndex = desiredValue
             }
         }
 

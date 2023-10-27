@@ -19,8 +19,6 @@ Window {
     minimumWidth: 1122 + scriptSelectionText.width
     minimumHeight: 650
     visible: true
-//    color: "#27273a"
-//    opacity: 0.5
 
     color: "transparent"
 
@@ -344,7 +342,6 @@ Window {
                 width: 55
                 height: 35
                 background: Rectangle {
-//                        color: "#4891d9"
                     radius: 10
                     gradient: Gradient {
                         GradientStop { position: 0.0; color: (scriptDialogButton.pressed ? "#BDDBBD" : (scriptDialogButton.hovered ? "#D3E0E0" : "#BBE6E6")) }
@@ -405,7 +402,7 @@ Window {
                 anchors.top: scriptSelectRectangle.top
                 anchors.left: scriptSelectionRow.left
                 anchors.topMargin: 15
-                color: "#ffffff"
+                color: "#FFFFFF"
                 text: "Select GRMON script:"
                 font.pointSize: 10
                 z:1
@@ -415,9 +412,6 @@ Window {
                 id: scriptSelectionRow
                 anchors.top: scriptSelectionCaption.bottom
                 anchors.topMargin: 15
-//                anchors.left: scriptSelectRectangle.left
-//                anchors.right: scriptSelectRectangle.right
-//                anchors.margins: 15
                 anchors.horizontalCenter: parent.horizontalCenter
                 height: 35
                 spacing: 10
@@ -489,41 +483,145 @@ Window {
                 }
             }
 
-            Image {
+            Item {
                 id: tai_logo_scriptDialog
-                source: "../../assets/tai_logo_white.svg"
+                width: 40
+                height: 50
+                x: (parent.width-width)/2
+                y: 160
+                z:2
 
-                NumberAnimation on x {
-                    id: scriptXAnimation
-                    easing.type: Easing.InOutQuad
-                    from: 0
-                    to: 190
-                    duration: 1500
-                    onFinished: scriptWidthAnimation.start()
-                }
-                NumberAnimation on y {
-                    id: scriptYAnimation
-                    easing.type: Easing.InOutQuad
-                    from: 0
-                    to: 157.5
-                    duration: 1500
-                    onFinished: scriptHeightAnimation.start()
-                }
-                NumberAnimation on width {
+                NumberAnimation on width{
                     id: scriptWidthAnimation
-                    easing.type: Easing.InOutQuad
                     from: 40
-                    to: 60
-                    duration: 1500
-                    running: false
-                }
-                NumberAnimation on height {
-                    id: scriptHeightAnimation
+                    to: 80
                     easing.type: Easing.InOutQuad
-                    from: 50
-                    to: 75
                     duration: 1500
-                    running: false
+                }
+
+                NumberAnimation on height{
+                    id: scriptHeightAnimation
+                    from: 50
+                    to: 100
+                    easing.type: Easing.InOutQuad
+                    duration: 1500
+                }
+
+                ShaderEffect {
+                    id: shaderUp
+
+                    anchors.fill: parent
+
+                    property variant source: Image {
+                        source: "../../assets/tai_logo_white_up.svg"
+                        sourceSize.width: 80
+                    }
+                    property color color: "#FFFFFF"
+
+                    fragmentShader: "
+                        uniform lowp sampler2D source;
+                        uniform highp vec4 color;
+                        uniform lowp float qt_Opacity;
+                        varying highp vec2 qt_TexCoord0;
+
+                        const float EDGE_THRESHOLD = 1.0; // Adjust this antialiasing threshold as needed
+
+                        void main() {
+                            // Apply bilinear filtering when sampling the texture.
+                            lowp vec4 tex = texture2D(source, qt_TexCoord0);
+
+                            // Check if the sampled texel is fully transparent (alpha = 0).
+                            if (tex.a == 0.0) {
+                                discard; // Discard transparent texels to make the background empty.
+                            }
+
+                            // Check if the texel is close to the edge (using a threshold).
+                            if (tex.a < EDGE_THRESHOLD) {
+                                // Apply antialiasing by blending with the background.
+                                lowp vec4 background = vec4(0.0, 0.0, 0.0, 0.0); // You can adjust the background color.
+                                gl_FragColor = mix(background, vec4(color.r, color.g, color.b, tex.a), tex.a / EDGE_THRESHOLD) * qt_Opacity;
+                            } else {
+                                // Otherwise, calculate the color as before with opacity.
+                                gl_FragColor = vec4(color.r, color.g, color.b, tex.a) * qt_Opacity;
+                            }
+                        }
+                    "
+                }
+
+                SequentialAnimation
+                {
+                    running: true
+                    loops: Animation.Infinite
+                    ColorAnimation {
+                        target: shaderUp
+                        property: "color"
+                        to: "#FFFFFF"
+                        duration: 500
+                    }
+                    ColorAnimation {
+                        target: shaderUp
+                        property: "color"
+                        to: "#294099"
+                        duration: 1200
+                    }
+                }
+
+                ShaderEffect {
+                    id: shaderDown
+
+                    anchors.fill: parent
+
+                    property variant source: Image {
+                      source: "../../assets/tai_logo_white_down.svg"
+                      sourceSize.width: 80
+                    }
+                    property color color: "#FFFFFF"
+
+                    fragmentShader: "
+                      uniform lowp sampler2D source;
+                      uniform highp vec4 color;
+                      uniform lowp float qt_Opacity;
+                      varying highp vec2 qt_TexCoord0;
+
+                      const float EDGE_THRESHOLD = 1.0; // Adjust this antialiasing threshold as needed
+
+                      void main() {
+                          // Apply bilinear filtering when sampling the texture.
+                          lowp vec4 tex = texture2D(source, qt_TexCoord0);
+
+                          // Check if the sampled texel is fully transparent (alpha = 0).
+                          if (tex.a == 0.0) {
+                              discard; // Discard transparent texels to make the background empty.
+                          }
+
+                          // Check if the texel is close to the edge (using a threshold).
+                          if (tex.a < EDGE_THRESHOLD) {
+                              // Apply antialiasing by blending with the background.
+                              lowp vec4 background = vec4(0.0, 0.0, 0.0, 0.0); // You can adjust the background color.
+                              gl_FragColor = mix(background, vec4(color.r, color.g, color.b, tex.a), tex.a / EDGE_THRESHOLD) * qt_Opacity;
+                          } else {
+                              // Otherwise, calculate the color as before with opacity.
+                              gl_FragColor = vec4(color.r, color.g, color.b, tex.a) * qt_Opacity;
+                          }
+                      }
+                    "
+                }
+
+                SequentialAnimation {
+                    running: true
+                    loops: Animation.Infinite
+                    ColorAnimation {
+                        target: shaderDown
+                        property: "color"
+                        to: "#FFFFFF"
+                        duration: 500
+                    }
+                    ColorAnimation {
+                        target: shaderDown
+                        property: "color"
+                        to: "#ed3435"
+                        duration: 1200
+                    }
                 }
             }
         }
@@ -721,6 +819,7 @@ Window {
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.margins: 10
                 text: parent.scriptName
+                font.bold: true
                 color: "#FFFFFF"
             }
 
@@ -733,8 +832,6 @@ Window {
                 width: parent.height
                 background: Rectangle {
                     radius: 10
-//                    color: "transparent"
-//                    border.color: "#8f8fa8"
                     gradient: Gradient {
                         GradientStop { position: 0.0; color: loadingScreen.visible ? "#BBE6E6" : (scriptSelectButton.pressed ? "#BDDBBD" : (scriptSelectButton.hovered ? "#D3E0E0" : "#BBE6E6")) }
                         GradientStop { position: 1.0; color: loadingScreen.visible ? "#008080" : (scriptSelectButton.pressed ? "#00B3B3" : (scriptSelectButton.hovered ? "#009999" : "#008080")) }
@@ -876,30 +973,6 @@ Window {
                 refresh()
             }
         }
-
-//        Button {
-//            id: saveAllButton
-//            text: "Save All"
-//            width: 90
-//            height: 30
-//            anchors.right: parent.right
-//            anchors.verticalCenter: parent.verticalCenter
-
-//            palette.buttonText: "white"
-
-//            background: Rectangle {
-//                radius: 10
-//                gradient: Gradient {
-//                    GradientStop { position: 0.0; color: loadingScreen.visible ? "#BBE6E6" : (saveAllButton.pressed ? "#BDDBBD" : (saveAllButton.hovered ? "#D3E0E0" : "#BBE6E6")) }
-//                    GradientStop { position: 1.0; color: loadingScreen.visible ? "#008080" : (saveAllButton.pressed ? "#00B3B3" : (saveAllButton.hovered ? "#009999" : "#008080")) }
-//                }
-
-//            }
-
-//            onClicked: {
-//                configFileDialog.open()
-//            }
-//        }
     }
 
     Row {
@@ -1060,7 +1133,6 @@ Window {
             height: 40
             width: (parent.width-12)/3
             radius: 10
-//            border.color: "white"
             color: "transparent"
             anchors.left: parent.left
             anchors.leftMargin: 6
@@ -1107,7 +1179,6 @@ Window {
             height: 40
             width: (parent.width-12)/3
             radius: 10
-//            border.color: "white"
             color: "transparent"
             anchors.horizontalCenter: parent.horizontalCenter
             Text {
@@ -1327,8 +1398,6 @@ Window {
 
             }
 
-
-
             Button {
                 id: hexRadioButton
                 property bool selected : parent.isHex
@@ -1411,8 +1480,6 @@ Window {
                 }
             }
         }
-
-
 
         Button {
             id: sendButton
@@ -1504,7 +1571,6 @@ Window {
         visible: !fieldPlaceHolder.visible
     }
 
-
     ScrollView {
         id: fieldScrollView
         anchors.left: tabContainer.left
@@ -1522,8 +1588,6 @@ Window {
             spacing: 2
         }
     }
-
-
 
     Rectangle {
         id: registerPlaceHolder
@@ -1596,7 +1660,6 @@ Window {
         anchors.rightMargin: 6
         anchors.leftMargin: 6
         anchors.bottomMargin: 6
-//        width: (rootObject.width / 2) - 30
         clip: true
 
         Column {
@@ -1669,7 +1732,7 @@ Window {
             }
 
             Component.onCompleted: {
-                if(backend.returnScriptState()){
+                if (backend.returnScriptState()){
                    createPinButtons()
                 }
             }
@@ -1717,12 +1780,6 @@ Window {
                     id: pinButtonRow1
                 }
             }
-
-//            MouseArea {
-//                anchors.fill: parent
-//                cursorShape: drag.active ? Qt.ClosedHandCursor : Qt.ArrowCursor
-//            }
-
         }
 
         Rectangle {
@@ -2264,8 +2321,8 @@ Window {
     function startScriptAnimation(){
         tai_logo_scriptDialog.width = 40
         tai_logo_scriptDialog.height = 50
-        scriptXAnimation.start()
-        scriptYAnimation.start()
+        scriptWidthAnimation.start()
+        scriptHeightAnimation.start()
     }
 
     Connections {
