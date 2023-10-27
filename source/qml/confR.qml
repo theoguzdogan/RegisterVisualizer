@@ -74,6 +74,6 @@ Rectangle {
         wrapMode: Text.Wrap
         width: parent.width - 10
     }
-}
 
+}
 

@@ -489,41 +489,147 @@ Window {
                 }
             }
 
-            Image {
+            Item {
                 id: tai_logo_scriptDialog
-                source: "../../assets/tai_logo_white.svg"
+                width: 40
+                height: 50
+                x: (parent.width-width)/2
+                y: 160
+                z:2
 
-                NumberAnimation on x {
-                    id: scriptXAnimation
-                    easing.type: Easing.InOutQuad
-                    from: 0
-                    to: 190
-                    duration: 1500
-                    onFinished: scriptWidthAnimation.start()
-                }
-                NumberAnimation on y {
-                    id: scriptYAnimation
-                    easing.type: Easing.InOutQuad
-                    from: 0
-                    to: 157.5
-                    duration: 1500
-                    onFinished: scriptHeightAnimation.start()
-                }
-                NumberAnimation on width {
+                NumberAnimation on width{
                     id: scriptWidthAnimation
-                    easing.type: Easing.InOutQuad
                     from: 40
-                    to: 60
-                    duration: 1500
-                    running: false
-                }
-                NumberAnimation on height {
-                    id: scriptHeightAnimation
+                    to: 80
                     easing.type: Easing.InOutQuad
-                    from: 50
-                    to: 75
                     duration: 1500
-                    running: false
+                }
+
+                NumberAnimation on height{
+                    id: scriptHeightAnimation
+                    from: 50
+                    to: 100
+                    easing.type: Easing.InOutQuad
+                    duration: 1500
+                }
+
+                ShaderEffect {
+                    id: shaderUp
+
+                    anchors.fill: parent
+
+                    property variant source: Image {
+                        source: "../../assets/tai_logo_white_up.svg"
+                        sourceSize.width: 80
+                    }
+                    property color color: "#FFFFFF"
+
+                    fragmentShader: "
+                        uniform lowp sampler2D source;
+                        uniform highp vec4 color;
+                        uniform lowp float qt_Opacity;
+                        varying highp vec2 qt_TexCoord0;
+
+                        const float EDGE_THRESHOLD = 1.0; // Adjust this antialiasing threshold as needed
+
+                        void main() {
+                            // Apply bilinear filtering when sampling the texture.
+                            lowp vec4 tex = texture2D(source, qt_TexCoord0);
+
+                            // Check if the sampled texel is fully transparent (alpha = 0).
+                            if (tex.a == 0.0) {
+                                discard; // Discard transparent texels to make the background empty.
+                            }
+
+                            // Check if the texel is close to the edge (using a threshold).
+                            if (tex.a < EDGE_THRESHOLD) {
+                                // Apply antialiasing by blending with the background.
+                                lowp vec4 background = vec4(0.0, 0.0, 0.0, 0.0); // You can adjust the background color.
+                                gl_FragColor = mix(background, vec4(color.r, color.g, color.b, tex.a), tex.a / EDGE_THRESHOLD) * qt_Opacity;
+                            } else {
+                                // Otherwise, calculate the color as before with opacity.
+                                gl_FragColor = vec4(color.r, color.g, color.b, tex.a) * qt_Opacity;
+                            }
+                        }
+
+                    "
+                }
+
+                SequentialAnimation
+                {
+                    running: true
+                    loops: Animation.Infinite
+                    ColorAnimation {
+                        target: shaderUp
+                        property: "color"
+                        to: "#FFFFFF"
+                        duration: 500
+                    }
+                    ColorAnimation {
+                        target: shaderUp
+                        property: "color"
+                        to: "#294099"
+                        duration: 1200
+                    }
+                }
+
+                ShaderEffect {
+                    id: shaderDown
+
+                    anchors.fill: parent
+
+                    property variant source: Image {
+                      source: "../../assets/tai_logo_white_down.svg"
+                      sourceSize.width: 80
+                    }
+                    property color color: "#FFFFFF"
+
+                    fragmentShader: "
+                      uniform lowp sampler2D source;
+                      uniform highp vec4 color;
+                      uniform lowp float qt_Opacity;
+                      varying highp vec2 qt_TexCoord0;
+
+                      const float EDGE_THRESHOLD = 1.0; // Adjust this antialiasing threshold as needed
+
+                      void main() {
+                          // Apply bilinear filtering when sampling the texture.
+                          lowp vec4 tex = texture2D(source, qt_TexCoord0);
+
+                          // Check if the sampled texel is fully transparent (alpha = 0).
+                          if (tex.a == 0.0) {
+                              discard; // Discard transparent texels to make the background empty.
+                          }
+
+                          // Check if the texel is close to the edge (using a threshold).
+                          if (tex.a < EDGE_THRESHOLD) {
+                              // Apply antialiasing by blending with the background.
+                              lowp vec4 background = vec4(0.0, 0.0, 0.0, 0.0); // You can adjust the background color.
+                              gl_FragColor = mix(background, vec4(color.r, color.g, color.b, tex.a), tex.a / EDGE_THRESHOLD) * qt_Opacity;
+                          } else {
+                              // Otherwise, calculate the color as before with opacity.
+                              gl_FragColor = vec4(color.r, color.g, color.b, tex.a) * qt_Opacity;
+                          }
+                      }
+
+                    "
+                }
+
+                SequentialAnimation {
+                    running: true
+                    loops: Animation.Infinite
+                    ColorAnimation {
+                        target: shaderDown
+                        property: "color"
+                        to: "#FFFFFF"
+                        duration: 500
+                    }
+                    ColorAnimation {
+                        target: shaderDown
+                        property: "color"
+                        to: "#ed3435"
+                        duration: 1200
+                    }
                 }
             }
         }
@@ -2264,8 +2370,8 @@ Window {
     function startScriptAnimation(){
         tai_logo_scriptDialog.width = 40
         tai_logo_scriptDialog.height = 50
-        scriptXAnimation.start()
-        scriptYAnimation.start()
+        scriptWidthAnimation.start()
+        scriptHeightAnimation.start()
     }
 
     Connections {
