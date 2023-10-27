@@ -11,7 +11,7 @@ Rectangle {
     property var resetValue
     property var regAddr: backend.getRegAddr()
     property var desiredValue
-    property var lastSent
+    property string lastSent
 
     function checkConf() {
         var configValue = backend.getValueFromConfigFile()
@@ -58,7 +58,7 @@ Rectangle {
             Text {
                 id: lastSentText
                 anchors.right: parent.right
-                text: "Last Sent¹: "
+                text: lastSent.length > 0 ? "Last Sent¹: " + lastSent : "Last Sent¹: "
                 horizontalAlignment: Text.AlignRight
                 verticalAlignment: Text.AlignVCenter
                 font.pointSize: 10
@@ -138,17 +138,17 @@ Rectangle {
             ToolTip.text: "Apply the reset value on the data word below (Not applied directly on target)."
 
             onClicked: {
-//                desiredValue = resetValue
-//                valueTextField.text = desiredValue
-//                lastSent = desiredValue
-//                backend.fieldSet(addr, desiredValue);
+                desiredValue = backend.getResetValue(backend.returnGlobalFieldId())
+                backend.fieldSet(regAddr, desiredValue)
+                Promise.resolve().then(updateRegisterTextBox)
+                lastSent = desiredValue
+                lastSentText.text = "Last Sent¹: " + lastSent
 
-//                checkConf()
-
+                checkConf()
                 createModuleButtons()
                 createRegisterButtons(backend.returnGlobalModuleId())
                 createFieldButtons(backend.returnGlobalRegId())
-//                lastSentText.text = "Last Sent¹: " + lastSent
+                valueTextField.text = desiredValue
             }
         }
     }

@@ -149,17 +149,18 @@ Rectangle {
             ToolTip.text: "Apply the reset value on the data word below (Not applied directly on target)."
 
             onClicked: {
-//                desiredValue = parseInt(resetValue, 16)
-//                backend.fieldSet(regAddr, backend.returnHex(desiredValue))
-//                lastSent = desiredValue
+                var resetValue = backend.getResetValue(backend.returnGlobalFieldId())
+                desiredValue = parseInt(resetValue, 16)
+                backend.fieldSet(regAddr, resetValue)
+                Promise.resolve().then(updateRegisterTextBox)
+                lastSent = desiredValue
+                lastSentText.text = "Last Sent¹: " + backend.returnHex(lastSent)
 
-//                checkConf()
-
-//                lastSentText.text = "Last Sent¹: " + backend.returnHex(lastSent)
+                checkConf()
                 createModuleButtons()
                 createRegisterButtons(backend.returnGlobalModuleId())
                 createFieldButtons(backend.returnGlobalRegId())
-//                valueComboBox.currentIndex = desiredValue
+                valueComboBox.currentIndex = desiredValue
             }
         }
     }

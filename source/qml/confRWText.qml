@@ -152,15 +152,15 @@ Rectangle {
             ToolTip.text: "Apply the reset value on the data word below (Not applied directly on target)."
 
             onClicked: {
-//                desiredValue = resetValue
-//                backend.fieldSet(regAddr, desiredValue)
+                desiredValue = backend.getResetValue(backend.returnGlobalFieldId())
+                backend.fieldSet(regAddr, desiredValue)
+                Promise.resolve().then(updateRegisterTextBox)
 
-//                checkConfCurrent()
-
+                checkConfCurrent()
                 createModuleButtons()
                 createRegisterButtons(backend.returnGlobalModuleId())
                 createFieldButtons(backend.returnGlobalRegId())
-//                valueTextField.text = currentValue
+                valueTextField.text = desiredValue
             }
         }
     }
