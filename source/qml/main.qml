@@ -19,8 +19,6 @@ Window {
     minimumWidth: 1122 + scriptSelectionText.width
     minimumHeight: 650
     visible: true
-//    color: "#27273a"
-//    opacity: 0.5
 
     color: "transparent"
 
@@ -344,7 +342,6 @@ Window {
                 width: 55
                 height: 35
                 background: Rectangle {
-//                        color: "#4891d9"
                     radius: 10
                     gradient: Gradient {
                         GradientStop { position: 0.0; color: (scriptDialogButton.pressed ? "#BDDBBD" : (scriptDialogButton.hovered ? "#D3E0E0" : "#BBE6E6")) }
@@ -405,7 +402,7 @@ Window {
                 anchors.top: scriptSelectRectangle.top
                 anchors.left: scriptSelectionRow.left
                 anchors.topMargin: 15
-                color: "#ffffff"
+                color: "#FFFFFF"
                 text: "Select GRMON script:"
                 font.pointSize: 10
                 z:1
@@ -415,9 +412,6 @@ Window {
                 id: scriptSelectionRow
                 anchors.top: scriptSelectionCaption.bottom
                 anchors.topMargin: 15
-//                anchors.left: scriptSelectRectangle.left
-//                anchors.right: scriptSelectRectangle.right
-//                anchors.margins: 15
                 anchors.horizontalCenter: parent.horizontalCenter
                 height: 35
                 spacing: 10
@@ -551,7 +545,6 @@ Window {
                                 gl_FragColor = vec4(color.r, color.g, color.b, tex.a) * qt_Opacity;
                             }
                         }
-
                     "
                 }
 
@@ -611,7 +604,6 @@ Window {
                               gl_FragColor = vec4(color.r, color.g, color.b, tex.a) * qt_Opacity;
                           }
                       }
-
                     "
                 }
 
@@ -827,6 +819,7 @@ Window {
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.margins: 10
                 text: parent.scriptName
+                font.bold: true
                 color: "#FFFFFF"
             }
 
@@ -839,8 +832,6 @@ Window {
                 width: parent.height
                 background: Rectangle {
                     radius: 10
-//                    color: "transparent"
-//                    border.color: "#8f8fa8"
                     gradient: Gradient {
                         GradientStop { position: 0.0; color: loadingScreen.visible ? "#BBE6E6" : (scriptSelectButton.pressed ? "#BDDBBD" : (scriptSelectButton.hovered ? "#D3E0E0" : "#BBE6E6")) }
                         GradientStop { position: 1.0; color: loadingScreen.visible ? "#008080" : (scriptSelectButton.pressed ? "#00B3B3" : (scriptSelectButton.hovered ? "#009999" : "#008080")) }
@@ -982,30 +973,6 @@ Window {
                 refresh()
             }
         }
-
-//        Button {
-//            id: saveAllButton
-//            text: "Save All"
-//            width: 90
-//            height: 30
-//            anchors.right: parent.right
-//            anchors.verticalCenter: parent.verticalCenter
-
-//            palette.buttonText: "white"
-
-//            background: Rectangle {
-//                radius: 10
-//                gradient: Gradient {
-//                    GradientStop { position: 0.0; color: loadingScreen.visible ? "#BBE6E6" : (saveAllButton.pressed ? "#BDDBBD" : (saveAllButton.hovered ? "#D3E0E0" : "#BBE6E6")) }
-//                    GradientStop { position: 1.0; color: loadingScreen.visible ? "#008080" : (saveAllButton.pressed ? "#00B3B3" : (saveAllButton.hovered ? "#009999" : "#008080")) }
-//                }
-
-//            }
-
-//            onClicked: {
-//                configFileDialog.open()
-//            }
-//        }
     }
 
     Row {
@@ -1166,7 +1133,6 @@ Window {
             height: 40
             width: (parent.width-12)/3
             radius: 10
-//            border.color: "white"
             color: "transparent"
             anchors.left: parent.left
             anchors.leftMargin: 6
@@ -1213,7 +1179,6 @@ Window {
             height: 40
             width: (parent.width-12)/3
             radius: 10
-//            border.color: "white"
             color: "transparent"
             anchors.horizontalCenter: parent.horizontalCenter
             Text {
@@ -1433,8 +1398,6 @@ Window {
 
             }
 
-
-
             Button {
                 id: hexRadioButton
                 property bool selected : parent.isHex
@@ -1517,8 +1480,6 @@ Window {
                 }
             }
         }
-
-
 
         Button {
             id: sendButton
@@ -1610,7 +1571,6 @@ Window {
         visible: !fieldPlaceHolder.visible
     }
 
-
     ScrollView {
         id: fieldScrollView
         anchors.left: tabContainer.left
@@ -1628,8 +1588,6 @@ Window {
             spacing: 2
         }
     }
-
-
 
     Rectangle {
         id: registerPlaceHolder
@@ -1702,7 +1660,6 @@ Window {
         anchors.rightMargin: 6
         anchors.leftMargin: 6
         anchors.bottomMargin: 6
-//        width: (rootObject.width / 2) - 30
         clip: true
 
         Column {
@@ -1775,7 +1732,7 @@ Window {
             }
 
             Component.onCompleted: {
-                if(backend.returnScriptState()){
+                if (backend.returnScriptState()){
                    createPinButtons()
                 }
             }
@@ -1823,12 +1780,6 @@ Window {
                     id: pinButtonRow1
                 }
             }
-
-//            MouseArea {
-//                anchors.fill: parent
-//                cursorShape: drag.active ? Qt.ClosedHandCursor : Qt.ArrowCursor
-//            }
-
         }
 
         Rectangle {
