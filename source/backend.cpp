@@ -1,15 +1,10 @@
 #include "backend.h"
 #include "yaml.h"
 #include "path.h"
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <QtConcurrent/QtConcurrent>
 #include <QtCore/QDir>
-#include <QtCore/QThread>
 #include <QSysInfo>
 #include <QFileInfo>
 #include <bitset>
-#include <filesystem>
 #include <fstream>
 
 using namespace std;

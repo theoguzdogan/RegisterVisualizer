@@ -13,7 +13,6 @@ Rectangle {
     property var resetValue
     property var regAddr: backend.getRegAddr()
     property var desiredValue
-    property var lastSent
 
     function checkConf() {
         var configValue = backend.getValueFromConfigFile()
@@ -64,26 +63,13 @@ Rectangle {
         anchors.margins: 6
         spacing: 6
 
-        Column {
+        Text {
             anchors.verticalCenter: parent.verticalCenter
-
-            Text {
-                id: lastSentText
-                anchors.right: parent.right
-                text: "Last Sent¹: "
-                horizontalAlignment: Text.AlignRight
-                verticalAlignment: Text.AlignVCenter
-                font.pointSize: 10
-                color: "#FFFFFF"
-            }
-            Text {
-                anchors.right: parent.right
-                text: "Reset Value: " + resetValue
-                horizontalAlignment: Text.AlignRight
-                verticalAlignment: Text.AlignVCenter
-                font.pointSize: 10
-                color: "#FFFFFF"
-            }
+            text: "Reset Value: " + resetValue
+            horizontalAlignment: Text.AlignRight
+            verticalAlignment: Text.AlignVCenter
+            font.pointSize: 10
+            color: "#FFFFFF"
         }
 
         Button {
@@ -116,8 +102,6 @@ Rectangle {
                 else {
                     backend.fieldSet(regAddr, backend.returnHex(desiredValue))
                     Promise.resolve().then(updateRegisterTextBox)
-                    lastSent = desiredValue
-                    lastSentText.text = "Last Sent¹: " + backend.returnHex(lastSent)
                 }
 
                 checkConf()
@@ -153,8 +137,6 @@ Rectangle {
                 desiredValue = parseInt(resetValue, 16)
                 backend.fieldSet(regAddr, resetValue)
                 Promise.resolve().then(updateRegisterTextBox)
-                lastSent = desiredValue
-                lastSentText.text = "Last Sent¹: " + backend.returnHex(lastSent)
 
                 checkConf()
                 createModuleButtons()
@@ -234,14 +216,12 @@ Rectangle {
         anchors.left: parent.left
         anchors.topMargin: 4
         anchors.leftMargin: 10
-        text: "This is a write-only field!\nLast Sent¹: The last value sent by the UI, real value may differ."
+        text: "This is a write-only field! The last value sent by the UI, may differ from the real value."
         color: "#FF0000"
         font.pointSize: 10
         wrapMode: Text.Wrap
         width: parent.width - 10
     }
-
-
 }
 
 
