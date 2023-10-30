@@ -11,7 +11,6 @@ Rectangle {
     property var resetValue
     property var regAddr: backend.getRegAddr()
     property var desiredValue
-    property string lastSent
 
     function checkConf() {
         var configValue = backend.getValueFromConfigFile()
@@ -52,26 +51,13 @@ Rectangle {
         anchors.margins: 6
         spacing: 6
 
-        Column {
+        Text {
             anchors.verticalCenter: parent.verticalCenter
-
-            Text {
-                id: lastSentText
-                anchors.right: parent.right
-                text: lastSent.length > 0 ? "Last Sent¹: " + lastSent : "Last Sent¹: "
-                horizontalAlignment: Text.AlignRight
-                verticalAlignment: Text.AlignVCenter
-                font.pointSize: 10
-                color: "#FFFFFF"
-            }
-            Text {
-                anchors.right: parent.right
-                text: "Reset Value: " + resetValue
-                horizontalAlignment: Text.AlignRight
-                verticalAlignment: Text.AlignVCenter
-                font.pointSize: 10
-                color: "#FFFFFF"
-            }
+            text: "Reset Value: " + resetValue
+            horizontalAlignment: Text.AlignRight
+            verticalAlignment: Text.AlignVCenter
+            font.pointSize: 10
+            color: "#FFFFFF"
         }
 
         Button {
@@ -102,9 +88,7 @@ Rectangle {
                     invalidValueDialog.open()
                 }
                 else {
-                    lastSent = desiredValue
                     backend.fieldSet(regAddr, desiredValue);
-                    lastSentText.text = "Last Sent¹: " + lastSent
                     Promise.resolve().then(updateRegisterTextBox)
                 }
 
@@ -141,8 +125,6 @@ Rectangle {
                 desiredValue = backend.getResetValue(backend.returnGlobalFieldId())
                 backend.fieldSet(regAddr, desiredValue)
                 Promise.resolve().then(updateRegisterTextBox)
-                lastSent = desiredValue
-                lastSentText.text = "Last Sent¹: " + lastSent
 
                 checkConf()
                 createModuleButtons()
@@ -222,12 +204,10 @@ Rectangle {
         anchors.left: parent.left
         anchors.topMargin: 4
         anchors.leftMargin: 10
-        text: "This is a write-only field!\nLast Sent¹: The last value sent by the UI, real value may differ."
+        text: "This is a write-only field! The last value sent by the UI, may differ from the real value."
         color: "#FF0000"
         font.pointSize: 10
         wrapMode: Text.Wrap
         width: parent.width - 10
     }
-
-
 }
