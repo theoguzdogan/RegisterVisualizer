@@ -1696,7 +1696,7 @@ Window {
         id: pinBoard
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.bottom: consoleMonitor.top
+        anchors.bottom: consoleMonitorSeperator.top
         anchors.margins: 4
         height: 73
         color: "transparent"
@@ -1833,14 +1833,53 @@ Window {
     }
 
     Rectangle {
+        id: consoleMonitorSeperator
+        height: 10
+        color: "#FFFFFF"
+        width: parent.width
+        y: 730
+
+        onYChanged: {
+            if(y<=520){
+                y = 520
+            } else if (y>=rootObject.height - 100) {
+                y = rootObject.height - 120
+            }
+        }
+
+        MouseArea {
+            anchors.fill: parent
+//            cursorShape: Qt.SizeVerCursor //Does not work
+
+            DragHandler {
+                property int initialY: {initialY = consoleMonitorSeperator.y}
+                cursorShape: Qt.SizeVerCursor
+
+                onTranslationChanged: {
+                    consoleMonitorSeperator.y = initialY+translation.y
+                    Promise.resolve().then(scrollToBottom)
+                }
+
+                onActiveChanged: {
+                    if(!active){
+                        initialY = consoleMonitorSeperator.y
+                        console.log(initialY)
+                    }
+                }
+            }
+        }
+    }
+
+    Rectangle {
         id: consoleMonitor
-        height: 100
+        anchors.top: consoleMonitorSeperator.bottom
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.margins: 4
         radius: 10
         color: "transparent"
+
         Rectangle {
             anchors.fill: parent
             color: "#4d4d63"
