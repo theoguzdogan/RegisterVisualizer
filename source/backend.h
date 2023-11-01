@@ -101,6 +101,7 @@ class Backend : public QObject {
    signals:
     void consoleReady();
     void consoleLoading();
+    void updateConsoleMonitor(QString data);
 
    private:
     QList<QString> vectorToQList(std::vector<std::string> vector);

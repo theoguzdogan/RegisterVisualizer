@@ -15,7 +15,7 @@ Window {
     modality: Qt.ApplicationModal
 
     width: 1250
-    height: 750
+    height: 850
     minimumWidth: 1122 + scriptSelectionText.width
     minimumHeight: 650
     visible: true
@@ -1696,10 +1696,9 @@ Window {
         id: pinBoard
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.bottom: parent.bottom
+        anchors.bottom: consoleMonitor.top
         anchors.margins: 4
         height: 73
-        width: parent.width
         color: "transparent"
 
         Rectangle {
@@ -1829,6 +1828,93 @@ Window {
                 wrapMode: Text.Wrap
 
 
+            }
+        }
+    }
+
+    Rectangle {
+        id: consoleMonitor
+        height: 100
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.margins: 4
+        radius: 10
+        color: "transparent"
+        Rectangle {
+            anchors.fill: parent
+            color: "#4d4d63"
+            border.color: "#8f8fa8"
+            border.width: 1
+            radius: 10
+            opacity: 0.6
+        }
+        Rectangle {
+            anchors.fill: parent
+            color: "#000000"
+            anchors.margins: 8
+            border.color: "#8f8fa8"
+//            ScrollView {
+//                Text {
+//                    anchors.fill: parent
+//                    anchors.margins: 4
+//                    color: "#FFFFFF"
+//                    text: "Hello Console"
+
+//                }
+//            }
+            Flickable {
+                id: consoleMonitorFlickable
+                flickableDirection: Flickable.VerticalFlick
+                anchors.fill: parent
+                anchors.margins: 5
+                boundsMovement: Flickable.StopAtBounds
+                flickDeceleration: 10000
+                maximumFlickVelocity: 500
+                enabled: !loadingScreen.visible
+
+
+                contentHeight: consoleMonitorTextArea.contentHeight
+
+                TextArea.flickable: TextArea {
+                    id: consoleMonitorTextArea
+                    textFormat: Qt.PlainText //was Qt.RichText
+                    color: "#FFFFFF"
+                    onTextChanged: Promise.resolve().then(scrollToBottom)
+
+                    wrapMode: TextArea.Wrap
+//                    focus: true
+//                    selectByMouse: true
+                    readOnly: true
+                    selectByMouse: true
+                    persistentSelection: true
+                    // Different styles have different padding and background
+                    // decorations, but since this editor is almost taking up the
+                    // entire window, we don't need them.
+                    leftPadding: 6
+                    rightPadding: 6
+                    topPadding: 0
+                    bottomPadding: 0
+                    background: null
+
+
+                    MouseArea {
+                        acceptedButtons: Qt.RightButton
+                        anchors.fill: parent
+                        onClicked: contextMenu.open()
+                    }
+
+//                    function getLastLine() {
+//                        var textLines = consoleMonitorTextArea.text.split("\n");
+//                        if (textLines.length > 0) {
+//                            return textLines[textLines.length - 1];
+//                        } else {
+//                            return "";
+//                        }
+//                    }
+                }
+
+                ScrollBar.vertical: ScrollBar {}
             }
         }
     }
@@ -2329,6 +2415,12 @@ Window {
         Promise.resolve().then(Qt.quit)
     }
 
+    function scrollToBottom() {
+        if (consoleMonitorFlickable.contentHeight > consoleMonitorFlickable.height) {
+            consoleMonitorFlickable.contentY = consoleMonitorFlickable.contentHeight - consoleMonitorFlickable.height;
+        }
+    }
+
     Connections {
         target: backend
         function onConsoleReady(){
@@ -2338,6 +2430,10 @@ Window {
         function onConsoleLoading(){
             console.log("loading start")
             loadingScreen.visible = true;
+        }
+        function onUpdateConsoleMonitor(data){
+            consoleMonitorTextArea.text+=data
+//            Promise.resolve().then(()=>{console.log(consoleMonitorTextArea.getLastLine())})
         }
     }
 }

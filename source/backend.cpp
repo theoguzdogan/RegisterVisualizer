@@ -1846,6 +1846,7 @@ void Backend::processOutput() {
     if(data!="\n"){
 //        qDebug()<<qPrintable(data);
         processOuts += qPrintable(data);
+        emit updateConsoleMonitor(processOuts);
         if(Backend::isStartUp){
             if(Backend::endsWithGrmonX(data.toStdString())){
                 emit Backend::consoleReady();
@@ -1900,7 +1901,7 @@ void Backend::sendScriptCommand(const QString &command) {
         Backend::scriptProcess.write(command.toUtf8());
         Backend::scriptProcess.write("\n");  // You might need to add a newline character
         Backend::scriptProcess.waitForBytesWritten();  // Wait for the data to be written to the process
-        qDebug()<<"sent command:"<<command;
+        emit Backend::updateConsoleMonitor(qPrintable(command+'\n'));
     }
 }
 
