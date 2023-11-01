@@ -227,11 +227,7 @@ Window {
                 font.pointSize: 15
                 color: "#FFFFFF"
             }
-            onClicked: {
-                backend.emptyBuffer()
-                backend.stopScript()
-                Promise.resolve().then(Qt.quit)
-            }
+            onClicked: closeApplication()
         }
     }
 
@@ -364,7 +360,7 @@ Window {
 
         onRejected: {
             if(!backend.returnScriptState()){
-                scriptDialogWarning.open()
+                closeApplication()
             }
         }
 
@@ -470,6 +466,8 @@ Window {
                                 scriptDialog.close()
                             }else{
                                 console.log("Failed to start the script.")
+                                scriptDialogWarning.open()
+                                scriptDialog.close()
                             }
                         }
                         Promise.resolve().then(()=>{
@@ -2323,6 +2321,12 @@ Window {
         tai_logo_scriptDialog.height = 50
         scriptWidthAnimation.start()
         scriptHeightAnimation.start()
+    }
+
+    function closeApplication(){
+        backend.emptyBuffer()
+        backend.stopScript()
+        Promise.resolve().then(Qt.quit)
     }
 
     Connections {
