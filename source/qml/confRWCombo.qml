@@ -200,7 +200,7 @@ Rectangle {
             text: "Current value is same as saved on selected configuration."
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
-            color: "#00FF00"
+            color: "#FCE130"
             font.pointSize: 10
             wrapMode: Text.Wrap
         }
@@ -211,7 +211,7 @@ Rectangle {
             text: "Warning: value in the selected configuration is: "
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
-            color: "#FF0000"
+            color: "#FC8C14"
             font.pointSize: 10
             wrapMode: Text.Wrap
         }
