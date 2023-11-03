@@ -2034,6 +2034,8 @@ Window {
                     ToolTip.delay: 500
                     ToolTip.text: "Save as log file"
                     ToolTip.visible: (!loadingScreen.visible)&&(hovered)
+
+                    onClicked: backend.saveConsoleLog(consoleMonitorTextArea.text)
                 }
             }
         }

@@ -1930,3 +1930,21 @@ bool Backend::endsWithGrmonX(const std::string& input) {
 }
 
 void Backend::setStartUp(bool value) {Backend::isStartUp = value;}
+
+void Backend::saveConsoleLog(QString content) {
+    auto now = std::chrono::system_clock::now();
+    auto timestamp = std::chrono::system_clock::to_time_t(now);
+    std::string timestampStr = std::to_string(timestamp);
+
+    std::string filePath = Path::getSetupDir() + "../Logs/consoleLog_" + timestampStr + ".txt";
+
+    std::ofstream file(filePath);
+
+    if (file.is_open()) {
+        file << content.toStdString();
+        file.close();
+        qDebug() << "File saved successfully: " << QString::fromStdString(filePath);
+    } else {
+        qDebug() << "Error: Unable to open the file for writing.";
+    }
+}
