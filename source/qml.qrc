@@ -36,5 +36,9 @@
         <file>assets/clear.svg</file>
         <file>assets/save.svg</file>
         <file>assets/terminal_monitor_buttonSet_background.svg</file>
+        <file>assets/new_config_background.svg</file>
+        <file>assets/new_config_background_clicked.svg</file>
+        <file>assets/new_config_background_hovered.svg</file>
+        <file>assets/new_config.svg</file>
     </qresource>
 </RCC>

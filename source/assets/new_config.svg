@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg width="64px" height="64px" viewBox="-2 -2 24.00 24.00" version="1.1" fill="#000000" transform="rotate(0)matrix(1, 0, 0, 1, 0, 0)" xmlns="http://www.w3.org/2000/svg">
+  <g id="SVGRepo_bgCarrier" stroke-width="0"/>
+  <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="#CCCCCC" stroke-width="0.12"/>
+  <g id="SVGRepo_iconCarrier">
+    <title>file_arrow_up [#ffffff]</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Page-1" stroke-width="0.0002" fill="none" fill-rule="evenodd">
+      <g id="Dribbble-Light-Preview" transform="translate(-340.000000, -1839.000000)" fill="#ffffff">
+        <g id="icons" transform="translate(56.000000, 160.000000)">
+          <path d="M 304 1685.492 L 304 1697.001 C 304 1698.105 303.105 1699.001 302 1699.001 L 285 1699.001 C 284.448 1699.001 284 1698.553 284 1698.001 C 284 1697.449 284.448 1697.001 285 1697.001 L 301 1697.001 C 301.552 1697.001 302 1696.553 302 1696.001 L 302 1687.001 L 298 1687.001 C 296.896 1687.001 296 1686.105 296 1685.001 L 296 1681.001 L 287 1681.001 C 286.448 1681.001 286 1681.449 286 1682.001 L 286 1698.001 C 286 1698.553 285.552 1699.001 285 1699.001 C 284.448 1699.001 284 1698.553 284 1698.001 L 284 1681.001 C 284 1679.896 284.896 1679.001 286 1679.001 L 297.582 1679.001 C 297.849 1679.001 298.106 1679.108 298.294 1679.299 L 303.712 1684.79 C 303.897 1684.977 304 1685.229 304 1685.492" id="file_arrow_up-[#ffffff]" style="fill-rule: nonzero;"/>
+        </g>
+      </g>
+    </g>
+  </g>
+  <text style="fill: rgb(255, 255, 255); font-family: Arial, sans-serif; font-size: 18.8px; white-space: pre;" x="4.25" y="17.008">+</text>
+</svg>

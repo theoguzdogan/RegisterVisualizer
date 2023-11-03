@@ -1379,66 +1379,36 @@ QString Backend::grmonGet(QString address) {
     }
 }
 
-void Backend::checkAndSaveAll(QString newFileName) {
-    // READ_FILE
-    std::ifstream infile;
-    infile.open(Path::getSetupDir() + "/config.yaml");
-    std::vector<std::string> lines;
-    std::string buffer;
+void Backend::createNewConfigFile(QString newFileName) {
+    std::ifstream sourceFile(Path::getSetupDir() + "config.yaml");
 
-    while (getline(infile, buffer)) {
-        lines.push_back(buffer);
+    if (!sourceFile) {
+        qDebug() << "Error: Unable to open the source file.";
+        return;
     }
 
-    infile.close();
-    // WRITE_FILE
-    std::ofstream outfile;
-    outfile.open(Path::getSetupDir() + "/SavedConfigs/" +
-                 newFileName.toStdString());
-    bool is_firstLine = true;
+            // Open the destination file for writing
+    std::string filePath = Path::getSetupDir() + "SavedConfigs/" + newFileName.toStdString() + ".yaml";
+    std::ofstream destinationFile(filePath);
 
-    foreach (std::string line, lines) {
-        outfile << line << endl;
+    if (!destinationFile) {
+        qDebug() << "Error: Unable to open the destination file.";
+        return;
     }
 
-    outfile.close();
-
-    int tempModuleId = globalModuleId;
-    QString tempRegId = globalRegId;
-    QString tempFieldId = globalFieldId;
-    std::string tempConfigFilePath = configFilePath;
-
-    configFilePath = Path::getSetupDir() + "/SavedConfigs/" +
-                     newFileName.toStdString();
-
-    QList<QString> moduleList = Backend::getFileList();
-    for (int i = 0; i < moduleList.length(); i++) {
-        globalModuleId = i;
-        Backend::setFilePath(globalModuleId);
-        QList<QString> regList = Backend::getRegisterList();
-        for (int j = 0; j < regList.length(); j++) {
-            globalRegId = QString::number(j);
-            QList<QString> fieldList = Backend::getFieldList(globalRegId);
-            for (int k = 0; k < fieldList.length(); k++) {
-                globalFieldId = QString::number(k);
-
-                QString value = grmonGet(getFieldAddr());
-
-                if (value != "NULL") {
-                    qDebug() << moduleList[i] << regList[j] << fieldList[k] << globalModuleId
-                             << globalRegId << globalFieldId << getFieldAddr() << value;
-                    saveConfig(value, 16);
-                }
-            }
-        }
+            // Copy the content from the source file to the destination file
+    char buffer[4096];
+    while (!sourceFile.eof()) {
+        sourceFile.read(buffer, sizeof(buffer));
+        std::streamsize bytesRead = sourceFile.gcount();
+        destinationFile.write(buffer, bytesRead);
     }
 
-    globalModuleId = tempModuleId;
-    globalRegId = tempRegId;
-    globalFieldId = tempFieldId;
-    configFilePath = tempConfigFilePath;
+            // Close both files
+    sourceFile.close();
+    destinationFile.close();
 
-    Backend::setDefaultConfigId(newFileName);
+    qDebug() << "File copied successfully!";
 }
 
 std::string Backend::deleteNonAlphaNumerical(std::string data) {

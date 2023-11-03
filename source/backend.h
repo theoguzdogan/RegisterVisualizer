@@ -82,7 +82,7 @@ class Backend : public QObject {
     Q_INVOKABLE void setGlobalFieldId(int fieldId);
     Q_INVOKABLE int checkAllConfigValues(int mode, QString checkPath = "");
     Q_INVOKABLE int returnConfigState();
-    Q_INVOKABLE void checkAndSaveAll(QString newFileName);
+    Q_INVOKABLE void createNewConfigFile(QString newFileName);
     Q_INVOKABLE int returnPinConfig(QString initSignal);
     Q_INVOKABLE QList<QString> returnPinConfig(int index);
     Q_INVOKABLE int findPinConfig(QString componentType, QString componentId);

@@ -16,7 +16,7 @@ Window {
 
     width: 1250
     height: 850
-    minimumWidth: 1122 + scriptSelectionText.width
+    minimumWidth: 1157 + scriptSelectionText.width
     minimumHeight: 650
     visible: true
 
@@ -628,7 +628,7 @@ Window {
 
     AbstractDialog {
             id: configFileDialog
-            width: 300
+            width: 310
             height: 100
 
             Rectangle {
@@ -661,9 +661,10 @@ Window {
                         placeholderText: "Config Name"
 
                         onTextChanged: {
+                            var compare = text.replace(".yaml", "") + ".yaml"
                             var confFileList = backend.getConfFileList()
                             for (var i=0; i<confFileList.length; i++){
-                                if (text === confFileList[i]){
+                                if (compare === confFileList[i]){
                                     configFileDialog.height = 130
                                     newConfigWarning.visible = true
                                     break
@@ -678,22 +679,29 @@ Window {
 
                     Button {
                         id: configFileDialogButton
-                        text:"OK"
-                        width: 55
+                        text: "Create"
+                        palette.buttonText: "white"
+                        width: 75
                         height: 35
                         background: Rectangle {
-                            color: "#4891d9"
                             radius: 10
+                            gradient: Gradient {
+                                GradientStop { position: 0.0; color: (scriptDialogButton.pressed ? "#BDDBBD" : (scriptDialogButton.hovered ? "#D3E0E0" : "#BBE6E6")) }
+                                GradientStop { position: 1.0; color: (scriptDialogButton.pressed ? "#00B3B3" : (scriptDialogButton.hovered ? "#009999" : "#008080")) }
+                            }
                         }
 
                         onClicked: {
-                            backend.checkAndSaveAll(newConfigTextField.text)
+                            newConfigTextField.text = newConfigTextField.text.replace(".yaml","")
+
+                            backend.createNewConfigFile(newConfigTextField.text)
                             configContent.clear()
                             var configList = backend.getConfFileList()
                             for (var it in configList){
                                 configContent.append({text:configList[it]})
                             }
-                            backend.setDefaultConfigId(newConfigTextField.text)
+
+                            backend.setDefaultConfigId(newConfigTextField.text+".yaml")
                             configComboBox.currentIndex = backend.returnGlobalConfigId()
                             newConfigTextField.clear()
                             configFileDialog.close()
@@ -837,7 +845,6 @@ Window {
                 }
 
                 Image {
-                    id: scriptButtonImage
                     anchors.fill: parent
                     anchors.margins: 7
                     source: ((!loadingScreen.visible) && parent.hovered) ? "../../assets/file-select_hovered.svg" : "../../assets/file-select.svg"
@@ -857,7 +864,7 @@ Window {
             id: referenceConfHeaderContainer
             anchors.right: configComboBox.horizontalCenter
             anchors.verticalCenter: parent.verticalCenter
-            width : referenceConfHeader.width + configComboBox.width/2 + 20
+            width : referenceConfHeader.width + configComboBox.width/2 + newConfigButton.width + 18
             height : configComboBox.height
             color: "transparent"
             Rectangle {
@@ -878,6 +885,30 @@ Window {
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.left: parent.left
                 anchors.leftMargin: 10
+            }
+
+            Button {
+                id: newConfigButton
+                anchors.left: referenceConfHeader.right
+                anchors.leftMargin: 8
+                height: parent.height
+                width: parent.height
+                background: Image {
+                    anchors.fill: parent
+                    source: loadingScreen.visible ? "../../assets/new_config_background.svg" : (newConfigButton.pressed ? "../../assets/new_config_background_clicked.svg" : (newConfigButton.hovered ? "../../assets/new_config_background_hovered.svg" : "../../assets/new_config_background.svg"))
+                }
+
+                Image {
+                    anchors.fill: parent
+                    anchors.margins: 7
+                    source: "../../assets/new_config.svg"
+                }
+
+                ToolTip.delay: 500
+                ToolTip.visible: ((!loadingScreen.visible)&&(hovered))
+                ToolTip.text: "Create new reference configuration."
+
+                onClicked: configFileDialog.open()
             }
         }
 
@@ -1855,12 +1886,13 @@ Window {
 
         MouseArea {
             anchors.fill: parent
-//            cursorShape: Qt.SizeVerCursor //Does not work
+            cursorShape: Qt.SizeVerCursor //Does not work
+            z:3
 
             DragHandler {
                 id: consoleMonitorSeperatorDragHandler
                 property int initialY: {initialY = consoleMonitorSeperator.y}
-                cursorShape: Qt.SizeVerCursor
+//                cursorShape: Qt.SizeVerCursor
 
                 onTranslationChanged: {
                     consoleMonitorSeperator.y = initialY+translation.y
