@@ -97,10 +97,12 @@ class Backend : public QObject {
     Q_INVOKABLE bool returnScriptState();
     Q_INVOKABLE bool endsWithGrmonX(const std::string& input);
     Q_INVOKABLE void setStartUp(bool value);
+    Q_INVOKABLE void saveConsoleLog(QString content);
 
    signals:
     void consoleReady();
     void consoleLoading();
+    void updateConsoleMonitor(QString data);
 
    private:
     QList<QString> vectorToQList(std::vector<std::string> vector);

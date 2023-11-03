@@ -30,5 +30,11 @@
         <file>assets/starryBackground.jpeg</file>
         <file>assets/tai_logo_white_down.svg</file>
         <file>assets/tai_logo_white_up.svg</file>
+        <file>assets/seperator_pattern.svg</file>
+        <file>assets/arrow-down.svg</file>
+        <file>assets/arrow-up.svg</file>
+        <file>assets/clear.svg</file>
+        <file>assets/save.svg</file>
+        <file>assets/terminal_monitor_buttonSet_background.svg</file>
     </qresource>
 </RCC>

@@ -1846,6 +1846,7 @@ void Backend::processOutput() {
     if(data!="\n"){
 //        qDebug()<<qPrintable(data);
         processOuts += qPrintable(data);
+        emit updateConsoleMonitor(processOuts);
         if(Backend::isStartUp){
             if(Backend::endsWithGrmonX(data.toStdString())){
                 emit Backend::consoleReady();
@@ -1900,7 +1901,7 @@ void Backend::sendScriptCommand(const QString &command) {
         Backend::scriptProcess.write(command.toUtf8());
         Backend::scriptProcess.write("\n");  // You might need to add a newline character
         Backend::scriptProcess.waitForBytesWritten();  // Wait for the data to be written to the process
-        qDebug()<<"sent command:"<<command;
+        emit Backend::updateConsoleMonitor(qPrintable(command+'\n'));
     }
 }
 
@@ -1929,3 +1930,21 @@ bool Backend::endsWithGrmonX(const std::string& input) {
 }
 
 void Backend::setStartUp(bool value) {Backend::isStartUp = value;}
+
+void Backend::saveConsoleLog(QString content) {
+    auto now = std::chrono::system_clock::now();
+    auto timestamp = std::chrono::system_clock::to_time_t(now);
+    std::string timestampStr = std::to_string(timestamp);
+
+    std::string filePath = Path::getSetupDir() + "../Logs/consoleLog_" + timestampStr + ".txt";
+
+    std::ofstream file(filePath);
+
+    if (file.is_open()) {
+        file << content.toStdString();
+        file.close();
+        qDebug() << "File saved successfully: " << QString::fromStdString(filePath);
+    } else {
+        qDebug() << "Error: Unable to open the file for writing.";
+    }
+}

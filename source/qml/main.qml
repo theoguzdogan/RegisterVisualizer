@@ -15,7 +15,7 @@ Window {
     modality: Qt.ApplicationModal
 
     width: 1250
-    height: 750
+    height: 850
     minimumWidth: 1122 + scriptSelectionText.width
     minimumHeight: 650
     visible: true
@@ -1696,10 +1696,9 @@ Window {
         id: pinBoard
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.bottom: parent.bottom
+        anchors.bottom: consoleMonitorSeperator.top
         anchors.margins: 4
         height: 73
-        width: parent.width
         color: "transparent"
 
         Rectangle {
@@ -1829,6 +1828,215 @@ Window {
                 wrapMode: Text.Wrap
 
 
+            }
+        }
+    }
+
+    Rectangle {
+        id: consoleMonitorSeperator
+        height: 10
+        color: "transparent"
+        width: parent.width
+        y: 730
+
+        Image {
+            source: "../../assets/seperator_pattern.svg"
+            anchors.fill:parent
+            fillMode: Image.Tile
+        }
+
+        onYChanged: {
+            if(y<=520){
+                y = 520
+            } else if (y>=rootObject.height - 100) {
+                y = rootObject.height - 120
+            }
+        }
+
+        MouseArea {
+            anchors.fill: parent
+//            cursorShape: Qt.SizeVerCursor //Does not work
+
+            DragHandler {
+                id: consoleMonitorSeperatorDragHandler
+                property int initialY: {initialY = consoleMonitorSeperator.y}
+                cursorShape: Qt.SizeVerCursor
+
+                onTranslationChanged: {
+                    consoleMonitorSeperator.y = initialY+translation.y
+                    Promise.resolve().then(scrollToBottom)
+                }
+
+                onActiveChanged: {
+                    if(!active){
+                        initialY = consoleMonitorSeperator.y
+                    }
+                }
+            }
+        }
+    }
+
+    onHeightChanged: {
+        if(consoleMonitorSeperator.y > (rootObject.height-120)){
+            consoleMonitorSeperator.y = (rootObject.height-120)
+            consoleMonitorSeperatorDragHandler.initialY = consoleMonitorSeperator.y
+        }
+        scrollToBottom()
+    }
+
+    Rectangle {
+        id: consoleMonitor
+        anchors.top: consoleMonitorSeperator.bottom
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.margins: 4
+        radius: 10
+        color: "transparent"
+
+//        onHeightChanged: console.log(height)
+
+        Rectangle {
+            anchors.fill: parent
+            color: "#4d4d63"
+            border.color: "#8f8fa8"
+            border.width: 1
+            radius: 10
+            opacity: 0.6
+        }
+        Rectangle {
+            anchors.fill: parent
+            color: "#000000"
+            anchors.margins: 8
+            border.color: "#8f8fa8"
+//            ScrollView {
+//                Text {
+//                    anchors.fill: parent
+//                    anchors.margins: 4
+//                    color: "#FFFFFF"
+//                    text: "Hello Console"
+
+//                }
+//            }
+            Flickable {
+                id: consoleMonitorFlickable
+                flickableDirection: Flickable.VerticalFlick
+                anchors.fill: parent
+                anchors.margins: 5
+                boundsMovement: Flickable.StopAtBounds
+                flickDeceleration: 10000
+                maximumFlickVelocity: consoleMonitor.height*5
+                enabled: !loadingScreen.visible
+
+
+                contentHeight: consoleMonitorTextArea.contentHeight
+
+                TextArea.flickable: TextArea {
+                    id: consoleMonitorTextArea
+                    textFormat: Qt.PlainText //was Qt.RichText
+                    color: "#FFFFFF"
+                    onTextChanged: Promise.resolve().then(scrollToBottom)
+                    clip: true
+                    wrapMode: TextArea.Wrap
+                    readOnly: true
+                    selectByMouse: true
+                    persistentSelection: true
+                    leftPadding: 6
+                    rightPadding: 6
+                    topPadding: 0
+                    bottomPadding: 0
+                    background: null
+
+
+                    MouseArea {
+                        acceptedButtons: Qt.RightButton
+                        anchors.fill: parent
+                        onClicked: contextMenu.open()
+                    }
+                }
+
+                ScrollBar.vertical: ScrollBar {}
+            }
+        }
+
+        Rectangle {
+            height: 35
+            width: 105
+            anchors.top: parent.top
+            anchors.right: parent.right
+            anchors.rightMargin: 8
+            anchors.topMargin: 8
+            color: "transparent"
+
+            Image {
+                anchors.fill: parent
+                source: "../../assets/terminal_monitor_buttonSet_background.svg"
+                opacity: 0.5
+            }
+
+            Row {
+                anchors.centerIn: parent
+                spacing: 3
+                Button {
+                    height: 20
+                    width: 20
+                    background: Image {
+                        anchors.fill: parent
+                        source: "../../assets/clear.svg"
+                        opacity: (!loadingScreen.visible)&&(parent.hovered)? (parent.pressed? 1 : 0.8) : 0.5
+                    }
+                    ToolTip.delay: 500
+                    ToolTip.text: "Clear"
+                    ToolTip.visible: (!loadingScreen.visible)&&(hovered)
+
+                    onClicked: consoleMonitorTextArea.clear()
+                }
+                Button {
+                    height: 20
+                    width: 20
+                    background: Image {
+                        anchors.fill: parent
+                        source: "../../assets/arrow-up.svg"
+                        opacity: (!loadingScreen.visible)&&(parent.hovered)? (parent.pressed? 1 : 0.8) : 0.5
+                    }
+                    ToolTip.delay: 500
+                    ToolTip.text: "Scroll top"
+                    ToolTip.visible: (!loadingScreen.visible)&&(hovered)
+
+                    onClicked: {
+                        if (consoleMonitorFlickable.contentHeight > consoleMonitorFlickable.height) {
+                            consoleMonitorFlickable.contentY = 0;
+                        }
+                    }
+                }
+                Button {
+                    height: 20
+                    width: 20
+                    background: Image {
+                        anchors.fill: parent
+                        source: "../../assets/arrow-down.svg"
+                        opacity: (!loadingScreen.visible)&&(parent.hovered)? (parent.pressed? 1 : 0.8) : 0.5
+                    }
+                    ToolTip.delay: 500
+                    ToolTip.text: "Scroll bottom"
+                    ToolTip.visible: (!loadingScreen.visible)&&(hovered)
+
+                    onClicked: scrollToBottom()
+                }
+                Button {
+                    height: 20
+                    width: 20
+                    background: Image {
+                        anchors.fill: parent
+                        source: "../../assets/save.svg"
+                        opacity: (!loadingScreen.visible)&&(parent.hovered)? (parent.pressed? 1 : 0.8) : 0.5
+                    }
+                    ToolTip.delay: 500
+                    ToolTip.text: "Save as log file"
+                    ToolTip.visible: (!loadingScreen.visible)&&(hovered)
+
+                    onClicked: backend.saveConsoleLog(consoleMonitorTextArea.text)
+                }
             }
         }
     }
@@ -2329,6 +2537,12 @@ Window {
         Promise.resolve().then(Qt.quit)
     }
 
+    function scrollToBottom() {
+        if (consoleMonitorFlickable.contentHeight > consoleMonitorFlickable.height) {
+            consoleMonitorFlickable.contentY = consoleMonitorFlickable.contentHeight - consoleMonitorFlickable.height;
+        }
+    }
+
     Connections {
         target: backend
         function onConsoleReady(){
@@ -2338,6 +2552,10 @@ Window {
         function onConsoleLoading(){
             console.log("loading start")
             loadingScreen.visible = true;
+        }
+        function onUpdateConsoleMonitor(data){
+            consoleMonitorTextArea.text+=data
+//            Promise.resolve().then(()=>{console.log(consoleMonitorTextArea.getLastLine())})
         }
     }
 }
