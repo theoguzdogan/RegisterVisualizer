@@ -1835,9 +1835,15 @@ Window {
     Rectangle {
         id: consoleMonitorSeperator
         height: 10
-        color: "#FFFFFF"
+        color: "transparent"
         width: parent.width
         y: 730
+
+        Image {
+            source: "../../assets/seperator_pattern.svg"
+            anchors.fill:parent
+            fillMode: Image.Tile
+        }
 
         onYChanged: {
             if(y<=520){
@@ -1852,6 +1858,7 @@ Window {
 //            cursorShape: Qt.SizeVerCursor //Does not work
 
             DragHandler {
+                id: consoleMonitorSeperatorDragHandler
                 property int initialY: {initialY = consoleMonitorSeperator.y}
                 cursorShape: Qt.SizeVerCursor
 
@@ -1863,11 +1870,18 @@ Window {
                 onActiveChanged: {
                     if(!active){
                         initialY = consoleMonitorSeperator.y
-                        console.log(initialY)
                     }
                 }
             }
         }
+    }
+
+    onHeightChanged: {
+        if(consoleMonitorSeperator.y > (rootObject.height-120)){
+            consoleMonitorSeperator.y = (rootObject.height-120)
+            consoleMonitorSeperatorDragHandler.initialY = consoleMonitorSeperator.y
+        }
+        scrollToBottom()
     }
 
     Rectangle {
@@ -1879,6 +1893,8 @@ Window {
         anchors.margins: 4
         radius: 10
         color: "transparent"
+
+//        onHeightChanged: console.log(height)
 
         Rectangle {
             anchors.fill: parent
@@ -1909,7 +1925,7 @@ Window {
                 anchors.margins: 5
                 boundsMovement: Flickable.StopAtBounds
                 flickDeceleration: 10000
-                maximumFlickVelocity: 500
+                maximumFlickVelocity: consoleMonitor.height*5
                 enabled: !loadingScreen.visible
 
 
@@ -1920,16 +1936,11 @@ Window {
                     textFormat: Qt.PlainText //was Qt.RichText
                     color: "#FFFFFF"
                     onTextChanged: Promise.resolve().then(scrollToBottom)
-
+                    clip: true
                     wrapMode: TextArea.Wrap
-//                    focus: true
-//                    selectByMouse: true
                     readOnly: true
                     selectByMouse: true
                     persistentSelection: true
-                    // Different styles have different padding and background
-                    // decorations, but since this editor is almost taking up the
-                    // entire window, we don't need them.
                     leftPadding: 6
                     rightPadding: 6
                     topPadding: 0
@@ -1942,18 +1953,88 @@ Window {
                         anchors.fill: parent
                         onClicked: contextMenu.open()
                     }
-
-//                    function getLastLine() {
-//                        var textLines = consoleMonitorTextArea.text.split("\n");
-//                        if (textLines.length > 0) {
-//                            return textLines[textLines.length - 1];
-//                        } else {
-//                            return "";
-//                        }
-//                    }
                 }
 
                 ScrollBar.vertical: ScrollBar {}
+            }
+        }
+
+        Rectangle {
+            height: 35
+            width: 105
+            anchors.top: parent.top
+            anchors.right: parent.right
+            anchors.rightMargin: 8
+            anchors.topMargin: 8
+            color: "transparent"
+
+            Image {
+                anchors.fill: parent
+                source: "../../assets/terminal_monitor_buttonSet_background.svg"
+                opacity: 0.5
+            }
+
+            Row {
+                anchors.centerIn: parent
+                spacing: 3
+                Button {
+                    height: 20
+                    width: 20
+                    background: Image {
+                        anchors.fill: parent
+                        source: "../../assets/clear.svg"
+                        opacity: (!loadingScreen.visible)&&(parent.hovered)? (parent.pressed? 1 : 0.8) : 0.5
+                    }
+                    ToolTip.delay: 500
+                    ToolTip.text: "Clear"
+                    ToolTip.visible: (!loadingScreen.visible)&&(hovered)
+
+                    onClicked: consoleMonitorTextArea.clear()
+                }
+                Button {
+                    height: 20
+                    width: 20
+                    background: Image {
+                        anchors.fill: parent
+                        source: "../../assets/arrow-up.svg"
+                        opacity: (!loadingScreen.visible)&&(parent.hovered)? (parent.pressed? 1 : 0.8) : 0.5
+                    }
+                    ToolTip.delay: 500
+                    ToolTip.text: "Scroll top"
+                    ToolTip.visible: (!loadingScreen.visible)&&(hovered)
+
+                    onClicked: {
+                        if (consoleMonitorFlickable.contentHeight > consoleMonitorFlickable.height) {
+                            consoleMonitorFlickable.contentY = 0;
+                        }
+                    }
+                }
+                Button {
+                    height: 20
+                    width: 20
+                    background: Image {
+                        anchors.fill: parent
+                        source: "../../assets/arrow-down.svg"
+                        opacity: (!loadingScreen.visible)&&(parent.hovered)? (parent.pressed? 1 : 0.8) : 0.5
+                    }
+                    ToolTip.delay: 500
+                    ToolTip.text: "Scroll bottom"
+                    ToolTip.visible: (!loadingScreen.visible)&&(hovered)
+
+                    onClicked: scrollToBottom()
+                }
+                Button {
+                    height: 20
+                    width: 20
+                    background: Image {
+                        anchors.fill: parent
+                        source: "../../assets/save.svg"
+                        opacity: (!loadingScreen.visible)&&(parent.hovered)? (parent.pressed? 1 : 0.8) : 0.5
+                    }
+                    ToolTip.delay: 500
+                    ToolTip.text: "Save as log file"
+                    ToolTip.visible: (!loadingScreen.visible)&&(hovered)
+                }
             }
         }
     }
