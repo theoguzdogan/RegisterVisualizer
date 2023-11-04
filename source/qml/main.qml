@@ -316,9 +316,27 @@ Window {
         id: scriptDialogWarning
         width: 350
         height: 100
+
         Rectangle {
             anchors.fill: parent
             color: "#27273a"
+
+            Item {
+                id: scriptDialogWarningKeyboardHandler
+                anchors.fill: parent
+                focus: true
+                onFocusChanged: {if(focus!=true){focus = true}}
+                Keys.onPressed: {
+                    if ((event.key === Qt.Key_Return) || (event.key === Qt.Key_Enter)) {
+                        event.accepted = true;
+                        scriptDialogWarning.accepted();
+                    } else if (event.key === Qt.Key_Escape) {
+                        event.accepted = true;
+                        scriptDialogWarning.rejected();
+                    }
+                }
+            }
+
             Text {
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.top: parent.top
@@ -369,12 +387,42 @@ Window {
                 width = 430
                 height = 330
                 startScriptAnimation()
+
+                for (var i=0; i < scriptComboBoxContent.count; i++) {
+                    if (scriptComboBoxContent.get(i).text === scriptSelection.scriptName) {
+                        scriptComboBox.currentIndex = i
+                        break;
+                    }
+                }
             }
         }
 
         Rectangle {
             id: scriptSelectRectangle
             color: "#27273a"
+
+            Item {
+                id: scriptDialogKeyboardHandler
+                anchors.fill: parent
+                focus: true
+                onFocusChanged: {if(focus!=true){focus = true}}
+                Keys.onPressed: {
+                    if ((event.key === Qt.Key_Return) || (event.key === Qt.Key_Enter)) {
+                        event.accepted = true;
+                        scriptDialog.launchButtonClicked();
+                    } else if (event.key === Qt.Key_Escape) {
+                        event.accepted = true;
+                        scriptDialog.rejected();
+                        scriptDialog.visible = false;
+                    } else if (event.key === Qt.Key_Up) {
+                        if(scriptComboBox.currentIndex >= 0) {scriptComboBox.currentIndex -= 1}
+                        event.accepted = true;
+                    } else if (event.key === Qt.Key_Down) {
+                        if(scriptComboBox.currentIndex < scriptComboBoxContent.count-1) {scriptComboBox.currentIndex += 1}
+                        event.accepted = true;
+                    }
+                }
+            }
 
             Rectangle {
                 id: scriptSelectBackground
@@ -458,26 +506,7 @@ Window {
                             GradientStop { position: 1.0; color: (scriptDialogButton.pressed ? "#00B3B3" : (scriptDialogButton.hovered ? "#009999" : "#008080")) }
                         }
                     }
-                    onClicked: {
-                        if (scriptComboBox.currentText !== "Select an option") {
-                            if(backend.returnScriptState()){backend.stopScript()}
-                            if(backend.launchScript(scriptComboBox.currentText)){
-                                scriptSelection.scriptName = scriptComboBox.currentText
-                                scriptDialog.close()
-                            }else{
-                                console.log("Failed to start the script.")
-                                scriptDialogWarning.open()
-                                scriptDialog.close()
-                            }
-                        }
-                        Promise.resolve().then(()=>{
-                            if (backend.returnScriptState()){
-                                scriptDialogWarning.close()
-                            }
-                        })
-
-
-                    }
+                    onClicked: scriptDialog.launchButtonClicked()
                 }
             }
 
@@ -623,105 +652,167 @@ Window {
                 }
             }
         }
+
+        function launchButtonClicked() {
+            if (scriptComboBox.currentText !== "Select an option") {
+                if(backend.returnScriptState()){backend.stopScript()}
+                if(backend.launchScript(scriptComboBox.currentText)){
+                    scriptSelection.scriptName = scriptComboBox.currentText
+                    scriptDialog.close()
+                }else{
+                    console.log("Failed to start the script.")
+                    scriptDialogWarning.open()
+                    scriptDialog.close()
+                }
+            }
+            Promise.resolve().then(()=>{
+                if (backend.returnScriptState()){
+                    scriptDialogWarning.close()
+                }
+            })
+        }
     }
 
 
     AbstractDialog {
-            id: configFileDialog
-            width: 310
-            height: 100
+        id: configFileDialog
+        width: 310
+        height: 100
 
-            Rectangle {
-                id: newConfigRectangle
-                color: "#27273a"
-
-                Text {
-                    id: newConfigCaption
-                    anchors.top: newConfigRectangle.top
-                    anchors.left: newConfigRectangle.left
-                    anchors.margins: 15
-                    color: "#ffffff"
-                    text: "Enter the name of the new configuration:"
-                    font.pointSize: 10
-                }
-
-                Row {
-                    id: newConfigRow
-                    anchors.top: newConfigCaption.bottom
-                    anchors.left: newConfigRectangle.left
-                    anchors.right: newConfigRectangle.right
-                    anchors.margins: 15
-                    height: 35
-                    spacing: 10
-
-                    TextField {
-                        id: newConfigTextField
-                        width: 200
-                        height: 35
-                        placeholderText: "Config Name"
-
-                        onTextChanged: {
-                            var compare = text.replace(".yaml", "") + ".yaml"
-                            var confFileList = backend.getConfFileList()
-                            for (var i=0; i<confFileList.length; i++){
-                                if (compare === confFileList[i]){
-                                    configFileDialog.height = 130
-                                    newConfigWarning.visible = true
-                                    break
-                                }
-                                else {
-                                    configFileDialog.height = 100
-                                    newConfigWarning.visible = false
-                                }
-                            }
-                        }
-                    }
-
-                    Button {
-                        id: configFileDialogButton
-                        text: "Create"
-                        palette.buttonText: "white"
-                        width: 75
-                        height: 35
-                        background: Rectangle {
-                            radius: 10
-                            gradient: Gradient {
-                                GradientStop { position: 0.0; color: (scriptDialogButton.pressed ? "#BDDBBD" : (scriptDialogButton.hovered ? "#D3E0E0" : "#BBE6E6")) }
-                                GradientStop { position: 1.0; color: (scriptDialogButton.pressed ? "#00B3B3" : (scriptDialogButton.hovered ? "#009999" : "#008080")) }
-                            }
-                        }
-
-                        onClicked: {
-                            newConfigTextField.text = newConfigTextField.text.replace(".yaml","")
-
-                            backend.createNewConfigFile(newConfigTextField.text)
-                            configContent.clear()
-                            var configList = backend.getConfFileList()
-                            for (var it in configList){
-                                configContent.append({text:configList[it]})
-                            }
-
-                            backend.setDefaultConfigId(newConfigTextField.text+".yaml")
-                            configComboBox.currentIndex = backend.returnGlobalConfigId()
-                            newConfigTextField.clear()
-                            configFileDialog.close()
-                        }
-                    }
-                }
-
-
-                Text {
-                    id: newConfigWarning
-                    anchors.left: newConfigRectangle.left
-                    anchors.bottom: newConfigRectangle.bottom
-                    anchors.margins: 15
-                    color: "#ff0000"
-                    text: "File already exists, content will be overwritten."
-                    font.pointSize: 10
-                    visible: false
-                }
-
+        onVisibilityChanged: {
+            newConfigEmptyWarning.visible = false;
+            if(!visible) {
+                newConfigTextField.clear()
+            } if(visible) {
+                newConfigTextField.focus = true;
             }
+        }
+
+        Rectangle {
+            id: newConfigRectangle
+            color: "#27273a"
+
+            Text {
+                id: newConfigCaption
+                anchors.top: newConfigRectangle.top
+                anchors.left: newConfigRectangle.left
+                anchors.margins: 15
+                color: "#ffffff"
+                text: "Enter the name of the new configuration:"
+                font.pointSize: 10
+            }
+
+            Row {
+                id: newConfigRow
+                anchors.top: newConfigCaption.bottom
+                anchors.left: newConfigRectangle.left
+                anchors.right: newConfigRectangle.right
+                anchors.margins: 15
+                height: 35
+                spacing: 10
+
+                TextField {
+                    id: newConfigTextField
+                    width: 200
+                    height: 35
+                    placeholderText: "Config Name"
+
+                    onTextChanged: {
+                        newConfigEmptyWarning.visible = false
+                        var compare = text.replace(".yaml", "") + ".yaml"
+                        var confFileList = backend.getConfFileList()
+                        for (var i=0; i<confFileList.length; i++){
+                            if (compare === confFileList[i]){
+                                configFileDialog.height = 130
+                                newConfigWarning.visible = true
+                                break
+                            }
+                            else {
+                                configFileDialog.height = 100
+                                newConfigWarning.visible = false
+                            }
+                        }
+                    }
+
+                    Keys.onPressed: {
+                        if ((event.key === Qt.Key_Return) || (event.key === Qt.Key_Enter)) {
+                            event.accepted = true;
+                            configFileDialog.configFileDialogButtonClicked();
+                        } else if (event.key === Qt.Key_Escape) {
+                            event.accepted = true;
+                            configFileDialog.visible = false;
+                        }
+                    }
+                }
+
+                Button {
+                    id: configFileDialogButton
+                    text: "Create"
+                    palette.buttonText: "white"
+                    width: 75
+                    height: 35
+                    background: Rectangle {
+                        radius: 10
+                        gradient: Gradient {
+                            GradientStop { position: 0.0; color: (scriptDialogButton.pressed ? "#BDDBBD" : (scriptDialogButton.hovered ? "#D3E0E0" : "#BBE6E6")) }
+                            GradientStop { position: 1.0; color: (scriptDialogButton.pressed ? "#00B3B3" : (scriptDialogButton.hovered ? "#009999" : "#008080")) }
+                        }
+                    }
+                    onClicked: configFileDialog.configFileDialogButtonClicked()
+                }
+            }
+
+
+            Text {
+                id: newConfigWarning
+                anchors.left: newConfigRectangle.left
+                anchors.bottom: newConfigRectangle.bottom
+                anchors.margins: 15
+                color: "#ff0000"
+                text: "File already exists, content will be overwritten."
+                font.pointSize: 10
+                visible: false
+            }
+
+            Text {
+                id: newConfigEmptyWarning
+                anchors.left: newConfigRectangle.left
+                anchors.bottom: newConfigRectangle.bottom
+                anchors.margins: 15
+                color: "#ff0000"
+                text: "Please provide a name."
+                font.pointSize: 10
+                visible: false
+                onVisibleChanged: {
+                    if (visible) {
+                        configFileDialog.height = 130
+                    } else {
+                        configFileDialog.height = 100
+                    }
+                }
+            }
+
+        }
+
+        function configFileDialogButtonClicked() {
+            if (newConfigTextField.text == "") {
+                newConfigEmptyWarning.visible = true
+            } else {
+                newConfigTextField.text = newConfigTextField.text.replace(".yaml","")
+
+                backend.createNewConfigFile(newConfigTextField.text)
+                configContent.clear()
+                var configList = backend.getConfFileList()
+                for (var it in configList){
+                    configContent.append({text:configList[it]})
+                }
+
+                backend.setDefaultConfigId(newConfigTextField.text+".yaml")
+                configComboBox.currentIndex = backend.returnGlobalConfigId()
+                newConfigTextField.clear()
+                configFileDialog.close()
+            }
+        }
     }
 
 
