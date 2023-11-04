@@ -775,7 +775,7 @@ std::vector<int> Backend::getFieldRangeByPath(std::string path) {
     return rangeResult;
 }
 
-bool Backend::getIsFieldWriteOnlyByPath(std::string path) {
+bool Backend::getIsFieldReadableWriteableByPath(std::string path) {
     std::string moduleName;
     std::string regName;
     std::string fieldName;
@@ -861,7 +861,7 @@ bool Backend::getIsFieldWriteOnlyByPath(std::string path) {
         vectorToQList(Yaml::getValueList(nodeList.at(regId), "Read")).at(fieldId).toInt();
     // GET IS READ-WRITEABLE END
 
-    return (is_writeable && !is_readable);
+    return (is_writeable && is_readable);
 }
 
 int Backend::checkAllConfigValues(int mode, QString checkPath) {
@@ -882,10 +882,7 @@ int Backend::checkAllConfigValues(int mode, QString checkPath) {
                 std::string moduleName = root.children.at(moduleIt).name;
                 std::string regName = root.children.at(moduleIt).children.at(regIt).name;
                 std::string regValue = root.children.at(moduleIt).children.at(regIt).value;
-                std::string regTargetValue =
-                    Backend::grmonGet(
-                        QString::fromStdString(getRegAddrByPath(moduleName + '.' + regName)))
-                        .toStdString();
+                std::string regTargetValue = Backend::grmonGet(QString::fromStdString(getRegAddrByPath(moduleName + '.' + regName))).toStdString();
 
                 if (regValue != regTargetValue) {
                     redRegs.push_back(moduleName + '.' + regName);
@@ -913,15 +910,79 @@ int Backend::checkAllConfigValues(int mode, QString checkPath) {
                     std::vector<int> fieldRange =
                         Backend::getFieldRangeByPath(moduleName + '.' + regName + '.' + fieldName);
                     for (int i = fieldRange[0]; i < fieldRange[1]; i++) {
-                        if (Backend::reverseString(regValue_Bin)[i] !=
-                            Backend::reverseString(regTargetValue_Bin)[i]) {
+                        if (Backend::reverseString(regValue_Bin)[i] != Backend::reverseString(regTargetValue_Bin)[i]) {
                             redFields.push_back(moduleName + '.' + regName + '.' + fieldName);
                             break;
                         }
                     }
                 }
+
             }
         }
+
+        std::vector<std::string> tempRedFields;
+        foreach (std::string it, redFields) {tempRedFields.push_back(it);}
+
+        std::vector<std::string> tempRedRegs;
+        foreach (std::string it, redRegs) {tempRedRegs.push_back(it);}
+
+        std::vector<std::string> tempRedModules;
+        foreach (std::string it, redModules) {tempRedModules.push_back(it);}
+
+        foreach (std::string redField, redFields) {
+            if(!(Backend::getIsFieldReadableWriteableByPath(redField))){
+                for(int i=0; i<tempRedFields.size(); i++){
+                    if (tempRedFields.at(i)==redField){
+                        tempRedFields.erase(tempRedFields.begin()+i);
+                        break;
+                    }
+                }
+            }
+        }
+
+        foreach (std::string redReg, redRegs) {
+            bool popReg = true;
+            foreach (std::string tempRedField, tempRedFields) {
+                if (tempRedField.rfind((redReg+'.'), 0) == 0){
+                    popReg = false;
+                    break;
+                }
+            }
+            if (popReg) {
+                for (int i = 0; i < tempRedRegs.size(); i++) {
+                    if (tempRedRegs.at(i)==redReg){
+                        tempRedRegs.erase(tempRedRegs.begin()+i);
+                    }
+                }
+            }
+        }
+
+        foreach (std::string redModule, redModules) {
+            bool popModule = true;
+            foreach (std::string tempRedReg, tempRedRegs) {
+                if (tempRedReg.rfind((redModule+'.'), 0) == 0){
+                    popModule = false;
+                    break;
+                }
+            }
+            if (popModule) {
+                for (int i = 0; i < tempRedModules.size(); i++) {
+                    if (tempRedModules.at(i)==redModule){
+                        tempRedModules.erase(tempRedModules.begin()+i);
+                    }
+                }
+            }
+        }
+
+        redFields.clear();
+        foreach (std::string it, tempRedFields) {redFields.push_back(it);}
+
+        redRegs.clear();
+        foreach (std::string it, tempRedRegs) {redRegs.push_back(it);}
+
+        redModules.clear();
+        foreach (std::string it, tempRedModules) {redModules.push_back(it);}
+
         Backend::configState = 1;
         return -1;
     }
