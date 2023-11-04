@@ -134,6 +134,7 @@ Window {
             color: "#292929"
             radius: 10
         }
+
         Rectangle {
             anchors.top: parent.verticalCenter
             anchors.bottom: parent.bottom
@@ -160,6 +161,7 @@ Window {
                 color: minimizeButton.pressed ? "#7A7A7A" : (minimizeButton.hovered ? "#525252":"transparent")
                 radius: 15
             }
+
             Text{
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.bottom: parent.bottom
@@ -171,6 +173,7 @@ Window {
                 font.pointSize: 6
                 color: "#FFFFFF"
             }
+
             onClicked: rootObject.showMinimized()
         }
 
@@ -186,7 +189,8 @@ Window {
                 color: maximizeButton.pressed ? "#7A7A7A" : (maximizeButton.hovered ? "#525252":"transparent")
                 radius: 15
             }
-            Text{
+
+            Text {
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.top: parent.top
                 anchors.topMargin: 4
@@ -196,6 +200,7 @@ Window {
                 verticalAlignment: Text.AlignVCenter
                 color: "#FFFFFF"
             }
+
             onClicked: {
                 if(isMaximized){
                     rootObject.showNormal()
@@ -218,6 +223,7 @@ Window {
                 color: closeButton.pressed ? "#FF5145" : (closeButton.hovered ? "#DE473C":"transparent")
                 radius: 15
             }
+
             Text{
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.top: parent.top
@@ -227,6 +233,7 @@ Window {
                 font.pointSize: 15
                 color: "#FFFFFF"
             }
+
             onClicked: closeApplication()
         }
     }
@@ -673,7 +680,6 @@ Window {
         }
     }
 
-
     AbstractDialog {
         id: configFileDialog
         width: 310
@@ -862,7 +868,6 @@ Window {
         }
 
         Rectangle {
-
             id: mainHeader
             anchors.left: logo.right
             anchors.verticalCenter: parent.verticalCenter
@@ -958,6 +963,7 @@ Window {
             width : referenceConfHeader.width + configComboBox.width/2 + newConfigButton.width + 18
             height : configComboBox.height
             color: "transparent"
+
             Rectangle {
                 anchors.fill: parent
                 color: "#4d4d63"
@@ -1256,6 +1262,7 @@ Window {
             color: "transparent"
             anchors.left: parent.left
             anchors.leftMargin: 6
+
             Text {
                 id: moduleUnitHeader
                 text: "Module:"
@@ -1265,6 +1272,7 @@ Window {
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
             }
+
             Rectangle {
                 id: moduleUnitIndicator
                 height: 30
@@ -1294,6 +1302,7 @@ Window {
                 }
             }
         }
+
         Rectangle {
             id: registerUnit
             height: 40
@@ -1301,6 +1310,7 @@ Window {
             radius: 10
             color: "transparent"
             anchors.horizontalCenter: parent.horizontalCenter
+
             Text {
                 id: registerUnitHeader
                 text: "Register:"
@@ -1311,6 +1321,7 @@ Window {
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.leftMargin: 6
             }
+
             Rectangle {
                 id: registerUnitIndicator
                 height: 30
@@ -1340,6 +1351,7 @@ Window {
                 }
             }
         }
+
         Rectangle {
             id: fieldUnit
             height: 40
@@ -1510,8 +1522,7 @@ Window {
                 width: binRadioButton.height - 2
                 radius: binRadioButton.height - 2
 
-                gradient: Gradient
-                {
+                gradient: Gradient {
                     GradientStop { position: 0.000;  color: baseSelection.isHex ? "#81bffc" : "#2358a3"}
                     GradientStop { position: 1.000; color: baseSelection.isHex ? "#2358a3" : "#81bffc"}
                 }
@@ -1978,16 +1989,15 @@ Window {
         MouseArea {
             anchors.fill: parent
             cursorShape: Qt.SizeVerCursor //Does not work
-            z:3
+            z: (parent.z + 1)
 
             DragHandler {
                 id: consoleMonitorSeperatorDragHandler
                 property int initialY: {initialY = consoleMonitorSeperator.y}
-//                cursorShape: Qt.SizeVerCursor
 
                 onTranslationChanged: {
                     consoleMonitorSeperator.y = initialY+translation.y
-                    Promise.resolve().then(scrollToBottom)
+                    Promise.resolve().then(consoleMonitor.scrollToBottom)
                 }
 
                 onActiveChanged: {
@@ -2004,7 +2014,7 @@ Window {
             consoleMonitorSeperator.y = (rootObject.height-120)
             consoleMonitorSeperatorDragHandler.initialY = consoleMonitorSeperator.y
         }
-        scrollToBottom()
+        consoleMonitor.scrollToBottom()
     }
 
     Rectangle {
@@ -2017,8 +2027,6 @@ Window {
         radius: 10
         color: "transparent"
 
-//        onHeightChanged: console.log(height)
-
         Rectangle {
             anchors.fill: parent
             color: "#4d4d63"
@@ -2027,20 +2035,13 @@ Window {
             radius: 10
             opacity: 0.6
         }
+
         Rectangle {
             anchors.fill: parent
             color: "#000000"
             anchors.margins: 8
             border.color: "#8f8fa8"
-//            ScrollView {
-//                Text {
-//                    anchors.fill: parent
-//                    anchors.margins: 4
-//                    color: "#FFFFFF"
-//                    text: "Hello Console"
 
-//                }
-//            }
             Flickable {
                 id: consoleMonitorFlickable
                 flickableDirection: Flickable.VerticalFlick
@@ -2051,14 +2052,13 @@ Window {
                 maximumFlickVelocity: consoleMonitor.height*5
                 enabled: !loadingScreen.visible
 
-
                 contentHeight: consoleMonitorTextArea.contentHeight
 
                 TextArea.flickable: TextArea {
                     id: consoleMonitorTextArea
                     textFormat: Qt.PlainText //was Qt.RichText
                     color: "#FFFFFF"
-                    onTextChanged: Promise.resolve().then(scrollToBottom)
+                    onTextChanged: Promise.resolve().then(consoleMonitor.scrollToBottom)
                     clip: true
                     wrapMode: TextArea.Wrap
                     readOnly: true
@@ -2070,14 +2070,12 @@ Window {
                     bottomPadding: 0
                     background: null
 
-
                     MouseArea {
                         acceptedButtons: Qt.RightButton
                         anchors.fill: parent
                         onClicked: contextMenu.open()
                     }
                 }
-
                 ScrollBar.vertical: ScrollBar {}
             }
         }
@@ -2144,7 +2142,7 @@ Window {
                     ToolTip.text: "Scroll bottom"
                     ToolTip.visible: (!loadingScreen.visible)&&(hovered)
 
-                    onClicked: scrollToBottom()
+                    onClicked: consoleMonitor.scrollToBottom()
                 }
                 Button {
                     height: 20
@@ -2162,11 +2160,16 @@ Window {
                 }
             }
         }
+
+        function scrollToBottom() {
+            if (consoleMonitorFlickable.contentHeight > consoleMonitorFlickable.height) {
+                consoleMonitorFlickable.contentY = consoleMonitorFlickable.contentHeight - consoleMonitorFlickable.height;
+            }
+        }
     }
 
 
     function refresh() {
-
         createPinButtons()
         createModuleButtons()
 
@@ -2305,7 +2308,6 @@ Window {
         clearConf()
         createFieldButtons(registerId)
         createRegisterTabAlias(registerId)
-//        updateRegisterTextBox()
         checkSelectedRegister()
     }
 
@@ -2660,12 +2662,6 @@ Window {
         Promise.resolve().then(Qt.quit)
     }
 
-    function scrollToBottom() {
-        if (consoleMonitorFlickable.contentHeight > consoleMonitorFlickable.height) {
-            consoleMonitorFlickable.contentY = consoleMonitorFlickable.contentHeight - consoleMonitorFlickable.height;
-        }
-    }
-
     Connections {
         target: backend
         function onConsoleReady(){
@@ -2678,7 +2674,6 @@ Window {
         }
         function onUpdateConsoleMonitor(data){
             consoleMonitorTextArea.text+=data
-//            Promise.resolve().then(()=>{console.log(consoleMonitorTextArea.getLastLine())})
         }
     }
 }
