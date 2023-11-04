@@ -74,19 +74,5 @@ Rectangle {
         wrapMode: Text.Wrap
         width: parent.width - 10
     }
-    Button {
-        id: testButton
-        text: "atYendTest"
-        onClicked: {
-            console.log(flickable.atYEnd)
-        }
-    }
-    Button {
-        anchors.left: testButton.right
-        text: "scrollToBottom"
-        onClicked: {
-            scrollToBottom()
-        }
-    }
 }
 

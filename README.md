@@ -20,5 +20,5 @@
 ![GitHub release (latest by date)](https://img.shields.io/github/downloads/rendayigit/registervisualizer/tag/total)
 ![GitHub Release Date](https://img.shields.io/github/release-date/rendayigit/registervisualizer)
 
-![RegisterVisualizerScreenshot](https://github.com/rendayigit/RegisterVisualizer/assets/28491388/00eadebb-69ba-4415-bd9d-e32ca3e444ce)
+![RegisterVisualizer7](https://github.com/rendayigit/RegisterVisualizer/assets/28491388/4db164fc-cc6e-42c3-98fd-d03d59de912a)
 ![RegisterVisualizer_opening2](https://github.com/rendayigit/RegisterVisualizer/assets/28491388/39668861-797a-469e-9b8c-c51e6342650b)

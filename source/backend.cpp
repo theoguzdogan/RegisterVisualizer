@@ -775,7 +775,7 @@ std::vector<int> Backend::getFieldRangeByPath(std::string path) {
     return rangeResult;
 }
 
-bool Backend::getIsFieldWriteOnlyByPath(std::string path) {
+bool Backend::getIsFieldReadableWriteableByPath(std::string path) {
     std::string moduleName;
     std::string regName;
     std::string fieldName;
@@ -861,7 +861,7 @@ bool Backend::getIsFieldWriteOnlyByPath(std::string path) {
         vectorToQList(Yaml::getValueList(nodeList.at(regId), "Read")).at(fieldId).toInt();
     // GET IS READ-WRITEABLE END
 
-    return (is_writeable && !is_readable);
+    return (is_writeable && is_readable);
 }
 
 int Backend::checkAllConfigValues(int mode, QString checkPath) {
@@ -882,10 +882,7 @@ int Backend::checkAllConfigValues(int mode, QString checkPath) {
                 std::string moduleName = root.children.at(moduleIt).name;
                 std::string regName = root.children.at(moduleIt).children.at(regIt).name;
                 std::string regValue = root.children.at(moduleIt).children.at(regIt).value;
-                std::string regTargetValue =
-                    Backend::grmonGet(
-                        QString::fromStdString(getRegAddrByPath(moduleName + '.' + regName)))
-                        .toStdString();
+                std::string regTargetValue = Backend::grmonGet(QString::fromStdString(getRegAddrByPath(moduleName + '.' + regName))).toStdString();
 
                 if (regValue != regTargetValue) {
                     redRegs.push_back(moduleName + '.' + regName);
@@ -913,15 +910,79 @@ int Backend::checkAllConfigValues(int mode, QString checkPath) {
                     std::vector<int> fieldRange =
                         Backend::getFieldRangeByPath(moduleName + '.' + regName + '.' + fieldName);
                     for (int i = fieldRange[0]; i < fieldRange[1]; i++) {
-                        if (Backend::reverseString(regValue_Bin)[i] !=
-                            Backend::reverseString(regTargetValue_Bin)[i]) {
+                        if (Backend::reverseString(regValue_Bin)[i] != Backend::reverseString(regTargetValue_Bin)[i]) {
                             redFields.push_back(moduleName + '.' + regName + '.' + fieldName);
                             break;
                         }
                     }
                 }
+
             }
         }
+
+        std::vector<std::string> tempRedFields;
+        foreach (std::string it, redFields) {tempRedFields.push_back(it);}
+
+        std::vector<std::string> tempRedRegs;
+        foreach (std::string it, redRegs) {tempRedRegs.push_back(it);}
+
+        std::vector<std::string> tempRedModules;
+        foreach (std::string it, redModules) {tempRedModules.push_back(it);}
+
+        foreach (std::string redField, redFields) {
+            if(!(Backend::getIsFieldReadableWriteableByPath(redField))){
+                for(int i=0; i<tempRedFields.size(); i++){
+                    if (tempRedFields.at(i)==redField){
+                        tempRedFields.erase(tempRedFields.begin()+i);
+                        break;
+                    }
+                }
+            }
+        }
+
+        foreach (std::string redReg, redRegs) {
+            bool popReg = true;
+            foreach (std::string tempRedField, tempRedFields) {
+                if (tempRedField.rfind((redReg+'.'), 0) == 0){
+                    popReg = false;
+                    break;
+                }
+            }
+            if (popReg) {
+                for (int i = 0; i < tempRedRegs.size(); i++) {
+                    if (tempRedRegs.at(i)==redReg){
+                        tempRedRegs.erase(tempRedRegs.begin()+i);
+                    }
+                }
+            }
+        }
+
+        foreach (std::string redModule, redModules) {
+            bool popModule = true;
+            foreach (std::string tempRedReg, tempRedRegs) {
+                if (tempRedReg.rfind((redModule+'.'), 0) == 0){
+                    popModule = false;
+                    break;
+                }
+            }
+            if (popModule) {
+                for (int i = 0; i < tempRedModules.size(); i++) {
+                    if (tempRedModules.at(i)==redModule){
+                        tempRedModules.erase(tempRedModules.begin()+i);
+                    }
+                }
+            }
+        }
+
+        redFields.clear();
+        foreach (std::string it, tempRedFields) {redFields.push_back(it);}
+
+        redRegs.clear();
+        foreach (std::string it, tempRedRegs) {redRegs.push_back(it);}
+
+        redModules.clear();
+        foreach (std::string it, tempRedModules) {redModules.push_back(it);}
+
         Backend::configState = 1;
         return -1;
     }
@@ -1379,66 +1440,36 @@ QString Backend::grmonGet(QString address) {
     }
 }
 
-void Backend::checkAndSaveAll(QString newFileName) {
-    // READ_FILE
-    std::ifstream infile;
-    infile.open(Path::getSetupDir() + "/config.yaml");
-    std::vector<std::string> lines;
-    std::string buffer;
+void Backend::createNewConfigFile(QString newFileName) {
+    std::ifstream sourceFile(Path::getSetupDir() + "config.yaml");
 
-    while (getline(infile, buffer)) {
-        lines.push_back(buffer);
+    if (!sourceFile) {
+        qDebug() << "Error: Unable to open the source file.";
+        return;
     }
 
-    infile.close();
-    // WRITE_FILE
-    std::ofstream outfile;
-    outfile.open(Path::getSetupDir() + "/SavedConfigs/" +
-                 newFileName.toStdString());
-    bool is_firstLine = true;
+            // Open the destination file for writing
+    std::string filePath = Path::getSetupDir() + "SavedConfigs/" + newFileName.toStdString() + ".yaml";
+    std::ofstream destinationFile(filePath);
 
-    foreach (std::string line, lines) {
-        outfile << line << endl;
+    if (!destinationFile) {
+        qDebug() << "Error: Unable to open the destination file.";
+        return;
     }
 
-    outfile.close();
-
-    int tempModuleId = globalModuleId;
-    QString tempRegId = globalRegId;
-    QString tempFieldId = globalFieldId;
-    std::string tempConfigFilePath = configFilePath;
-
-    configFilePath = Path::getSetupDir() + "/SavedConfigs/" +
-                     newFileName.toStdString();
-
-    QList<QString> moduleList = Backend::getFileList();
-    for (int i = 0; i < moduleList.length(); i++) {
-        globalModuleId = i;
-        Backend::setFilePath(globalModuleId);
-        QList<QString> regList = Backend::getRegisterList();
-        for (int j = 0; j < regList.length(); j++) {
-            globalRegId = QString::number(j);
-            QList<QString> fieldList = Backend::getFieldList(globalRegId);
-            for (int k = 0; k < fieldList.length(); k++) {
-                globalFieldId = QString::number(k);
-
-                QString value = grmonGet(getFieldAddr());
-
-                if (value != "NULL") {
-                    qDebug() << moduleList[i] << regList[j] << fieldList[k] << globalModuleId
-                             << globalRegId << globalFieldId << getFieldAddr() << value;
-                    saveConfig(value, 16);
-                }
-            }
-        }
+            // Copy the content from the source file to the destination file
+    char buffer[4096];
+    while (!sourceFile.eof()) {
+        sourceFile.read(buffer, sizeof(buffer));
+        std::streamsize bytesRead = sourceFile.gcount();
+        destinationFile.write(buffer, bytesRead);
     }
 
-    globalModuleId = tempModuleId;
-    globalRegId = tempRegId;
-    globalFieldId = tempFieldId;
-    configFilePath = tempConfigFilePath;
+            // Close both files
+    sourceFile.close();
+    destinationFile.close();
 
-    Backend::setDefaultConfigId(newFileName);
+    qDebug() << "File copied successfully!";
 }
 
 std::string Backend::deleteNonAlphaNumerical(std::string data) {

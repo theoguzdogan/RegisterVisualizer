@@ -16,7 +16,7 @@ Window {
 
     width: 1250
     height: 850
-    minimumWidth: 1122 + scriptSelectionText.width
+    minimumWidth: 1157 + scriptSelectionText.width
     minimumHeight: 650
     visible: true
 
@@ -134,6 +134,7 @@ Window {
             color: "#292929"
             radius: 10
         }
+
         Rectangle {
             anchors.top: parent.verticalCenter
             anchors.bottom: parent.bottom
@@ -160,6 +161,7 @@ Window {
                 color: minimizeButton.pressed ? "#7A7A7A" : (minimizeButton.hovered ? "#525252":"transparent")
                 radius: 15
             }
+
             Text{
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.bottom: parent.bottom
@@ -171,6 +173,7 @@ Window {
                 font.pointSize: 6
                 color: "#FFFFFF"
             }
+
             onClicked: rootObject.showMinimized()
         }
 
@@ -186,7 +189,8 @@ Window {
                 color: maximizeButton.pressed ? "#7A7A7A" : (maximizeButton.hovered ? "#525252":"transparent")
                 radius: 15
             }
-            Text{
+
+            Text {
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.top: parent.top
                 anchors.topMargin: 4
@@ -196,6 +200,7 @@ Window {
                 verticalAlignment: Text.AlignVCenter
                 color: "#FFFFFF"
             }
+
             onClicked: {
                 if(isMaximized){
                     rootObject.showNormal()
@@ -218,6 +223,7 @@ Window {
                 color: closeButton.pressed ? "#FF5145" : (closeButton.hovered ? "#DE473C":"transparent")
                 radius: 15
             }
+
             Text{
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.top: parent.top
@@ -227,6 +233,7 @@ Window {
                 font.pointSize: 15
                 color: "#FFFFFF"
             }
+
             onClicked: closeApplication()
         }
     }
@@ -316,9 +323,27 @@ Window {
         id: scriptDialogWarning
         width: 350
         height: 100
+
         Rectangle {
             anchors.fill: parent
             color: "#27273a"
+
+            Item {
+                id: scriptDialogWarningKeyboardHandler
+                anchors.fill: parent
+                focus: true
+                onFocusChanged: {if(focus!=true){focus = true}}
+                Keys.onPressed: {
+                    if ((event.key === Qt.Key_Return) || (event.key === Qt.Key_Enter)) {
+                        event.accepted = true;
+                        scriptDialogWarning.accepted();
+                    } else if (event.key === Qt.Key_Escape) {
+                        event.accepted = true;
+                        scriptDialogWarning.rejected();
+                    }
+                }
+            }
+
             Text {
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.top: parent.top
@@ -369,12 +394,42 @@ Window {
                 width = 430
                 height = 330
                 startScriptAnimation()
+
+                for (var i=0; i < scriptComboBoxContent.count; i++) {
+                    if (scriptComboBoxContent.get(i).text === scriptSelection.scriptName) {
+                        scriptComboBox.currentIndex = i
+                        break;
+                    }
+                }
             }
         }
 
         Rectangle {
             id: scriptSelectRectangle
             color: "#27273a"
+
+            Item {
+                id: scriptDialogKeyboardHandler
+                anchors.fill: parent
+                focus: true
+                onFocusChanged: {if(focus!=true){focus = true}}
+                Keys.onPressed: {
+                    if ((event.key === Qt.Key_Return) || (event.key === Qt.Key_Enter)) {
+                        event.accepted = true;
+                        scriptDialog.launchButtonClicked();
+                    } else if (event.key === Qt.Key_Escape) {
+                        event.accepted = true;
+                        scriptDialog.rejected();
+                        scriptDialog.visible = false;
+                    } else if (event.key === Qt.Key_Up) {
+                        if(scriptComboBox.currentIndex >= 0) {scriptComboBox.currentIndex -= 1}
+                        event.accepted = true;
+                    } else if (event.key === Qt.Key_Down) {
+                        if(scriptComboBox.currentIndex < scriptComboBoxContent.count-1) {scriptComboBox.currentIndex += 1}
+                        event.accepted = true;
+                    }
+                }
+            }
 
             Rectangle {
                 id: scriptSelectBackground
@@ -458,26 +513,7 @@ Window {
                             GradientStop { position: 1.0; color: (scriptDialogButton.pressed ? "#00B3B3" : (scriptDialogButton.hovered ? "#009999" : "#008080")) }
                         }
                     }
-                    onClicked: {
-                        if (scriptComboBox.currentText !== "Select an option") {
-                            if(backend.returnScriptState()){backend.stopScript()}
-                            if(backend.launchScript(scriptComboBox.currentText)){
-                                scriptSelection.scriptName = scriptComboBox.currentText
-                                scriptDialog.close()
-                            }else{
-                                console.log("Failed to start the script.")
-                                scriptDialogWarning.open()
-                                scriptDialog.close()
-                            }
-                        }
-                        Promise.resolve().then(()=>{
-                            if (backend.returnScriptState()){
-                                scriptDialogWarning.close()
-                            }
-                        })
-
-
-                    }
+                    onClicked: scriptDialog.launchButtonClicked()
                 }
             }
 
@@ -623,97 +659,166 @@ Window {
                 }
             }
         }
+
+        function launchButtonClicked() {
+            if (scriptComboBox.currentText !== "Select an option") {
+                if(backend.returnScriptState()){backend.stopScript()}
+                if(backend.launchScript(scriptComboBox.currentText)){
+                    scriptSelection.scriptName = scriptComboBox.currentText
+                    scriptDialog.close()
+                }else{
+                    console.log("Failed to start the script.")
+                    scriptDialogWarning.open()
+                    scriptDialog.close()
+                }
+            }
+            Promise.resolve().then(()=>{
+                if (backend.returnScriptState()){
+                    scriptDialogWarning.close()
+                }
+            })
+        }
     }
 
-
     AbstractDialog {
-            id: configFileDialog
-            width: 300
-            height: 100
+        id: configFileDialog
+        width: 310
+        height: 100
 
-            Rectangle {
-                id: newConfigRectangle
-                color: "#27273a"
-
-                Text {
-                    id: newConfigCaption
-                    anchors.top: newConfigRectangle.top
-                    anchors.left: newConfigRectangle.left
-                    anchors.margins: 15
-                    color: "#ffffff"
-                    text: "Enter the name of the new configuration:"
-                    font.pointSize: 10
-                }
-
-                Row {
-                    id: newConfigRow
-                    anchors.top: newConfigCaption.bottom
-                    anchors.left: newConfigRectangle.left
-                    anchors.right: newConfigRectangle.right
-                    anchors.margins: 15
-                    height: 35
-                    spacing: 10
-
-                    TextField {
-                        id: newConfigTextField
-                        width: 200
-                        height: 35
-                        placeholderText: "Config Name"
-
-                        onTextChanged: {
-                            var confFileList = backend.getConfFileList()
-                            for (var i=0; i<confFileList.length; i++){
-                                if (text === confFileList[i]){
-                                    configFileDialog.height = 130
-                                    newConfigWarning.visible = true
-                                    break
-                                }
-                                else {
-                                    configFileDialog.height = 100
-                                    newConfigWarning.visible = false
-                                }
-                            }
-                        }
-                    }
-
-                    Button {
-                        id: configFileDialogButton
-                        text:"OK"
-                        width: 55
-                        height: 35
-                        background: Rectangle {
-                            color: "#4891d9"
-                            radius: 10
-                        }
-
-                        onClicked: {
-                            backend.checkAndSaveAll(newConfigTextField.text)
-                            configContent.clear()
-                            var configList = backend.getConfFileList()
-                            for (var it in configList){
-                                configContent.append({text:configList[it]})
-                            }
-                            backend.setDefaultConfigId(newConfigTextField.text)
-                            configComboBox.currentIndex = backend.returnGlobalConfigId()
-                            newConfigTextField.clear()
-                            configFileDialog.close()
-                        }
-                    }
-                }
-
-
-                Text {
-                    id: newConfigWarning
-                    anchors.left: newConfigRectangle.left
-                    anchors.bottom: newConfigRectangle.bottom
-                    anchors.margins: 15
-                    color: "#ff0000"
-                    text: "File already exists, content will be overwritten."
-                    font.pointSize: 10
-                    visible: false
-                }
-
+        onVisibilityChanged: {
+            newConfigEmptyWarning.visible = false;
+            if(!visible) {
+                newConfigTextField.clear()
+            } if(visible) {
+                newConfigTextField.focus = true;
             }
+        }
+
+        Rectangle {
+            id: newConfigRectangle
+            color: "#27273a"
+
+            Text {
+                id: newConfigCaption
+                anchors.top: newConfigRectangle.top
+                anchors.left: newConfigRectangle.left
+                anchors.margins: 15
+                color: "#ffffff"
+                text: "Enter the name of the new configuration:"
+                font.pointSize: 10
+            }
+
+            Row {
+                id: newConfigRow
+                anchors.top: newConfigCaption.bottom
+                anchors.left: newConfigRectangle.left
+                anchors.right: newConfigRectangle.right
+                anchors.margins: 15
+                height: 35
+                spacing: 10
+
+                TextField {
+                    id: newConfigTextField
+                    width: 200
+                    height: 35
+                    placeholderText: "Config Name"
+
+                    onTextChanged: {
+                        newConfigEmptyWarning.visible = false
+                        var compare = text.replace(".yaml", "") + ".yaml"
+                        var confFileList = backend.getConfFileList()
+                        for (var i=0; i<confFileList.length; i++){
+                            if (compare === confFileList[i]){
+                                configFileDialog.height = 130
+                                newConfigWarning.visible = true
+                                break
+                            }
+                            else {
+                                configFileDialog.height = 100
+                                newConfigWarning.visible = false
+                            }
+                        }
+                    }
+
+                    Keys.onPressed: {
+                        if ((event.key === Qt.Key_Return) || (event.key === Qt.Key_Enter)) {
+                            event.accepted = true;
+                            configFileDialog.configFileDialogButtonClicked();
+                        } else if (event.key === Qt.Key_Escape) {
+                            event.accepted = true;
+                            configFileDialog.visible = false;
+                        }
+                    }
+                }
+
+                Button {
+                    id: configFileDialogButton
+                    text: "Create"
+                    palette.buttonText: "white"
+                    width: 75
+                    height: 35
+                    background: Rectangle {
+                        radius: 10
+                        gradient: Gradient {
+                            GradientStop { position: 0.0; color: (scriptDialogButton.pressed ? "#BDDBBD" : (scriptDialogButton.hovered ? "#D3E0E0" : "#BBE6E6")) }
+                            GradientStop { position: 1.0; color: (scriptDialogButton.pressed ? "#00B3B3" : (scriptDialogButton.hovered ? "#009999" : "#008080")) }
+                        }
+                    }
+                    onClicked: configFileDialog.configFileDialogButtonClicked()
+                }
+            }
+
+
+            Text {
+                id: newConfigWarning
+                anchors.left: newConfigRectangle.left
+                anchors.bottom: newConfigRectangle.bottom
+                anchors.margins: 15
+                color: "#ff0000"
+                text: "File already exists, content will be overwritten."
+                font.pointSize: 10
+                visible: false
+            }
+
+            Text {
+                id: newConfigEmptyWarning
+                anchors.left: newConfigRectangle.left
+                anchors.bottom: newConfigRectangle.bottom
+                anchors.margins: 15
+                color: "#ff0000"
+                text: "Please provide a name."
+                font.pointSize: 10
+                visible: false
+                onVisibleChanged: {
+                    if (visible) {
+                        configFileDialog.height = 130
+                    } else {
+                        configFileDialog.height = 100
+                    }
+                }
+            }
+
+        }
+
+        function configFileDialogButtonClicked() {
+            if (newConfigTextField.text == "") {
+                newConfigEmptyWarning.visible = true
+            } else {
+                newConfigTextField.text = newConfigTextField.text.replace(".yaml","")
+
+                backend.createNewConfigFile(newConfigTextField.text)
+                configContent.clear()
+                var configList = backend.getConfFileList()
+                for (var it in configList){
+                    configContent.append({text:configList[it]})
+                }
+
+                backend.setDefaultConfigId(newConfigTextField.text+".yaml")
+                configComboBox.currentIndex = backend.returnGlobalConfigId()
+                newConfigTextField.clear()
+                configFileDialog.close()
+            }
+        }
     }
 
 
@@ -763,7 +868,6 @@ Window {
         }
 
         Rectangle {
-
             id: mainHeader
             anchors.left: logo.right
             anchors.verticalCenter: parent.verticalCenter
@@ -837,7 +941,6 @@ Window {
                 }
 
                 Image {
-                    id: scriptButtonImage
                     anchors.fill: parent
                     anchors.margins: 7
                     source: ((!loadingScreen.visible) && parent.hovered) ? "../../assets/file-select_hovered.svg" : "../../assets/file-select.svg"
@@ -857,9 +960,10 @@ Window {
             id: referenceConfHeaderContainer
             anchors.right: configComboBox.horizontalCenter
             anchors.verticalCenter: parent.verticalCenter
-            width : referenceConfHeader.width + configComboBox.width/2 + 20
+            width : referenceConfHeader.width + configComboBox.width/2 + newConfigButton.width + 18
             height : configComboBox.height
             color: "transparent"
+
             Rectangle {
                 anchors.fill: parent
                 color: "#4d4d63"
@@ -878,6 +982,30 @@ Window {
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.left: parent.left
                 anchors.leftMargin: 10
+            }
+
+            Button {
+                id: newConfigButton
+                anchors.left: referenceConfHeader.right
+                anchors.leftMargin: 8
+                height: parent.height
+                width: parent.height
+                background: Image {
+                    anchors.fill: parent
+                    source: loadingScreen.visible ? "../../assets/new_config_background.svg" : (newConfigButton.pressed ? "../../assets/new_config_background_clicked.svg" : (newConfigButton.hovered ? "../../assets/new_config_background_hovered.svg" : "../../assets/new_config_background.svg"))
+                }
+
+                Image {
+                    anchors.fill: parent
+                    anchors.margins: 7
+                    source: "../../assets/new_config.svg"
+                }
+
+                ToolTip.delay: 500
+                ToolTip.visible: ((!loadingScreen.visible)&&(hovered))
+                ToolTip.text: "Create new reference configuration."
+
+                onClicked: configFileDialog.open()
             }
         }
 
@@ -1134,6 +1262,7 @@ Window {
             color: "transparent"
             anchors.left: parent.left
             anchors.leftMargin: 6
+
             Text {
                 id: moduleUnitHeader
                 text: "Module:"
@@ -1143,6 +1272,7 @@ Window {
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
             }
+
             Rectangle {
                 id: moduleUnitIndicator
                 height: 30
@@ -1172,6 +1302,7 @@ Window {
                 }
             }
         }
+
         Rectangle {
             id: registerUnit
             height: 40
@@ -1179,6 +1310,7 @@ Window {
             radius: 10
             color: "transparent"
             anchors.horizontalCenter: parent.horizontalCenter
+
             Text {
                 id: registerUnitHeader
                 text: "Register:"
@@ -1189,6 +1321,7 @@ Window {
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.leftMargin: 6
             }
+
             Rectangle {
                 id: registerUnitIndicator
                 height: 30
@@ -1218,6 +1351,7 @@ Window {
                 }
             }
         }
+
         Rectangle {
             id: fieldUnit
             height: 40
@@ -1388,8 +1522,7 @@ Window {
                 width: binRadioButton.height - 2
                 radius: binRadioButton.height - 2
 
-                gradient: Gradient
-                {
+                gradient: Gradient {
                     GradientStop { position: 0.000;  color: baseSelection.isHex ? "#81bffc" : "#2358a3"}
                     GradientStop { position: 1.000; color: baseSelection.isHex ? "#2358a3" : "#81bffc"}
                 }
@@ -1855,16 +1988,16 @@ Window {
 
         MouseArea {
             anchors.fill: parent
-//            cursorShape: Qt.SizeVerCursor //Does not work
+            cursorShape: Qt.SizeVerCursor //Does not work
+            z: (parent.z + 1)
 
             DragHandler {
                 id: consoleMonitorSeperatorDragHandler
                 property int initialY: {initialY = consoleMonitorSeperator.y}
-                cursorShape: Qt.SizeVerCursor
 
                 onTranslationChanged: {
                     consoleMonitorSeperator.y = initialY+translation.y
-                    Promise.resolve().then(scrollToBottom)
+                    Promise.resolve().then(consoleMonitor.scrollToBottom)
                 }
 
                 onActiveChanged: {
@@ -1881,7 +2014,7 @@ Window {
             consoleMonitorSeperator.y = (rootObject.height-120)
             consoleMonitorSeperatorDragHandler.initialY = consoleMonitorSeperator.y
         }
-        scrollToBottom()
+        consoleMonitor.scrollToBottom()
     }
 
     Rectangle {
@@ -1894,8 +2027,6 @@ Window {
         radius: 10
         color: "transparent"
 
-//        onHeightChanged: console.log(height)
-
         Rectangle {
             anchors.fill: parent
             color: "#4d4d63"
@@ -1904,20 +2035,13 @@ Window {
             radius: 10
             opacity: 0.6
         }
+
         Rectangle {
             anchors.fill: parent
             color: "#000000"
             anchors.margins: 8
             border.color: "#8f8fa8"
-//            ScrollView {
-//                Text {
-//                    anchors.fill: parent
-//                    anchors.margins: 4
-//                    color: "#FFFFFF"
-//                    text: "Hello Console"
 
-//                }
-//            }
             Flickable {
                 id: consoleMonitorFlickable
                 flickableDirection: Flickable.VerticalFlick
@@ -1928,14 +2052,13 @@ Window {
                 maximumFlickVelocity: consoleMonitor.height*5
                 enabled: !loadingScreen.visible
 
-
                 contentHeight: consoleMonitorTextArea.contentHeight
 
                 TextArea.flickable: TextArea {
                     id: consoleMonitorTextArea
                     textFormat: Qt.PlainText //was Qt.RichText
                     color: "#FFFFFF"
-                    onTextChanged: Promise.resolve().then(scrollToBottom)
+                    onTextChanged: Promise.resolve().then(consoleMonitor.scrollToBottom)
                     clip: true
                     wrapMode: TextArea.Wrap
                     readOnly: true
@@ -1947,14 +2070,12 @@ Window {
                     bottomPadding: 0
                     background: null
 
-
                     MouseArea {
                         acceptedButtons: Qt.RightButton
                         anchors.fill: parent
                         onClicked: contextMenu.open()
                     }
                 }
-
                 ScrollBar.vertical: ScrollBar {}
             }
         }
@@ -2021,7 +2142,7 @@ Window {
                     ToolTip.text: "Scroll bottom"
                     ToolTip.visible: (!loadingScreen.visible)&&(hovered)
 
-                    onClicked: scrollToBottom()
+                    onClicked: consoleMonitor.scrollToBottom()
                 }
                 Button {
                     height: 20
@@ -2039,11 +2160,16 @@ Window {
                 }
             }
         }
+
+        function scrollToBottom() {
+            if (consoleMonitorFlickable.contentHeight > consoleMonitorFlickable.height) {
+                consoleMonitorFlickable.contentY = consoleMonitorFlickable.contentHeight - consoleMonitorFlickable.height;
+            }
+        }
     }
 
 
     function refresh() {
-
         createPinButtons()
         createModuleButtons()
 
@@ -2182,7 +2308,6 @@ Window {
         clearConf()
         createFieldButtons(registerId)
         createRegisterTabAlias(registerId)
-//        updateRegisterTextBox()
         checkSelectedRegister()
     }
 
@@ -2537,12 +2662,6 @@ Window {
         Promise.resolve().then(Qt.quit)
     }
 
-    function scrollToBottom() {
-        if (consoleMonitorFlickable.contentHeight > consoleMonitorFlickable.height) {
-            consoleMonitorFlickable.contentY = consoleMonitorFlickable.contentHeight - consoleMonitorFlickable.height;
-        }
-    }
-
     Connections {
         target: backend
         function onConsoleReady(){
@@ -2555,7 +2674,6 @@ Window {
         }
         function onUpdateConsoleMonitor(data){
             consoleMonitorTextArea.text+=data
-//            Promise.resolve().then(()=>{console.log(consoleMonitorTextArea.getLastLine())})
         }
     }
 }
