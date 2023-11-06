@@ -1,6 +1,15 @@
 # RegisterVisualizer
 
+
 A GUI app to visualize and edit the values of SPARC/LEON systems using [GRMON2](https://www.gaisler.com/index.php/products/debug-tools/grmon2) / [GRMON3](https://www.gaisler.com/index.php/products/debug-tools/grmon3) debug console.
+
+Built with:
+![Qt](https://img.shields.io/badge/Qt-%23217346.svg?style=for-the-badge&logo=Qt&logoColor=white)
+![C++](https://img.shields.io/badge/c++-%2300599C.svg?style=for-the-badge&logo=c%2B%2B&logoColor=white)
+
+Works on:
+![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)
+![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)
  - Predefined* modules of the system, registers of the modules, fields of the registers are listed as buttons.
 
    *section will be added to show the used YAML file format and describe how to create one as a user.
