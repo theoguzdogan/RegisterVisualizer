@@ -1,7 +1,7 @@
 # RegisterVisualizer
 
 
-A GUI app to visualize and edit the values of SPARC/LEON systems using [GRMON2](https://www.gaisler.com/index.php/products/debug-tools/grmon2) / [GRMON3](https://www.gaisler.com/index.php/products/debug-tools/grmon3) debug console.
+A GUI app to visualize and change the register values of SPARC/LEON systems using [GRMON2](https://www.gaisler.com/index.php/products/debug-tools/grmon2) / [GRMON3](https://www.gaisler.com/index.php/products/debug-tools/grmon3) debug console.
 
 Built with:
 ![Qt](https://img.shields.io/badge/Qt-%23217346.svg?style=for-the-badge&logo=Qt&logoColor=white)
