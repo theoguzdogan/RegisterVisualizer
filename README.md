@@ -1,4 +1,17 @@
 # RegisterVisualizer
+
+A GUI app to visualize and edit the values of SPARC/LEON systems using [GRMON2](https://www.gaisler.com/index.php/products/debug-tools/grmon2) / [GRMON3](https://www.gaisler.com/index.php/products/debug-tools/grmon3) debug console.
+ - Predefined* modules of the system, registers of the modules, fields of the registers are listed as buttons.
+
+   *section will be added to show the used YAML file format and describe how to create one as a user.
+ - User can work with multiple registers conveniently as each selected register is being opened in a tab form.
+ - Register values can be seen and edited as 32-bit-words (as Hex or Binary).
+ - Fields can be edited individually via predefined combo-box options or text-boxes.
+ - Register values can be saved in reference configurations and later be compared with active values at the time.
+ - Frequently used module, register and field buttons can be pinned on the pin-board for quick access.
+ - GUI controlled console commands & outputs can be observed and saved as log files from the console monitor.
+
+
 [![HitCount](https://hits.dwyl.com/rendayigit/RegisterVisualizer.svg?style=flat)](http://hits.dwyl.com/rendayigit/RegisterVisualizer)
 ![Lines of code](https://tokei.rs/b1/github/rendayigit/RegisterVisualizer)
 [![Github Repo Size](https://img.shields.io/github/repo-size/rendayigit/RegisterVisualizer)](https://github.com/rendayigit/RegisterVisualizer)
