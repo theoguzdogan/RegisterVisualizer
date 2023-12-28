@@ -43,4 +43,5 @@ Works on:
 ![GitHub Release Date](https://img.shields.io/github/release-date/rendayigit/registervisualizer)
 
 ![RegisterVisualizer7](https://github.com/rendayigit/RegisterVisualizer/assets/28491388/4db164fc-cc6e-42c3-98fd-d03d59de912a)
-![RegisterVisualizer_opening2](https://github.com/rendayigit/RegisterVisualizer/assets/28491388/39668861-797a-469e-9b8c-c51e6342650b)
+![rgvs](https://github.com/rendayigit/RegisterVisualizer/assets/28491388/aa76ec43-cf0f-49b3-85db-b9a7df38d58e)
+
